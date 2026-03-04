@@ -40,7 +40,8 @@ class AppManager():
             self.main_ui.central_widget.removeTab(0)
 
             self.logs_ui = LogsUI(self.username)
-            self.logs_ui.show_history_requested.connect(self.handle_new_history) # when a log is doubleclicked take information,create history_ui and send it to the appmanager
+            self.logs_ui.create_history_requested.connect(self.handle_create_new_history) # when a log is doubleclicked take information,create history_ui and send it to the appmanager
+            self.logs_ui.log_by_id_requested.connect(self.handle_log_by_id)
             self.logs_ui.logs_by_date_requested.connect(self.handle_logs_by_date) # when user asks for a spesific date log or a range of date
 
             self.operations_listing_ui = OperationsListingUI()
@@ -54,19 +55,23 @@ class AppManager():
 
     def handle_new_operation_request(self,operation_input : list):
         new_operation_ui = operation_input[0] # QWidget
-        new_operation_ui.calculation_success.connect(self.handle_log) # calculate button connection
+        new_operation_ui.calculation_success.connect(self.handle_new_log) # calculate button connection
         new_operation_name = operation_input[1] # str
         self.main_ui.add_new_operation_tab(new_operation_ui,new_operation_name) # add new_operation_ui to the main_ui.central_widget as a tab
 
-    def handle_log(self,log_input):
-        self.logs_ui.add_new_log(self.username,log_input) # when a calculation is done in the operation_ui all the variables is sent to the logs_ui
-        self.database_manager.save_log(self.username,log_input) # log is saved in the db
+    def handle_new_log(self,new_log : list):
+        db_id = self.database_manager.save_log(self.username,new_log) # log is saved in the db and db_id is returned for logs_ui
+        self.logs_ui.add_new_log(db_id,new_log) # when a calculation is done in the operation_ui all the variables is sent to the logs_ui
 
     def handle_logs_by_date(self,log_date : list):
-        logs_by_date = self.database_manager.brings_logs_by_date(self.username,log_date) # select * from logs where date ?
+        logs_by_date = self.database_manager.return_logs_by_date(self.username,log_date) # select * from logs where date between log_date
         self.logs_ui.show_logs_by_date(logs_by_date) # show logs within the logs_list
     
-    def handle_new_history(self,history_input : list):
+    def handle_log_by_id(self,db_id : str):
+        log_by_id = self.database_manager.return_log_by_id(db_id)
+        self.logs_ui.init_history_ui(log_by_id)
+
+    def handle_create_new_history(self,history_input : list):
         new_history_ui = history_input[0] # QWidget
         new_history_name = history_input[1] # History db_id
         self.main_ui.add_new_history_tab(new_history_ui,new_history_name) # add new_history_ui to the main_ui.central_widget as a tab

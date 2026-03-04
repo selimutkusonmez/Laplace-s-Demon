@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS history (
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     operation varchar(50) NOT NULL,
-    inputs TEXT NOT NULL,
+    variables varchar(255),
+    input_data TEXT NOT NULL,
     output TEXT NOT NULL,
     chart varchar(255)
 );
