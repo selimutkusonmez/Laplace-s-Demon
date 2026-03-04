@@ -1,12 +1,12 @@
 import importlib
 import os
-from PyQt6.QtCore import QSize,pyqtSignal
+from PyQt6.QtCore import QSize,pyqtSignal,Qt
 from PyQt6.QtWidgets import QWidget,QListWidget,QHBoxLayout,QListWidgetItem,QMessageBox
 from PyQt6.QtGui import QIcon
 
 from config import JPG_PATH
 
-class OperationsUI(QWidget):
+class OperationsListingUI(QWidget):
 
     new_operation_requested = pyqtSignal(list)
 
@@ -17,6 +17,10 @@ class OperationsUI(QWidget):
      
     def init_ui(self):
         
+        #object name and styling background permit granted
+        self.setObjectName("logs_ui")
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+
         #Layout created
         self.layout = QHBoxLayout()
         self.setLayout(self.layout)
@@ -154,7 +158,7 @@ class OperationsUI(QWidget):
             module = importlib.import_module(module_path)
             widget = module.OperationWidget(operation_name)
 
-            #module emitted to the appmanager
+            # OperationListingUI.new_operation_requested --> AppManager/MainUI
             self.new_operation_requested.emit([widget,operation_name])
 
         except Exception as e:

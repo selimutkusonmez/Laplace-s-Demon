@@ -1,8 +1,7 @@
 import sys
 import os
 import subprocess
-from PyQt6.QtWidgets import (
-     QApplication,QMainWindow,QMessageBox,QTabWidget,QStatusBar,QColorDialog)
+from PyQt6.QtWidgets import QApplication,QMainWindow,QMessageBox,QTabWidget,QStatusBar,QColorDialog,QWidget
 from PyQt6.QtGui import QAction,QActionGroup,QIcon
 from src.assets.style.style_reader.style_reader import read_style
 from config import JPG_PATH
@@ -164,15 +163,15 @@ class MainUI(QMainWindow):
         else:
             return
 
-
     # Central Widget Tab Close Function
     def central_widget_tab_close_function(self,index):
-        return
+        if index != 0 and index != 1:
+            self.central_widget.removeTab(index)
 
-    #Add New Operation Tab
-    def add_new_operation_tab(self,new_operation_ui,new_operation_name):
-        return
+    # OperationsListingUI/AppManager --> MainUI.add_new_operation_tab
+    def add_new_operation_tab(self, new_operation_ui : QWidget, new_operation_name : str):
+        self.central_widget.addTab(new_operation_ui,new_operation_name)
     
-    #Add New History Tab
-    def add_new_history_tab(self,new_history_ui,new_history_name):
-        return
+    # LogsUI/AppManager --> MainUI.add_new_history_tab
+    def add_new_history_tab(self, new_history_ui : QWidget ,new_history_name : str):
+        self.central_widget.addTab(new_history_ui,new_history_name)
