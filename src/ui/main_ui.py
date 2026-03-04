@@ -17,10 +17,12 @@ class MainUI(QMainWindow):
         self.dark_theme_action_function()
 
     def init_ui(self):
+        
         self.setMinimumSize(1000,550)
         self.setWindowTitle("Laplace's Demon")
         logo_path = os.path.join(JPG_PATH,"logo","logo.png")
         self.setWindowIcon(QIcon(logo_path))
+        self.setObjectName("main_ui")
 
         #Central Widget
         self.central_widget = QTabWidget()

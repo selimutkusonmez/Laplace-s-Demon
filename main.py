@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtWidgets import QApplication,QTabBar
-from src.ui import MainUI,LoginUI,LogsUI,DatabaseManager,HistoryUI,OperationListingUI
+from src.ui import MainUI,LoginUI,LogsUI,DatabaseManager,OperationListingUI
 
 class AppManager():
     def __init__(self):
@@ -18,9 +18,9 @@ class AppManager():
         self.main_ui.showMaximized()
         sys.exit(self.app.exec())
     
-    def handle_login(self,login_inputs):
-        self.username = login_inputs[0]
-        password = login_inputs[1]
+    def handle_login(self,login_signal):
+        self.username = login_signal[0]
+        password = login_signal[1]
         login_code = self.database_manager.check_login(self.username,password)
 
         if login_code == 0:
