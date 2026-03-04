@@ -1,6 +1,6 @@
 services:
   db:
-    image: posgres:15
+    image: postgres:15
     container_name: laplace_db
     environment:
       POSTGRES_USER: admin

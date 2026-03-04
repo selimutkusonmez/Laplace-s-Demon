@@ -6,10 +6,20 @@ class AppManager():
     def __init__(self):
         self.app = QApplication(sys.argv)
         self.main_ui = MainUI()
-        self.database_manager = DatabaseManager()
         self.login_ui = LoginUI()
         self.login_ui.login_signal.connect(self.handle_login)
         
+    def init_database_manager(self):
+        try:
+            self.database_manager = DatabaseManager()
+            docker_and_db = self.database_manager.start_docker_and_connect_db()
+            if docker_and_db:
+                self.init_main_ui()
+            else:
+                return
+        except Exception as e:
+            print(str(e))
+
     def init_main_ui(self):
 
         self.main_ui.central_widget.addTab(self.login_ui,"Login")
@@ -63,4 +73,4 @@ class AppManager():
 
 if __name__ == "__main__":
     manager = AppManager()
-    manager.init_main_ui()
+    manager.init_database_manager()

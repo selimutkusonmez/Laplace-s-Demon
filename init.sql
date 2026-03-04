@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
     password varchar(255) NOT NULL
 );
 
--- LOGS TABLE --
+-- HISTORY TABLE --
 
 CREATE TABLE IF NOT EXISTS history (
     id SERIAL PRIMARY KEY,
@@ -16,11 +16,9 @@ CREATE TABLE IF NOT EXISTS history (
     inputs TEXT NOT NULL,
     output TEXT NOT NULL,
     chart varchar(255)
-)
-
+);
 
 -- Users -- 
-
 INSERT INTO users (username,password)
 VALUES ('d','d')
 ON CONFLICT (username) DO NOTHING;

@@ -10,8 +10,9 @@ class LogsUI(QWidget):
 
     def __init__(self,username):
         super().__init__()
-        self.init_ui()
         self.username = username
+        self.init_ui()
+        
 
     def init_ui(self):
 
@@ -45,7 +46,7 @@ class LogsUI(QWidget):
         self.upper_groupbox_layout.addWidget(QLabel("Start Date :"))
         self.start_date = QDateEdit()
         self.start_date.setDate(today.addDays(-7))
-        self.start_date.calendarPopup(True)
+        self.start_date.setCalendarPopup(True)
         self.start_date.setMaximumDate(today)
         self.upper_groupbox_layout.addWidget(self.start_date)
 
@@ -94,16 +95,22 @@ class LogsUI(QWidget):
         # add logs came from operation_ui
     
     # DatabaseManager/AppManager --> LogsUI.show_logs_by_date
-    def show_logs_by_date(self):
+    def show_logs_by_date(self,logs : list):
         self.logs_list.clear()
         # add logs came from databasemanager
 
     # LogsUI.show_history_requested --> AppManager/MainUI
-    def init_history_ui(self,item):
+    def init_history_ui(self,item : QListWidgetItem):
         #get item text,info from item
         #create history ui
         #self.show_history_requested.emit([new_history_ui,log_db_id])
         return
+    
+    def refresh_logs_button_function(self):
+        return
+    
+    def clear_logs_button_function(self):
+        self.logs_list.clear()
     
     
     
