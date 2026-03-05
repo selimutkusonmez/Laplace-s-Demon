@@ -36,8 +36,10 @@ class BaseOperation(QWidget):
         self.left_groupbox.setLayout(self.left_groupbox_layout)
         self.layout.addWidget(self.left_groupbox)
 
+        self.left_groupbox.setFixedWidth(250)
+
         self.calculate_button = QPushButton("Calculate")
-        self.left_groupbox_layout.addWidget(self.calculate_button)
+        self.calculate_button.clicked.connect(self.handle_calculation)
 
 
         #Middle GroupBox
@@ -84,9 +86,13 @@ class BaseOperation(QWidget):
         self.right_groupbox.setLayout(self.right_groupbox_layout)
         self.layout.addWidget(self.right_groupbox)
 
+        self.right_groupbox.setFixedWidth(300)
+
         self.toggle_right = True
         self.toggle_left = True
 
+
+    # This is out Matplotlib.mathtext
     def render_latex(self, formula_string: str, font_size: int = 14):
         fig = plt.figure(figsize=(4, 1), dpi=150)
         fig.patch.set_alpha(0.0)
@@ -124,6 +130,11 @@ class BaseOperation(QWidget):
     # All childs must have calculate_function
     def calculate_function(self):
         raise NotImplementedError("Subclasses must implement this!")
+    
+    
+    def handle_calculation(self):
+        result = self.calculate_function()
+        self.calculation_success.emit(result)
 
 
     def toggle_left_function(self):
