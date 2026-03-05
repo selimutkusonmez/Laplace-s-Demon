@@ -14,6 +14,7 @@ class BaseOperation(QWidget):
         self.operation_name = operation_name
         self.init_ui()
 
+        # We set the timer 400ms before it starts to draw formula
         self.debounce_timer = QTimer()
         self.debounce_timer.setSingleShot(True)
         self.debounce_timer.setInterval(400)
@@ -30,20 +31,20 @@ class BaseOperation(QWidget):
 
 
         #Left GroupBox
-        self.left_groupbox = QGroupBox("Input")
+        self.left_groupbox = QGroupBox()
         self.left_groupbox.setProperty("class","left_groupbox")
         self.left_groupbox_layout = QGridLayout()
         self.left_groupbox.setLayout(self.left_groupbox_layout)
         self.layout.addWidget(self.left_groupbox)
 
-        self.left_groupbox.setFixedWidth(250)
+        self.left_groupbox.setFixedWidth(340)
 
         self.calculate_button = QPushButton("Calculate")
         self.calculate_button.clicked.connect(self.handle_calculation)
 
 
         #Middle GroupBox
-        self.middle_groupbox = QGroupBox("Formula")
+        self.middle_groupbox = QGroupBox()
         self.middle_groupbox.setProperty("class","middle_groupbox")
         self.middle_groupbox_layout = QVBoxLayout()
         self.middle_groupbox.setLayout(self.middle_groupbox_layout)
@@ -81,7 +82,7 @@ class BaseOperation(QWidget):
 
 
         #Right GroupBox
-        self.right_groupbox = QGroupBox("Information")
+        self.right_groupbox = QGroupBox()
         self.right_groupbox_layout = QGridLayout()
         self.right_groupbox.setLayout(self.right_groupbox_layout)
         self.layout.addWidget(self.right_groupbox)
@@ -131,12 +132,14 @@ class BaseOperation(QWidget):
     def calculate_function(self):
         raise NotImplementedError("Subclasses must implement this!")
     
-    
+
+    # OperationUI.calculate_function --> AppManager/DatabaseManager
     def handle_calculation(self):
         result = self.calculate_function()
         self.calculation_success.emit(result)
 
 
+    # Toggle Left Groupbox
     def toggle_left_function(self):
         if self.toggle_left is True:
             self.left_groupbox.hide()
@@ -145,6 +148,8 @@ class BaseOperation(QWidget):
             self.left_groupbox.show()
             self.toggle_left = True
 
+
+    # Toggle Right Groupbox
     def toggle_right_function(self):
         if self.toggle_right is True:
             self.right_groupbox.hide()
