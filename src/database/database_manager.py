@@ -64,16 +64,16 @@ class DatabaseManager():
         variables = new_log[0]
         input_data = new_log[0]
         output = new_log[0]
-        chart = new_log[0]
+
 
         try:
             query = """
-                    INSERT INTO history (user_id,date,operation,variables,input_data,output,chart)
+                    INSERT INTO history (user_id,date,operation,variables,input_data,output)
                     VALUES (
-                            (SELECT id FROM users WHERE username = %s), %s, %s, %s, %s, %s, %s
+                            (SELECT id FROM users WHERE username = %s), %s, %s, %s, %s, %s
                     ) RETURNING id;
                     """
-            self.cursor.execute(query, (username,date,operation,variables,input_data,output,chart))
+            self.cursor.execute(query, (username,date,operation,variables,input_data,output))
 
             self.conn.commit()
             db_id = self.cursor.fetchone()

@@ -15,8 +15,7 @@ CREATE TABLE IF NOT EXISTS history (
     operation varchar(50) NOT NULL,
     variables varchar(255),
     input_data TEXT NOT NULL,
-    output TEXT NOT NULL,
-    chart varchar(255)
+    output TEXT NOT NULL
 );
 
 -- Users -- 

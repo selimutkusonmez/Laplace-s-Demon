@@ -4,6 +4,7 @@ from PyQt6.QtCore import QSize,pyqtSignal,Qt
 from PyQt6.QtWidgets import QWidget,QListWidget,QHBoxLayout,QListWidgetItem,QMessageBox
 from PyQt6.QtGui import QIcon
 
+
 from config import JPG_PATH
 
 class OperationsListingUI(QWidget):
@@ -151,12 +152,15 @@ class OperationsListingUI(QWidget):
         file_name = operation_name.lower().replace(" ","_")
         
         #module_path glued together
-        module_path = f"modules.ui.operation_ui.{main_folder}.{sub_folder}.{file_name}"
+        module_path = f"src.ui.operation_ui.{main_folder}_operations_ui.{sub_folder}.{file_name}_ui"
+        print(module_path)
 
         try:
             #module imported
             module = importlib.import_module(module_path)
-            widget = module.OperationWidget(operation_name)
+            widget = module.OperationUI(operation_name)
+            print(module)
+            print(widget)
 
             # OperationListingUI.new_operation_requested --> AppManager/MainUI
             self.new_operation_requested.emit([widget,operation_name])

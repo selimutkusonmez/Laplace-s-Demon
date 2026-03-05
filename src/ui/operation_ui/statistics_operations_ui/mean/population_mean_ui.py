@@ -1,29 +1,16 @@
-            html_formul = f"""
-            <table align="center" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td valign="middle" style="padding-right: 10px;">
-                        <i>&mu;</i> = 
-                    </td>
-                    
-                    <td valign="middle">
-                        <table cellpadding="0" cellspacing="0">
-                            <tr>
-                                <td align="center" style="border-bottom: 2px solid currentColor; padding: 0px 8px;">
-                                    {self.variable_1}</sup>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align="center" style="padding: 4px 8px 0px 8px;">
-                                    {self.variable_2}</sup>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
+from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QLabel,QTextEdit
+from src.ui.operation_ui.base_operation_ui import BaseOperation
+from src.ui.drag_and_drop_text_edit.drag_and_drop_text_edit import DragAndDropTextEdit
 
-                    <td valign="middle" style="padding-left: 10px;">
-                        = {self.current_result}
-                    </td>
-                </tr>
-            </table>
-            """
-            self.dynamic_formula.setText(html_formul)
+class OperationUI(BaseOperation):
+    calculation_success = pyqtSignal(list)
+    def __init__(self, operation_name):
+        super().__init__(operation_name)
+
+        self.left_groupbox_layout.addWidget(QLabel("Data"))
+
+        self.data_input = DragAndDropTextEdit()
+        self.left_groupbox_layout.addWidget(self.data_input)
+
+        

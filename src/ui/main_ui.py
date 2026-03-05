@@ -170,7 +170,8 @@ class MainUI(QMainWindow):
 
     # OperationsListingUI/AppManager --> MainUI.add_new_operation_tab
     def add_new_operation_tab(self, new_operation_ui : QWidget, new_operation_name : str):
-        self.central_widget.addTab(new_operation_ui,new_operation_name)
+        index = self.central_widget.addTab(new_operation_ui,new_operation_name)
+        self.central_widget.setCurrentIndex(index)
     
     # LogsUI/AppManager --> MainUI.add_new_history_tab
     def add_new_history_tab(self, new_history_ui : QWidget ,new_history_name : str):

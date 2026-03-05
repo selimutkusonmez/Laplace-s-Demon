@@ -1,7 +1,6 @@
-import importlib
-import os
-from PyQt6.QtCore import QSize,pyqtSignal,Qt,QDate,QTime
-from PyQt6.QtWidgets import QWidget,QListWidget,QHBoxLayout,QListWidgetItem,QMessageBox,QVBoxLayout,QGroupBox,QLabel,QLineEdit,QDateEdit,QPushButton,QGridLayout
+
+from PyQt6.QtCore import QSize,pyqtSignal,Qt,QDate
+from PyQt6.QtWidgets import QWidget,QListWidget,QHBoxLayout,QListWidgetItem,QVBoxLayout,QGroupBox,QLabel,QDateEdit,QPushButton,QGridLayout
 from PyQt6.QtGui import QIcon
 
 
@@ -108,7 +107,6 @@ class LogsUI(QWidget):
         variables = new_log[0]
         input_data = new_log[0]
         output = new_log[0]
-        chart = new_log[0]
         log_text = f"{db_id} | {date} | {operation} | {variables}"
         log_item = QListWidgetItem(log_text)
         log_item.setData(Qt.ItemDataRole.UserRole,db_id)
