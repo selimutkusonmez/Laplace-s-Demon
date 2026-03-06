@@ -1,8 +1,8 @@
-from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem, QMessageBox
+from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem, QMessageBox,QAbstractItemView
 from PyQt6.QtGui import QPainter, QColor, QFont
 from PyQt6.QtCore import Qt, pyqtSignal
 import pandas as pd
-from src.logic.table_data_reader.data_reader import read_data
+from src.logic.table_data_loader.table_data_loader import load_table_data
 
 class DragAndDropTableWidget(QTableWidget):
     data_loaded = pyqtSignal(list)
@@ -11,6 +11,7 @@ class DragAndDropTableWidget(QTableWidget):
         super().__init__(parent)
         self.setAcceptDrops(True)
         self.is_dragging = False
+        QAbstractItemView.EditTrigger.NoEditTriggers
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -39,7 +40,7 @@ class DragAndDropTableWidget(QTableWidget):
             file_path = files[0].toLocalFile()
             
             try:
-                self.df = read_data(file_path, self)
+                self.df = load_table_data(file_path, self)
                 if  self.df is None:
                     return
                 
@@ -102,5 +103,15 @@ class DragAndDropTableWidget(QTableWidget):
                     value = str(val) if pd.notnull(val) else ""
                     self.setItem(i, j, QTableWidgetItem(value))
 
+        except Exception as e:
+            return
+        
+    def pull_colum_data(self,column_name : str) -> list:
+        try:
+            if column_name == "All":
+                return []
+            else:
+                data = list(self.df[column_name])
+                return data
         except Exception as e:
             return

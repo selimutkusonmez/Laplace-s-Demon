@@ -153,14 +153,11 @@ class OperationsListingUI(QWidget):
         
         #module_path glued together
         module_path = f"src.ui.operation_ui.{main_folder}_operations_ui.{sub_folder}.{file_name}_ui"
-        print(module_path)
 
         try:
             #module imported
             module = importlib.import_module(module_path)
             widget = module.OperationUI(operation_name)
-            print(module)
-            print(widget)
 
             # OperationListingUI.new_operation_requested --> AppManager/MainUI
             self.new_operation_requested.emit([widget,operation_name])

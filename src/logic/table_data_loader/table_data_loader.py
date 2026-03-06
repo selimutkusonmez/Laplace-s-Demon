@@ -1,7 +1,7 @@
 import pandas as pd
 from PyQt6.QtWidgets import QMessageBox,QTableWidget
 
-def read_data(file_path : str, parent_widget : QTableWidget) -> pd.DataFrame:
+def load_table_data(file_path : str, parent_widget : QTableWidget) -> pd.DataFrame:
 
     if file_path.endswith((".csv",".tsv",".txt")):
         try:

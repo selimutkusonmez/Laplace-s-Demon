@@ -65,7 +65,19 @@ class OperationUI(BaseOperation):
         return
     
     def calculate_function(self):
+        index = self.inputs_tab_widget.currentIndex()
+        if index == 0:
+            data = self.text_data_input.pull_text_data()
+            print(data)
+        else:
+            data = self.table_data_input.pull_colum_data(self.column_picker.currentText())
+            print(data)
+
+        result = DemonEngine(self.operation_name,data)
+        self.update_display()
         return
+            
+
     
     # DragAndDropTableWidget.df.columns --> OperationUI.load_column_names
     def load_column_names(self,columns : list):
