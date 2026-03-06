@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem, QMessageBox,QAbstractItemView
+from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem, QMessageBox,QAbstractItemView,QTableView
 from PyQt6.QtGui import QPainter, QColor, QFont
 from PyQt6.QtCore import Qt, pyqtSignal
 import pandas as pd
