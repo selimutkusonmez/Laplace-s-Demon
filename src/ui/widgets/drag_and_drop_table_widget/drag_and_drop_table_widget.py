@@ -53,10 +53,10 @@ class DragAndDropTableView(QTableView):
                     self.data_loaded.emit(list(self.df.columns))
 
             except Exception as e:
-                QMessageBox.critical(
+                QMessageBox.warning(
                     self, 
                     "System Error", 
-                    f"Could not populate table: {str(e)}"
+                    "Could not populate table"
                 )
 
     def paintEvent(self, event):
@@ -80,15 +80,19 @@ class DragAndDropTableView(QTableView):
     # OperationUI.column_picker.currentText() --> DragAndDropTableWidget.load_column_data
     def load_column_data(self,column_name : str):
         try:
+
+            #If column_picker.currentText() = "All" show all data
             if column_name == "All":
                 data = self.df
             else:
+                #If null in data
                 if self.df[column_name].isnull().any():
                             QMessageBox.warning(
                                     self,
                                     "Invalid Data",
-                                    f"Error: The column '{column_name}' contains null and cannot be used for mathematical operations."
+                                    f"Error: The column '{column_name}' contains null data and cannot be used for mathematical operations."
                                 )
+                #If text data in data
                 elif not pd.api.types.is_numeric_dtype(self.df[column_name]):
                                 QMessageBox.warning(
                                     self,
@@ -103,22 +107,24 @@ class DragAndDropTableView(QTableView):
             self.setModel(table_model)
 
         except Exception as e:
-                QMessageBox.critical(
+                QMessageBox.warning(
                     self,
                     "System Error",
-                    f"An unexpected error occurred while loading the column:"
+                    "An unexpected error occurred while loading the column"
                 )
-                print(str(e))
         
     def pull_colum_data(self,column_name : str) -> list:
         try:
+            #If column_picker.currentText() = "All" return empty list
             if column_name == "All":
                 return []
             else:
+                #Make python list from column_data
                 data = list(self.df[column_name])
+                #If text data in column_data return empty list
                 if not pd.api.types.is_numeric_dtype(self.df[column_name]):
                     return []
                 else:
                     return data
-        except Exception as e:
+        except:
             return

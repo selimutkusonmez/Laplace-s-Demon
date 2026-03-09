@@ -5,6 +5,7 @@ import io
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from src.engine.demon_engine import DemonEngine
 
 class BaseOperation(QWidget):
     calculation_success = pyqtSignal(list)
@@ -12,6 +13,7 @@ class BaseOperation(QWidget):
     def __init__(self, operation_name : str):
         super().__init__()
         self.operation_name = operation_name
+        self.demon_engine = DemonEngine()
         self.init_ui()
 
         # We set the timer 400ms before it starts to draw formula
@@ -19,6 +21,8 @@ class BaseOperation(QWidget):
         self.debounce_timer.setSingleShot(True)
         self.debounce_timer.setInterval(400)
         self.debounce_timer.timeout.connect(self.update_display)
+
+
     
     def init_ui(self):
 
@@ -26,9 +30,6 @@ class BaseOperation(QWidget):
         self.setLayout(self.layout)
 
         self.setObjectName("operation_widget")
-
-        self.current_result = "<i>Waiting...<i>"
-
 
         #Left GroupBox
         self.left_groupbox = QGroupBox()
@@ -117,12 +118,6 @@ class BaseOperation(QWidget):
         
         self.dynamic_formula.setPixmap(scaled_pixmap)
 
-
-    # All childs must have reset_and_update_display
-    def reset_and_update_display(self):
-        raise NotImplementedError("Subclasses must implement this!")
-
-
     # All childs must have update_display
     def update_display(self):
         raise NotImplementedError("Subclasses must implement this!")
@@ -136,7 +131,10 @@ class BaseOperation(QWidget):
     # OperationUI.calculate_function --> AppManager/DatabaseManager
     def handle_calculation(self):
         result = self.calculate_function()
-        self.calculation_success.emit(result)
+        if result is False:
+            return
+        else:
+            self.calculation_success.emit(result)
 
 
     # Toggle Left Groupbox

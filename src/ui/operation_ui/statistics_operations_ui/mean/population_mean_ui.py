@@ -1,36 +1,54 @@
-from PyQt6.QtWidgets import QLabel,QTextEdit,QTabWidget,QVBoxLayout,QWidget,QComboBox
+from PyQt6.QtWidgets import QLabel,QTextEdit,QTabWidget,QVBoxLayout,QWidget,QComboBox,QPushButton,QMessageBox
+import pandas as pd
 
 from src.ui.operation_ui.base_operation_ui import BaseOperation
 
 from src.ui.widgets.drag_and_drop_text_edit.drag_and_drop_text_edit import DragAndDropTextEdit
 from src.ui.widgets.drag_and_drop_table_widget.drag_and_drop_table_widget import DragAndDropTableView
+from src.ui.widgets.drag_and_drop_table_widget.table_model.table_model import TableModel
 
-from src.engine.demon_engine import DemonEngine
 
 class OperationUI(BaseOperation):
     def __init__(self, operation_name):
         super().__init__(operation_name)       
 
         self.inputs_tab_widget = QTabWidget()
+        self.left_groupbox_layout.addWidget(self.inputs_tab_widget)
+
+        #Text Tab
+        self.text_tab = QWidget()
+        self.text_tab_layout = QVBoxLayout()
+        self.text_tab.setLayout(self.text_tab_layout)
 
         self.text_data_input = DragAndDropTextEdit()
-        self.inputs_tab_widget.addTab(self.text_data_input,"Text Data")
+        self.text_tab_layout.addWidget(self.text_data_input)
 
-        self.table_layout = QVBoxLayout()
-        self.table_widget = QWidget()
-        self.table_widget.setLayout(self.table_layout)
+        self.reset_text_data_input_button = QPushButton("Reset Input")
+        self.reset_text_data_input_button.clicked.connect(self.reset_text_data_input_function)
+        self.text_tab_layout.addWidget(self.reset_text_data_input_button)
+
+        self.inputs_tab_widget.addTab(self.text_tab,"Text Data")
+
+
+        #Table Tab
+        self.table_tab = QWidget()
+        self.table_tab_layout = QVBoxLayout()
+        self.table_tab.setLayout(self.table_tab_layout)
 
         self.column_picker = QComboBox()
-        self.column_picker.currentTextChanged.connect(self.column_chosen)
-        self.table_layout.addWidget(self.column_picker)
+        self.column_picker.activated.connect(self.column_chosen)
+        self.table_tab_layout.addWidget(self.column_picker)
 
         self.table_data_input = DragAndDropTableView()
         self.table_data_input.data_loaded.connect(self.load_column_names)
-        self.table_layout.addWidget(self.table_data_input)
+        self.table_tab_layout.addWidget(self.table_data_input)
 
-        self.inputs_tab_widget.addTab(self.table_widget,"Table Data")
+        self.reset_table_data_input_button = QPushButton("Reset Input")
+        self.reset_table_data_input_button.clicked.connect(self.reset_table_data_input_function)
+        self.table_tab_layout.addWidget(self.reset_table_data_input_button)
 
-        self.left_groupbox_layout.addWidget(self.inputs_tab_widget)
+        self.inputs_tab_widget.addTab(self.table_tab,"Table Data")
+
 
         self.left_groupbox_layout.addWidget(self.calculate_button)
 
@@ -56,29 +74,30 @@ class OperationUI(BaseOperation):
         self.variable_3_info.setReadOnly(True)
         self.right_groupbox_layout.addWidget(self.variable_3_info,2,1)
 
-        self.text_data_input.textChanged.connect(self.reset_and_update_display)
-        self.inputs_tab_widget.currentChanged.connect(self.reset_and_update_display)
+        self.text_data_input.textChanged.connect(self.update_display)
+        self.inputs_tab_widget.currentChanged.connect(self.update_display)
         
 
         self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$")
 
         self.data = []
         self.table_data = False
-
-    def reset_and_update_display(self):
-        self.current_result = "Waiting..."
-        self.update_display()
     
     def update_display(self):
-
+        #Get currentIndex from inputs_tab_widget
         index = self.inputs_tab_widget.currentIndex()
         if index == 0:
+            #If Text Data tab is chosen call pull_text_data
             self.data = self.text_data_input.pull_text_data()
             self.population_sum = sum(self.data)
             self.population_size = len(self.data)
         else:
+            #If Table Data is chosen
+            #If column_chosen called and table_data is True
             if self.table_data:
+                #Call pull_column_data
                 self.data = self.table_data_input.pull_colum_data(self.column_picker.currentText())
+                #If data is an empty list caused by text data or another reason
                 if self.data == []:
                     self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$")
                 else:
@@ -86,17 +105,36 @@ class OperationUI(BaseOperation):
                     self.population_size = len(self.data)
             else:return
 
+        #If no self data or self data is and empty list caused by any error
         if self.data == []:
             self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$")
         
         else:
-            self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = {{{self.current_result}}}$")
+            self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = Waiting...$")
 
-
+    # self.calculate_function --> BaseOperation.handle_calculation --> AppManager/DatabaseManager and AppManager/LogsUI
     def calculate_function(self):
-        result = DemonEngine(self.operation_name,[self.population_sum,self.population_size])
-        self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = {{{result}}}$")
-            
+        try:
+            result = self.demon_engine.calculate(self.operation_name,[self.population_sum,self.population_size])
+            self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = {{{result:.4f}}}$")
+            return [self.operation_name]
+        
+        #If no or missing input
+        except AttributeError:
+            QMessageBox.warning(
+                self,
+                "No Data",
+                "Please remember to fill all the inputs"
+            )
+            return [False]
+        
+        except ZeroDivisionError:
+            QMessageBox.warning(
+                self,
+                "No Data",
+                "Please remember to fill all the inputs"
+            )
+            return [False]
 
     # DragAndDropTableWidget.df.columns --> OperationUI.load_column_names
     def load_column_names(self,columns : list):
@@ -116,12 +154,28 @@ class OperationUI(BaseOperation):
                 self.population_sum = sum(self.data)
                 self.population_size = len(self.data)
                 self.table_data = True
-                self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = {{{self.current_result}}}$")
+                self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = Waiting...$")
         except:
             return
-            
-
-    
-
-
         
+    #Clear Text Data and delete variables
+    def reset_text_data_input_function(self):
+        self.text_data_input.setText("")
+        if hasattr(self,"population_sum") and hasattr(self,"population_size"):
+            del self.population_sum
+            del self.population_size
+        else:
+            return
+
+    #Set and empty df model to the table_data_input clear column_picker and delete variables
+    def reset_table_data_input_function(self):
+        self.table_data_input.setModel(TableModel(pd.DataFrame()))
+        self.column_picker.clear()
+        self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$")
+        self.table_data = False
+        if hasattr(self,"population_sum") and hasattr(self,"population_size"):
+            del self.population_sum
+            del self.population_size
+        else:
+            return
+            

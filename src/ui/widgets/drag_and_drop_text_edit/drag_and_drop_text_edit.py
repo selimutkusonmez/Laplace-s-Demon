@@ -53,13 +53,18 @@ class DragAndDropTextEdit(QTextEdit):
             )
             painter.end()
 
+
     def pull_text_data(self):
         try:
+            #Get text from self
             text = self.toPlainText()
 
+            #Replace newlines with commas
             text = text.replace("\n",",")
+            #Split data by comma
             raw_items = text.split(",")
             
+            #Float data
             valid_numbers = []
             for item in raw_items:
                 cleaned_item = item.strip()
