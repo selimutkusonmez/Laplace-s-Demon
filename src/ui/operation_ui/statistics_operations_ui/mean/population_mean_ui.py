@@ -1,9 +1,9 @@
-from PyQt6.QtWidgets import QLabel,QTextEdit,QTabWidget,QVBoxLayout,QWidget,QComboBox,qAbstra
+from PyQt6.QtWidgets import QLabel,QTextEdit,QTabWidget,QVBoxLayout,QWidget,QComboBox
 
 from src.ui.operation_ui.base_operation_ui import BaseOperation
 
-from src.ui.drag_and_drop_text_edit.drag_and_drop_text_edit import DragAndDropTextEdit
-from src.ui.drag_and_drop_table_widget.drag_and_drop_table_widget import DragAndDropTableWidget
+from src.ui.widgets.drag_and_drop_text_edit.drag_and_drop_text_edit import DragAndDropTextEdit
+from src.ui.widgets.drag_and_drop_table_widget.drag_and_drop_table_widget import DragAndDropTableView
 
 from src.engine.demon_engine import DemonEngine
 
@@ -24,7 +24,7 @@ class OperationUI(BaseOperation):
         self.column_picker.currentTextChanged.connect(self.column_chosen)
         self.table_layout.addWidget(self.column_picker)
 
-        self.table_data_input = DragAndDropTableWidget()
+        self.table_data_input = DragAndDropTableView()
         self.table_data_input.data_loaded.connect(self.load_column_names)
         self.table_layout.addWidget(self.table_data_input)
 
@@ -33,7 +33,6 @@ class OperationUI(BaseOperation):
         self.left_groupbox_layout.addWidget(self.inputs_tab_widget)
 
         self.left_groupbox_layout.addWidget(self.calculate_button)
-
 
         # Variables Info
         self.variable_1_info_label = QLabel("<i><b>&mu;</b></i>")
@@ -58,7 +57,8 @@ class OperationUI(BaseOperation):
         self.right_groupbox_layout.addWidget(self.variable_3_info,2,1)
 
         self.text_data_input.textChanged.connect(self.reset_and_update_display)
-        self.table_data_input.itemChanged.connect(self.reset_and_update_display)
+        self.inputs_tab_widget.currentChanged.connect(self.reset_and_update_display)
+        
 
         self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$")
 
@@ -79,8 +79,12 @@ class OperationUI(BaseOperation):
         else:
             if self.table_data:
                 self.data = self.table_data_input.pull_colum_data(self.column_picker.currentText())
-                self.population_sum = sum(self.data)
-                self.population_size = len(self.data)
+                if self.data == []:
+                    self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$")
+                else:
+                    self.population_sum = sum(self.data)
+                    self.population_size = len(self.data)
+            else:return
 
         if self.data == []:
             self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$")
@@ -99,18 +103,23 @@ class OperationUI(BaseOperation):
         self.column_picker.clear()
         self.column_picker.addItem("All")
         self.column_picker.addItems(columns)
-        self.column_picker.setCurrentIndex(1)
 
     # OperationUI.column_picker.currentText() --> DragAndDropTableWidget.load_column_data
     def column_chosen(self):
-        column = self.column_picker.currentText()
-        self.table_data_input.load_column_data(column)
-        self.data = self.table_data_input.pull_colum_data(self.column_picker.currentText())
-        self.population_sum = sum(self.data)
-        self.population_size = len(self.data)
-        self.table_data = True
-        self.reset_and_update_display()
-        
+        try:
+            column_name = self.column_picker.currentText()
+            self.table_data_input.load_column_data(column_name)
+            self.data = self.table_data_input.pull_colum_data(column_name)
+            if self.data == []:
+                self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$")
+            else:
+                self.population_sum = sum(self.data)
+                self.population_size = len(self.data)
+                self.table_data = True
+                self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = {{{self.current_result}}}$")
+        except:
+            return
+            
 
     
 

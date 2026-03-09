@@ -6,12 +6,15 @@ def load_table_data(file_path : str, parent_widget : QTableWidget) -> pd.DataFra
     if file_path.endswith((".csv",".tsv",".txt")):
         try:
             return pd.read_csv(file_path,sep=None,engine="python")
+        
         except Exception as e:
             QMessageBox.critical(
                 parent_widget, 
                 "System Error", 
-                f"Could not read the file : {str(e)}")
+                f"Could not read the file")
+            print(str(e))
             return None
+        
     elif file_path.endswith(".json"):
         try:
             df = pd.read_json(file_path)
@@ -42,5 +45,6 @@ def load_table_data(file_path : str, parent_widget : QTableWidget) -> pd.DataFra
             QMessageBox.critical(
                 parent_widget, 
                 "System Error", 
-                f"Could not read EXCEL file : {str(e)}")
+                f"Could not read EXCEL file")
+            print(str(e))
             return None

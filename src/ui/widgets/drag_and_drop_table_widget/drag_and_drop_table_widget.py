@@ -3,8 +3,9 @@ from PyQt6.QtGui import QPainter, QColor, QFont
 from PyQt6.QtCore import Qt, pyqtSignal
 import pandas as pd
 from src.logic.table_data_loader.table_data_loader import load_table_data
+from src.ui.widgets.drag_and_drop_table_widget.table_model.table_model import TableModel
 
-class DragAndDropTableWidget(QTableWidget):
+class DragAndDropTableView(QTableView):
     data_loaded = pyqtSignal(list)
 
     def __init__(self, parent=None):
@@ -41,22 +42,15 @@ class DragAndDropTableWidget(QTableWidget):
             
             try:
                 self.df = load_table_data(file_path, self)
-                if  self.df is None:
+                if self.df is None:
                     return
                 
-                rows, columns =  self.df.shape
-                self.setRowCount(rows)
-                self.setColumnCount(columns)
-                self.setHorizontalHeaderLabels( self.df.columns.astype(str))
-                self.setVerticalHeaderLabels( self.df.index.astype(str))
-                        
-                for i in range(rows):
-                    for j in range(columns):
-                        val =  self.df.iloc[i, j]
-                        value = str(val) if pd.notnull(val) else ""
-                        self.setItem(i, j, QTableWidgetItem(value))
-                
-                self.data_loaded.emit(list(self.df.columns))
+                else:
+                    table_model = TableModel(self.df)
+                    
+                    self.setModel(table_model)
+                    
+                    self.data_loaded.emit(list(self.df.columns))
 
             except Exception as e:
                 QMessageBox.critical(
@@ -89,22 +83,32 @@ class DragAndDropTableWidget(QTableWidget):
             if column_name == "All":
                 data = self.df
             else:
-                data =  self.df[[column_name]]
+                if self.df[column_name].isnull().any():
+                            QMessageBox.warning(
+                                    self,
+                                    "Invalid Data",
+                                    f"Error: The column '{column_name}' contains null and cannot be used for mathematical operations."
+                                )
+                elif not pd.api.types.is_numeric_dtype(self.df[column_name]):
+                                QMessageBox.warning(
+                                    self,
+                                    "Invalid Data",
+                                    f"Error: The column '{column_name}' contains text and cannot be used for mathematical operations."
+                                )
+                                
+                data = self.df[[column_name]]
+                
 
-            rows, columns =  data.shape
-            self.setRowCount(rows)
-            self.setColumnCount(columns)
-            self.setHorizontalHeaderLabels( data.columns.astype(str))
-            self.setVerticalHeaderLabels( data.index.astype(str))
-                        
-            for i in range(rows):
-                for j in range(columns):
-                    val =  data.iloc[i, j]
-                    value = str(val) if pd.notnull(val) else ""
-                    self.setItem(i, j, QTableWidgetItem(value))
+            table_model = TableModel(data)
+            self.setModel(table_model)
 
         except Exception as e:
-            return
+                QMessageBox.critical(
+                    self,
+                    "System Error",
+                    f"An unexpected error occurred while loading the column:"
+                )
+                print(str(e))
         
     def pull_colum_data(self,column_name : str) -> list:
         try:
@@ -112,6 +116,9 @@ class DragAndDropTableWidget(QTableWidget):
                 return []
             else:
                 data = list(self.df[column_name])
-                return data
+                if not pd.api.types.is_numeric_dtype(self.df[column_name]):
+                    return []
+                else:
+                    return data
         except Exception as e:
             return

@@ -28,7 +28,6 @@ class DatabaseManager():
         try:
             subprocess.run(["docker-compose","up","-d"],check=True)
         except Exception as e:
-            print(f"❌ Critical Error: Failed to execute Docker command! Error: {e}")
             print("Please Start Docker App First")
             return False
 
