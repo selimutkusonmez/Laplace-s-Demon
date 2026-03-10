@@ -39,7 +39,8 @@ class AppManager():
         else:
             self.main_ui.central_widget.removeTab(0)
 
-            self.logs_ui = LogsUI(self.username)
+            self.log_count = self.database_manager.count_logs(self.username) # We ask DatabaseManager how many logs under the name of self.username
+            self.logs_ui = LogsUI(self.username,self.log_count)
             self.logs_ui.create_history_requested.connect(self.handle_create_new_history) #create history_ui and send it to the appmanager
             self.logs_ui.log_by_id_requested.connect(self.handle_log_by_id) # when a log is doubleclicked take information
             self.logs_ui.logs_by_date_requested.connect(self.handle_logs_by_date) # when user asks for a spesific date log or a range of date

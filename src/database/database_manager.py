@@ -57,13 +57,13 @@ class DatabaseManager():
             self.conn.rollback()
             return f"Error: {str(e)}"
         
-    def save_log(self,username : str, new_log : list) -> str: 
+    # NewOperationUI.calculation_success --> AppManager --> DatabaseManager.save_log --> AppManager --> LogsUI.add_new_log
+    def save_log(self,username : str, new_log : list) -> str:
         date = new_log[0]
-        operation = new_log[0]
-        variables = new_log[0]
-        input_data = new_log[0]
-        output = new_log[0]
-
+        operation = new_log[1]
+        variables = new_log[2]
+        input_data = new_log[3]
+        output = new_log[4]
 
         try:
             query = """
@@ -87,22 +87,26 @@ class DatabaseManager():
             print(str(e))
             return f"Error : {str(e)}"
             
-        
+    # LogsUI.logs_button_function.logs_by_date_requested --> AppManager --> DatabaseManager.return_logs_by_date --> AppManager --> LogsUI.show_logs_by_date
     def return_logs_by_date(self,username,log_date) -> list:
+        print(log_date)
         try:
             query = """
-                    SELECT (id,date,operation,variables) FROM history
+                    SELECT id,date,operation,variables FROM history
                     WHERE user_id = (SELECT id FROM users WHERE username = %s)
                     AND date::date BETWEEN %s AND %s ORDER BY date DESC
                     """
             self.cursor.execute(query,(username,log_date[0],log_date[1]))
             log_by_date_data = self.cursor.fetchall()
+            print(log_by_date_data)
             return log_by_date_data
         
         except Exception as e:
             print(str(e))
             return f"Error : {str(e)}"
         
+
+    #LogsUI.show_log_by_id.log_by_id_requested --> AppManager --> DatabaseManager_return_log_by_id --> AppManager --> LogsUI.init_history_ui    
     def return_log_by_id(self,db_id : str) -> list:
         try:
             query = """
@@ -115,7 +119,19 @@ class DatabaseManager():
             print(str(e))
             return f"Error : {str(e)}"
 
-    
+    def count_logs(self,username):
+        try:
+            query = """
+            SELECT COUNT(user_id) FROM history
+            WHERE user_id = (SELECT id FROM users WHERE username = %s)
+            """
+            self.cursor.execute(query, (username,))
+            total_count = self.cursor.fetchone()[0]
+            return total_count
+        except Exception as e:
+            print(str(e))
+
+
     def __del__(self):
         if hasattr(self, 'conn') and self.conn is not None:
             self.conn.close()    

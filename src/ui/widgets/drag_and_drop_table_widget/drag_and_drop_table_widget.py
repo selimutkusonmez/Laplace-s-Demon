@@ -122,7 +122,9 @@ class DragAndDropTableView(QTableView):
                 #Make python list from column_data
                 data = list(self.df[column_name])
                 #If text data in column_data return empty list
-                if not pd.api.types.is_numeric_dtype(self.df[column_name]):
+                if self.df[column_name].isnull().any():
+                    return []
+                elif not pd.api.types.is_numeric_dtype(self.df[column_name]):
                     return []
                 else:
                     return data

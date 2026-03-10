@@ -99,7 +99,7 @@ class BaseOperation(QWidget):
         fig = plt.figure(figsize=(4, 1), dpi=300)
         fig.patch.set_alpha(0.0)
         
-        fig.text(0.3, 0.3, formula_string, fontsize=font_size, ha='center', va='center', math_fontfamily='cm')
+        fig.text(0.5, 0.5, formula_string, fontsize=font_size, ha='center', va='center', math_fontfamily='cm')
         
         buf = io.BytesIO()
         plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1, transparent=True)
@@ -131,7 +131,7 @@ class BaseOperation(QWidget):
     # OperationUI.calculate_function --> AppManager/DatabaseManager
     def handle_calculation(self):
         result = self.calculate_function()
-        if result is False:
+        if False in result:
             return
         else:
             self.calculation_success.emit(result)

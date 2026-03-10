@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QLabel,QTextEdit,QTabWidget,QVBoxLayout,QWidget,QComboBox,QPushButton,QMessageBox
 import pandas as pd
+import datetime
 
 from src.ui.operation_ui.base_operation_ui import BaseOperation
 
@@ -112,12 +113,19 @@ class OperationUI(BaseOperation):
         else:
             self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = Waiting...$")
 
-    # self.calculate_function --> BaseOperation.handle_calculation --> AppManager/DatabaseManager and AppManager/LogsUI
+    # self.calculate_function --> BaseOperation.handle_calculation --> AppManager --> DatabaseManager.save_log / LogsUI.add_new_log
     def calculate_function(self):
         try:
             result = self.demon_engine.calculate(self.operation_name,[self.population_sum,self.population_size])
             self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = {{{result:.4f}}}$")
-            return [self.operation_name]
+            log = [
+                datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                self.operation_name,
+                f"Population Sum : {self.population_sum}, Population Size : {self.population_size}",
+                "input_data",
+                result
+                ]
+            return log
         
         #If no or missing input
         except AttributeError:
