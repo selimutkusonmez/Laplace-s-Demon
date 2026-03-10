@@ -4,7 +4,7 @@ from PyQt6.QtGui import QPixmap
 from src.ui.operation_ui.base_history_ui import BaseHistoryUI
 
 
-class MeanHistoryUI(BaseHistoryUI):
+class AnovaHistoryUI(BaseHistoryUI):
     def __init__(self, db_id, date, operation, variables, input_data, output):
         super().__init__(db_id, date, operation, variables, input_data, output)
 

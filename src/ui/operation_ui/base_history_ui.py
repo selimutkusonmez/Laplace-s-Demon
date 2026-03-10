@@ -47,6 +47,7 @@ class BaseHistoryUI(QWidget):
         self.upper_groupbox_layout.addStretch()
 
         self.export_to_pdf_button = QPushButton("EXPORT")
+        self.export_to_pdf_button.clicked.connect(self.export_to_pdf_function)
         self.upper_groupbox_layout.addWidget(self.export_to_pdf_button)
 
         self.layout.addStretch()
@@ -109,6 +110,9 @@ class BaseHistoryUI(QWidget):
         else:
             self.lower_groupbox.show()
             self.toggle_lower = True
+
+    def export_to_pdf_function(self):
+        raise NotImplementedError("Subclasses must implement this!")
 
 
 

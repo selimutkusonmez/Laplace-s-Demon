@@ -110,14 +110,14 @@ class BaseOperation(QWidget):
         pixmap = QPixmap()
         pixmap.loadFromData(buf.getvalue())
         
-        scaled_pixmap = pixmap.scaled(
+        self.scaled_pixmap = pixmap.scaled(
             self.middle_groupbox.width() - 20,
             self.middle_groupbox.height() - 100,
             Qt.AspectRatioMode.KeepAspectRatio,
             Qt.TransformationMode.SmoothTransformation
         )
         
-        self.dynamic_formula.setPixmap(scaled_pixmap)
+        self.dynamic_formula.setPixmap(self.scaled_pixmap)
 
     # All childs must have update_display
     def update_display(self):

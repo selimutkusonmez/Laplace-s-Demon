@@ -11,7 +11,7 @@ from src.ui.widgets.drag_and_drop_table_widget.table_model.table_model import Ta
 
 class OperationUI(BaseOperation):
     def __init__(self, operation_name):
-        super().__init__(operation_name)       
+        super().__init__(operation_name)
 
         self.inputs_tab_widget = QTabWidget()
         self.left_groupbox_layout.addWidget(self.inputs_tab_widget)
@@ -123,7 +123,7 @@ class OperationUI(BaseOperation):
                 self.operation_name,
                 f"Population Sum : {self.population_sum}, Population Size : {self.population_size}",
                 "input_data",
-                result
+                self.scaled_pixmap
                 ]
             return log
         
