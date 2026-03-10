@@ -89,7 +89,6 @@ class DatabaseManager():
             
     # LogsUI.logs_button_function.logs_by_date_requested --> AppManager --> DatabaseManager.return_logs_by_date --> AppManager --> LogsUI.show_logs_by_date
     def return_logs_by_date(self,username,log_date) -> list:
-        print(log_date)
         try:
             query = """
                     SELECT id,date,operation,variables FROM history
@@ -98,7 +97,6 @@ class DatabaseManager():
                     """
             self.cursor.execute(query,(username,log_date[0],log_date[1]))
             log_by_date_data = self.cursor.fetchall()
-            print(log_by_date_data)
             return log_by_date_data
         
         except Exception as e:
@@ -112,9 +110,10 @@ class DatabaseManager():
             query = """
                     SELECT * FROM history WHERE id = %s
                     """
-            self.cursor.execute(query,(db_id))
+            self.cursor.execute(query,(db_id,))
             log_by_id_data = self.cursor.fetchall()
-            return log_by_id_data
+            print(log_by_id_data[0])
+            return log_by_id_data[0]
         except Exception as e:
             print(str(e))
             return f"Error : {str(e)}"

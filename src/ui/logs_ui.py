@@ -2,6 +2,7 @@
 from PyQt6.QtCore import QSize,pyqtSignal,Qt,QDate
 from PyQt6.QtWidgets import QWidget,QListWidget,QHBoxLayout,QListWidgetItem,QVBoxLayout,QGroupBox,QLabel,QDateEdit,QPushButton,QGridLayout
 from PyQt6.QtGui import QIcon
+from src.ui.operation_ui.base_history_ui import BaseHistoryUI
 
 
 class LogsUI(QWidget):
@@ -19,7 +20,7 @@ class LogsUI(QWidget):
     def init_ui(self):
 
         #object name and styling background permit granted
-        self.setObjectName("logs_ui")
+        self.setProperty("class","ui")
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
 
         #layout created and set
@@ -67,22 +68,24 @@ class LogsUI(QWidget):
         self.logs_button.clicked.connect(self.logs_button_function)
         self.upper_groupbox_layout.addWidget(self.logs_button)
 
-        #bottom_groupbox and it's layout created and added to layout
-        self.bottom_groupbox = QGroupBox()
-        self.bottom_groupbox_layout = QGridLayout()
-        self.bottom_groupbox.setLayout(self.bottom_groupbox_layout)
-        self.layout.addWidget(self.bottom_groupbox)
+        #lower_groupbox and it's layout created and added to layout
+        self.lower_groupbox = QGroupBox()
+        self.lower_groupbox_layout = QGridLayout()
+        self.lower_groupbox.setLayout(self.lower_groupbox_layout)
+        self.layout.addWidget(self.lower_groupbox)
 
         self.logs_list = QListWidget()
-        self.bottom_groupbox_layout.addWidget(self.logs_list,0,0,1,2)
+        self.logs_list.setProperty("class","list")
+        self.logs_list.itemDoubleClicked.connect(self.show_log_by_id)
+        self.lower_groupbox_layout.addWidget(self.logs_list,0,0,1,2)
 
         self.refresh_logs_button = QPushButton("Show Current Session Logs")
         self.refresh_logs_button.clicked.connect(self.show_current_session_logs_function)
-        self.bottom_groupbox_layout.addWidget(self.refresh_logs_button,1,0)
+        self.lower_groupbox_layout.addWidget(self.refresh_logs_button,1,0)
 
         self.clear_logs_button = QPushButton("Clear Logs")
         self.clear_logs_button.clicked.connect(self.clear_logs_button_function)
-        self.bottom_groupbox_layout.addWidget(self.clear_logs_button,1,1)
+        self.lower_groupbox_layout.addWidget(self.clear_logs_button,1,1)
 
         self.current_session_logs = []
 
@@ -122,9 +125,9 @@ class LogsUI(QWidget):
     # LogsUI.show_log_by_id.log_by_id_requested --> AppManager --> DatabaseManager_return_log_by_id --> AppManager --> LogsUI.show_log_by_id
     def show_log_by_id(self,item : QListWidgetItem):
         db_id = item.data(Qt.ItemDataRole.UserRole)
-        self.log_by_id_requested.emit(db_id)
+        self.log_by_id_requested.emit(str(db_id))
 
-    # LogsUI.show_log_by_id.log_by_id_requested --> AppManager --> DatabaseManager_return_log_by_id --> AppManager --> LogsUI.init_history_ui
+    # LogsUI.show_log_by_id.log_by_id_requested --> AppManager --> DatabaseManager_return_log_by_id --> AppManager --> LogsUI.init_history_ui --> AppManager --> MainUI.add_new_history_tab
     def init_history_ui(self,log_by_id):
         db_id = log_by_id[0]
         date = log_by_id[2]
@@ -132,9 +135,8 @@ class LogsUI(QWidget):
         variables = log_by_id[4]
         input_data = log_by_id[5]
         output = log_by_id[6]
-        #self.history_ui = HistoryUI(log_by_id)
-        #self.show_history_requested.emit([new_history_ui,log_db_id])
-        return
+        self.history_ui = BaseHistoryUI(str(db_id),date,operation,variables,input_data,output)
+        self.create_history_requested.emit([self.history_ui,str(db_id)])
 
     # self.current_session_logs --> self.logs_list
     def show_current_session_logs_function(self):

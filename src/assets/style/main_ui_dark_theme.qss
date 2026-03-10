@@ -5,6 +5,16 @@ QMainWindow, #central_widget, #central_widget::pane {
     border: none;
 }
 
+QWidget[class="ui"]{
+    background-color : #22272E;
+}
+
+QTabWidget::pane {
+    border: 1px solid #444C56;
+    margin: 0px;
+    padding: 0px;
+}
+
 /* QTabWidget */
 QTabWidget::tab-bar {
     alignment: left;
@@ -174,6 +184,26 @@ QPushButton:hover {
 
 QPushButton:pressed {
     background-color: #2563EB;
+}
+
+QTableView{
+    background-color:#22272E;
+    color : #FFFFFF
+}
+
+QHeaderView::section{
+    background-color:#22272E;
+    color : #FFFFFF
+}
+
+QTableCornerButton::section{
+    background-color:#22272E;
+    color : #FFFFFF
+}
+
+QComboBox{
+    background-color:#22272E;
+    color : #FFFFFF
 }
 
 #operation_name{

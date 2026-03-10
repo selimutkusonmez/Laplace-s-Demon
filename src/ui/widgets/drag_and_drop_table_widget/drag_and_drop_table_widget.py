@@ -12,7 +12,8 @@ class DragAndDropTableView(QTableView):
         super().__init__(parent)
         self.setAcceptDrops(True)
         self.is_dragging = False
-        QAbstractItemView.EditTrigger.NoEditTriggers
+        self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():

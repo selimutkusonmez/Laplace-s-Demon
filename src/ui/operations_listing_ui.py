@@ -19,7 +19,7 @@ class OperationsListingUI(QWidget):
     def init_ui(self):
         
         #object name and styling background permit granted
-        self.setObjectName("logs_ui")
+        self.setProperty("class","ui")
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
 
         #Layout created

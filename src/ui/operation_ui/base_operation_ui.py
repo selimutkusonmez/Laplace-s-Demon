@@ -29,7 +29,8 @@ class BaseOperation(QWidget):
         self.layout = QHBoxLayout()
         self.setLayout(self.layout)
 
-        self.setObjectName("operation_widget")
+        self.setProperty("class","ui")
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
 
         #Left GroupBox
         self.left_groupbox = QGroupBox()
