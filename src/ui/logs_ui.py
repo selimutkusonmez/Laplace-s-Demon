@@ -2,7 +2,7 @@
 from PyQt6.QtCore import QSize,pyqtSignal,Qt,QDate
 from PyQt6.QtWidgets import QWidget,QListWidget,QHBoxLayout,QListWidgetItem,QVBoxLayout,QGroupBox,QLabel,QDateEdit,QPushButton,QGridLayout
 from PyQt6.QtGui import QIcon
-from src.ui.operation_ui.base_history_ui import BaseHistoryUI
+from src.ui.operation_ui import *
 
 
 class LogsUI(QWidget):
@@ -135,8 +135,48 @@ class LogsUI(QWidget):
         variables = log_by_id[4]
         input_data = log_by_id[5]
         output = log_by_id[6]
-        self.history_ui = BaseHistoryUI(str(db_id),date,operation,variables,input_data,output)
-        self.create_history_requested.emit([self.history_ui,str(db_id)])
+        self.history_map = {
+            "Population Mean" : MeanHistoryUI,
+            "Sample Mean" : MeanHistoryUI,
+            "Population Variance" : VarianceHistoryUI,
+            "Sample Variance" : VarianceHistoryUI,
+            "Population Standard Deviation" : StandardDeviationHistoryUI,
+            "Sample Standard Deviation" : StandardDeviationHistoryUI,
+            "Percentile" : PercentileHistoryUI,
+            "Population Covariance" : CovarianceHistoryUI,
+            "Sample Covariance" : CovarianceHistoryUI,
+            "Correlation" : CorrelationHistoryUI,
+            "Mutually Exclusive" : AdditionRuleHistoryUI,
+            "Non Mutually Exclusive" : AdditionRuleHistoryUI,
+            "Independent Events" : MultiplicationRuleHistoryUI,
+            "Dependent Events" : MultiplicationRuleHistoryUI,
+            "Bayes" : BayesHistoryUI,
+            "Central Limit Theorem" : CentralLimitTheoremHistoryUI,
+            "Confidence Interval" : ConfidenceIntervalHistoryUI,
+            "Margin Of Error" : MarginOfErrorHistoryUI,
+            "Bernoulli Distribution" : BernoulliDistributionHistoryUI,
+            "Binomial Distribution" : BinomialDistributionHistoryUI,
+            "Poisson Distribution PMF" : PoissonDistributionHistoryUI,
+            "Poisson Distribution CDF" : PoissonDistributionHistoryUI,
+            "Normal Distribution PDF" : NormalDistributionHistoryUI,
+            "Normal Distribution CDF" : NormalDistributionHistoryUI,
+            "Standard Normal Distribution" : StandardNormalDistributionHistoryUI,
+            "Uniform Distribution PDF" : UniformDistributionHistoryUI,
+            "Uniform Distribution CDF" : UniformDistributionHistoryUI,
+            "Log Normal Distribution PDF" : LogNormalDistributionHistoryUI,
+            "Log Normal Distribution CDF" : LogNormalDistributionHistoryUI,
+            "Pareto Distribution PDF" : ParetoDistributionHistoryUI,
+            "Pareto Distribution CDF" : ParetoDistributionHistoryUI,
+            "Z Test" : zTestHistoryUI,
+            "Single Sample t Test" : tTestHistoryUI,
+            "Independent Sample t Test" : tTestHistoryUI,
+            "Paired Sample t test" : tTestHistoryUI,
+            "Chi Square Test" : ChiSquareTestHistoryUI,
+            "ANOVA" : AnovaHistoryUI,
+        }
+        worker_class = self.history_map.get(operation)
+        self.history_ui = worker_class(str(db_id),date,operation,variables,input_data,output)
+        self.create_history_requested.emit([self.history_ui,operation])
 
     # self.current_session_logs --> self.logs_list
     def show_current_session_logs_function(self):

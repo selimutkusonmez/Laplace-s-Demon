@@ -112,6 +112,7 @@ class OperationUI(BaseOperation):
         
         else:
             self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = Waiting...$")
+        print(self.scaled_pixmap)
 
     # self.calculate_function --> BaseOperation.handle_calculation --> AppManager --> DatabaseManager.save_log / LogsUI.add_new_log
     def calculate_function(self):
@@ -123,7 +124,7 @@ class OperationUI(BaseOperation):
                 self.operation_name,
                 f"Population Sum : {self.population_sum}, Population Size : {self.population_size}",
                 "input_data",
-                self.scaled_pixmap
+                rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = {{{result:.4f}}}$"
                 ]
             return log
         
