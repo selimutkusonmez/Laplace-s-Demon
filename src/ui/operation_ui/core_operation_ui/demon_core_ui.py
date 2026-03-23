@@ -7,7 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from src.engine.demon_engine import DemonEngine
 
-class BaseOperation(QWidget):
+class DemonCore(QWidget):
     calculation_success = pyqtSignal(list)
 
     def __init__(self, operation_name : str):

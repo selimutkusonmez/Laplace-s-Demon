@@ -221,3 +221,7 @@ QMessageBox{
     background-color : #22272E;
     
 }
+
+QGroupBox[class=bottom_groupbox]{
+    border : none;
+}

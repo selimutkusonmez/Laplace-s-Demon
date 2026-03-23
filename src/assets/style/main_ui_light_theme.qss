@@ -166,3 +166,7 @@ QPushButton:pressed {
     font-size : 30px;
     font-weight : bold;
 }
+
+QGroupBox[class=bottom_groupbox]{
+    border : none;
+}
