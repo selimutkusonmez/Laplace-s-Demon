@@ -1,5 +1,5 @@
 from PyQt6.QtCore import pyqtSignal,Qt,QTimer
-from PyQt6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QGroupBox,QLabel,QPushButton,QGridLayout
+from PyQt6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QGroupBox,QLabel,QPushButton,QGridLayout,QTextEdit
 from PyQt6.QtGui import QPixmap
 import io
 import matplotlib
@@ -24,8 +24,6 @@ class BaseOperation(QWidget):
 
         self.font_color = "black"
 
-
-    
     def init_ui(self):
 
         self.layout = QHBoxLayout()
@@ -131,7 +129,7 @@ class BaseOperation(QWidget):
         raise NotImplementedError("Subclasses must implement this!")
     
 
-    # OperationUI.calculate_function --> AppManager/DatabaseManager
+    # OperationUI.calculate_function --> AppManager --> DatabaseManager
     def handle_calculation(self):
         result = self.calculate_function()
         if False in result:
@@ -159,6 +157,18 @@ class BaseOperation(QWidget):
             self.right_groupbox.show()
             self.toggle_right = True
 
-    def change_color(self,color_code):
-        raise NotImplementedError("Subclasses must implement this!")
+    # MainUI.change_color_action --> AppManager --> BaseOperationUI.change_color --> self.update_display
+    def change_color(self, color_code):
+        self.font_color = color_code
+        self.update_display()
+
+    def fill_right_groupbox(self,variable_symbol_input,variable_info_input,row,column):
+        variable_symbol = QLabel(variable_symbol_input)
+        self.right_groupbox_layout.addWidget(variable_symbol,row,column)
+
+        variable_info = QTextEdit(variable_info_input)
+        variable_info.setReadOnly(True)
+        self.right_groupbox_layout.addWidget(variable_info,row,column+1)
+    
+
     
