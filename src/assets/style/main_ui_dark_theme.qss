@@ -191,6 +191,11 @@ QTableView{
     color : #FFFFFF
 }
 
+QHeaderView{
+    background-color:#22272E;
+}
+
+
 QHeaderView::section{
     background-color:#22272E;
     color : #FFFFFF
@@ -212,12 +217,6 @@ QComboBox{
     font-weight : bold;
 }
 
-#dynamic_formula{
-    font-size: {FONT_SIZE}px;
-    font-family: 'Times New Roman', serif;
-    color: {FONT_COLOR};
-    
-}
 QMessageBox{
     background-color : #22272E;
     

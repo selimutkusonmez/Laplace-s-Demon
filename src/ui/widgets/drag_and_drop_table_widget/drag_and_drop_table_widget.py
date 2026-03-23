@@ -3,7 +3,7 @@ from PyQt6.QtGui import QPainter, QColor, QFont
 from PyQt6.QtCore import Qt, pyqtSignal
 import pandas as pd
 from src.logic.table_data_loader.table_data_loader import load_table_data
-from src.ui.widgets.drag_and_drop_table_widget.table_model.table_model import TableModel
+from src.ui.widgets.drag_and_drop_table_widget.table_model.df_table_model import DFTableModel
 
 class DragAndDropTableView(QTableView):
     data_loaded = pyqtSignal(list)
@@ -47,7 +47,7 @@ class DragAndDropTableView(QTableView):
                     return
                 
                 else:
-                    table_model = TableModel(self.df)
+                    table_model = DFTableModel(self.df)
                     
                     self.setModel(table_model)
                     
@@ -104,7 +104,7 @@ class DragAndDropTableView(QTableView):
                 data = self.df[[column_name]]
                 
 
-            table_model = TableModel(data)
+            table_model = DFTableModel(data)
             self.setModel(table_model)
 
         except Exception as e:

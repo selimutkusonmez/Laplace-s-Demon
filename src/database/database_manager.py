@@ -63,6 +63,9 @@ class DatabaseManager():
         operation = new_log[1]
         variables = new_log[2]
         input_data = new_log[3]
+        print("db")
+        print(input_data)
+        print(type(input_data))
         output = new_log[4]
 
         try:
@@ -112,7 +115,8 @@ class DatabaseManager():
                     """
             self.cursor.execute(query,(db_id,))
             log_by_id_data = self.cursor.fetchall()
-            print(log_by_id_data[0])
+            print(log_by_id_data)
+            print(type(log_by_id_data))
             return log_by_id_data[0]
         except Exception as e:
             print(str(e))

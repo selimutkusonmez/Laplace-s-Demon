@@ -93,11 +93,11 @@ class BaseHistoryUI(QWidget):
         self.toggle_middle = True  
         self.toggle_lower = True  
 
-    def render_latex(self, formula_string: str, font_size: int = 25):
+    def render_latex(self, formula_string: str, font_size: int = 25, font_color : str = "black"):
         fig = plt.figure(figsize=(4, 1), dpi=300)
         fig.patch.set_alpha(0.0)
         
-        fig.text(0.5, 0.5, formula_string, fontsize=font_size, ha='center', va='center', math_fontfamily='cm')
+        fig.text(0.5, 0.5, formula_string, fontsize=font_size, ha='center', va='center', math_fontfamily='cm', color = font_color)
         
         buf = io.BytesIO()
         plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1, transparent=True)

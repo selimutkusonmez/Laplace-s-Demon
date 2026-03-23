@@ -128,12 +128,12 @@ class LogsUI(QWidget):
         self.log_by_id_requested.emit(str(db_id))
 
     # LogsUI.show_log_by_id.log_by_id_requested --> AppManager --> DatabaseManager_return_log_by_id --> AppManager --> LogsUI.init_history_ui --> AppManager --> MainUI.add_new_history_tab
-    def init_history_ui(self,log_by_id):
+    def init_history_ui(self,log_by_id : list):
         db_id = log_by_id[0]
         date = log_by_id[2]
         operation = log_by_id[3]
         variables = log_by_id[4]
-        input_data = log_by_id[5]
+        input_data = log_by_id[5].replace("{","").replace("}","")
         output = log_by_id[6]
         self.history_map = {
             "Population Mean" : MeanHistoryUI,

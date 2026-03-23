@@ -6,7 +6,7 @@ from src.ui.operation_ui.base_operation_ui import BaseOperation
 
 from src.ui.widgets.drag_and_drop_text_edit.drag_and_drop_text_edit import DragAndDropTextEdit
 from src.ui.widgets.drag_and_drop_table_widget.drag_and_drop_table_widget import DragAndDropTableView
-from src.ui.widgets.drag_and_drop_table_widget.table_model.table_model import TableModel
+from src.ui.widgets.drag_and_drop_table_widget.table_model.df_table_model import DFTableModel
 
 
 class OperationUI(BaseOperation):
@@ -79,7 +79,7 @@ class OperationUI(BaseOperation):
         self.inputs_tab_widget.currentChanged.connect(self.update_display)
         
 
-        self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$")
+        self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$",font_color=self.font_color)
 
         self.data = []
         self.table_data = False
@@ -100,7 +100,7 @@ class OperationUI(BaseOperation):
                 self.data = self.table_data_input.pull_colum_data(self.column_picker.currentText())
                 #If data is an empty list caused by text data or another reason
                 if self.data == []:
-                    self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$")
+                    self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$",font_color=self.font_color)
                 else:
                     self.population_sum = sum(self.data)
                     self.population_size = len(self.data)
@@ -108,22 +108,21 @@ class OperationUI(BaseOperation):
 
         #If no self data or self data is and empty list caused by any error
         if self.data == []:
-            self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$")
+            self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$",font_color=self.font_color)
         
         else:
-            self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = Waiting...$")
-        print(self.scaled_pixmap)
+            self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = Waiting...$",font_color=self.font_color)
 
     # self.calculate_function --> BaseOperation.handle_calculation --> AppManager --> DatabaseManager.save_log / LogsUI.add_new_log
     def calculate_function(self):
         try:
             result = self.demon_engine.calculate(self.operation_name,[self.population_sum,self.population_size])
-            self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = {{{result:.4f}}}$")
+            self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = {{{result:.4f}}}$",font_color=self.font_color)
             log = [
                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 self.operation_name,
                 f"Population Sum : {self.population_sum}, Population Size : {self.population_size}",
-                "input_data",
+                self.data,
                 rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = {{{result:.4f}}}$"
                 ]
             return log
@@ -158,12 +157,12 @@ class OperationUI(BaseOperation):
             self.table_data_input.load_column_data(column_name)
             self.data = self.table_data_input.pull_colum_data(column_name)
             if self.data == []:
-                self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$")
+                self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$",font_color=self.font_color)
             else:
                 self.population_sum = sum(self.data)
                 self.population_size = len(self.data)
                 self.table_data = True
-                self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = Waiting...$")
+                self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = Waiting...$",font_color=self.font_color)
         except:
             return
         
@@ -178,13 +177,19 @@ class OperationUI(BaseOperation):
 
     #Set and empty df model to the table_data_input clear column_picker and delete variables
     def reset_table_data_input_function(self):
-        self.table_data_input.setModel(TableModel(pd.DataFrame()))
+        self.table_data_input.setModel(DFTableModel(pd.DataFrame()))
         self.column_picker.clear()
-        self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$")
+        self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$",font_color=self.font_color)
         self.table_data = False
         if hasattr(self,"population_sum") and hasattr(self,"population_size"):
             del self.population_sum
             del self.population_size
         else:
             return
+        
+    def change_color(self, color_code):
+        self.font_color = color_code
+        self.update_display()
+    
+        
             

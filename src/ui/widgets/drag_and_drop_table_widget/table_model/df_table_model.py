@@ -1,6 +1,6 @@
 from PyQt6.QtCore import Qt, QAbstractTableModel
 
-class TableModel(QAbstractTableModel):
+class DFTableModel(QAbstractTableModel):
     def __init__(self, data):
         super().__init__()
         self._data = data

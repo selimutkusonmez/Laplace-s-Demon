@@ -6,6 +6,7 @@ class AppManager():
     def __init__(self):
         self.app = QApplication(sys.argv)
         self.main_ui = MainUI()
+        self.main_ui.color_change_requested.connect(self.handle_color_change)
         self.login_ui = LoginUI()
         self.login_ui.login_signal.connect(self.handle_login)
         
@@ -55,10 +56,10 @@ class AppManager():
             self.main_ui.central_widget.tabBar().setTabButton(1, QTabBar.ButtonPosition.RightSide, None)
 
     def handle_new_operation_request(self,operation_input : list):
-        new_operation_ui = operation_input[0] # QWidget
-        new_operation_ui.calculation_success.connect(self.handle_new_log) # calculate button connection
+        self.new_operation_ui = operation_input[0] # QWidget
+        self.new_operation_ui.calculation_success.connect(self.handle_new_log) # calculate button connection
         new_operation_name = operation_input[1] # str
-        self.main_ui.add_new_operation_tab(new_operation_ui,new_operation_name) # add new_operation_ui to the main_ui.central_widget as a tab
+        self.main_ui.add_new_operation_tab(self.new_operation_ui,new_operation_name) # add new_operation_ui to the main_ui.central_widget as a tab
 
     def handle_new_log(self,new_log : list):
         db_id = self.database_manager.save_log(self.username,new_log) # log is saved in the db and db_id is returned for logs_ui
@@ -76,6 +77,10 @@ class AppManager():
         new_history_ui = history_input[0] # QWidget
         new_history_name = history_input[1] # History db_id
         self.main_ui.add_new_history_tab(new_history_ui,new_history_name) # add new_history_ui to the main_ui.central_widget as a tab
+
+    def handle_color_change(self,color_code : str):
+        self.new_operation_ui.change_color(color_code)
+
 
 if __name__ == "__main__":
     manager = AppManager()
