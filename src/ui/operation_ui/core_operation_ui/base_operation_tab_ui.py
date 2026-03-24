@@ -30,7 +30,6 @@ class BaseOperationTabUI(DemonCore):
 
         self.inputs_tab_widget.addTab(self.text_tab,"Text Data")
 
-
         #Table Tab
         self.table_tab = QWidget()
         self.table_tab_layout = QVBoxLayout()
@@ -54,71 +53,6 @@ class BaseOperationTabUI(DemonCore):
 
         self.text_data_input.textChanged.connect(self.update_display)
         self.inputs_tab_widget.currentChanged.connect(self.update_display)
-        
-        self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$",font_color=self.font_color)
-
-        self.data = []
-        self.table_data = False
-
-    def update_display(self):
-        #Get currentIndex from inputs_tab_widget
-        index = self.inputs_tab_widget.currentIndex()
-        if index == 0:
-            #If Text Data tab is chosen call pull_text_data
-            self.data = self.text_data_input.pull_text_data()
-            self.population_sum = sum(self.data)
-            self.population_size = len(self.data)
-        else:
-            #If Table Data is chosen
-            #If column_chosen called and table_data is True
-            if self.table_data:
-                #Call pull_column_data
-                self.data = self.table_data_input.pull_colum_data(self.column_picker.currentText())
-                #If data is an empty list caused by text data or another reason
-                if self.data == []:
-                    self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$",font_color=self.font_color)
-                else:
-                    self.population_sum = sum(self.data)
-                    self.population_size = len(self.data)
-            else:return
-
-        #If no self data or self data is and empty list caused by any error
-        if self.data == []:
-            self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$",font_color=self.font_color)
-        
-        else:
-            self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = Waiting...$",font_color=self.font_color)
-
-    # self.calculate_function --> BaseOperation.handle_calculation --> AppManager --> DatabaseManager.save_log / LogsUI.add_new_log
-    def calculate_function(self):
-        try:
-            result = self.demon_engine.calculate(self.operation_name,[self.population_sum,self.population_size])
-            self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = {{{result:.4f}}}$",font_color=self.font_color)
-            log = [
-                datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                self.operation_name,
-                f"Population Sum : {self.population_sum}, Population Size : {self.population_size}",
-                self.data,
-                rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = {{{result:.4f}}}$"
-                ]
-            return log
-        
-        #If no or missing input
-        except AttributeError:
-            QMessageBox.warning(
-                self,
-                "No Data",
-                "Please remember to fill all the inputs"
-            )
-            return [False]
-        
-        except ZeroDivisionError:
-            QMessageBox.warning(
-                self,
-                "No Data",
-                "Please remember to fill all the inputs"
-            )
-            return [False]
 
     # DragAndDropTableWidget.df.columns --> OperationUI.load_column_names
     def load_column_names(self,columns : list):
@@ -128,39 +62,28 @@ class BaseOperationTabUI(DemonCore):
 
     # OperationUI.column_picker.currentText() --> DragAndDropTableWidget.load_column_data
     def column_chosen(self):
-        try:
-            column_name = self.column_picker.currentText()
-            self.table_data_input.load_column_data(column_name)
-            self.data = self.table_data_input.pull_colum_data(column_name)
-            if self.data == []:
-                self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$",font_color=self.font_color)
-            else:
-                self.population_sum = sum(self.data)
-                self.population_size = len(self.data)
-                self.table_data = True
-                self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = Waiting...$",font_color=self.font_color)
-        except:
-            return
+            try:
+                column_name = self.column_picker.currentText()
+                self.table_data_input.load_column_data(column_name)
+                self.data = self.table_data_input.pull_colum_data(column_name)
+                if self.data:
+                    self.table_data = True
+                self.update_display()
+            except:
+                return
         
     #Clear Text Data and delete variables
     def reset_text_data_input_function(self):
-        self.text_data_input.setText("")
-        if hasattr(self,"population_sum") and hasattr(self,"population_size"):
-            del self.population_sum
-            del self.population_size
-        else:
-            return
+            self.text_data_input.setText("")
+            self.data = []
+            self.update_display()
 
     #Set and empty df model to the table_data_input clear column_picker and delete variables
     def reset_table_data_input_function(self):
-        self.table_data_input.setModel(DFTableModel(pd.DataFrame()))
-        self.column_picker.clear()
-        self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$",font_color=self.font_color)
-        self.table_data = False
-        if hasattr(self,"population_sum") and hasattr(self,"population_size"):
-            del self.population_sum
-            del self.population_size
-        else:
-            return
+            self.table_data_input.setModel(DFTableModel(pd.DataFrame()))
+            self.column_picker.clear()
+            self.table_data = False
+            self.data = []
+            self.update_display()
 
     
