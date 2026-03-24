@@ -8,7 +8,7 @@ class DragAndDropTextEdit(QTextEdit):
         super().__init__(parent)
         self.setAcceptDrops(True)
         self.is_dragging = False #
-        self.setPlaceholderText("The data : numbers separated by commas or newlines.")
+        self.setPlaceholderText("The data : numbers separated by commas")
         self.setToolTip("The data must contain only numbers separated by commas or newlines.")
         self.setToolTipDuration(4000)
 
@@ -33,7 +33,6 @@ class DragAndDropTextEdit(QTextEdit):
             file_path = files[0].toLocalFile()
             
             self.setText(load_text_data(file_path,self))
-
 
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -74,5 +73,5 @@ class DragAndDropTextEdit(QTextEdit):
             return valid_numbers
         
         except ValueError:
-            return []
+            return None
 

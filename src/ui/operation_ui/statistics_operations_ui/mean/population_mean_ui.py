@@ -22,11 +22,18 @@ class OperationUI(BaseOperationTabUI):
 
     def update_display(self):
         index = self.inputs_tab_widget.currentIndex()
+        if hasattr(self, "population_sum"):
+            del self.population_sum
+        if hasattr(self, "population_size"):
+            del self.population_size
         if index == 0:
             self.data = self.text_data_input.pull_text_data()
             if self.data:
                 self.population_sum = sum(self.data)
                 self.population_size = len(self.data)
+                self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = Waiting...$", font_color=self.font_color)
+            else:
+                self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$", font_color=self.font_color)
         else:
             if self.table_data:
                 self.data = self.table_data_input.pull_colum_data(self.column_picker.currentText())
@@ -34,17 +41,10 @@ class OperationUI(BaseOperationTabUI):
                     self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$", font_color=self.font_color)
                 else:
                     self.population_sum = sum(self.data)
-                    self.population_size = len(self.data)                
-
-        if not self.data:
-            if hasattr(self, "population_sum"):
-                del self.population_sum
-            if hasattr(self, "population_size"):
-                del self.population_size
-
-            self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$", font_color=self.font_color)
-        else:
-            self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = Waiting...$", font_color=self.font_color)
+                    self.population_size = len(self.data)  
+                    self.render_latex(rf"$\mu = \frac{{{self.population_sum}}}{{{self.population_size}}} = Waiting...$", font_color=self.font_color)
+            else:
+                self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$", font_color=self.font_color)
 
     def calculate_function(self):
         try:

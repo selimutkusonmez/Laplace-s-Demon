@@ -115,19 +115,16 @@ class DragAndDropTableView(QTableView):
                 )
         
     def pull_colum_data(self,column_name : str) -> list:
-        try:
-            #If column_picker.currentText() = "All" return empty list
-            if column_name == "All":
-                return []
+        #If column_picker.currentText() = "All" return empty list
+        if column_name == "All":
+            return None
+        else:
+            #Make python list from column_data
+            data = list(self.df[column_name])
+            #If text data in column_data return empty list
+            if self.df[column_name].isnull().any():
+                return None
+            elif not pd.api.types.is_numeric_dtype(self.df[column_name]):
+                return None
             else:
-                #Make python list from column_data
-                data = list(self.df[column_name])
-                #If text data in column_data return empty list
-                if self.df[column_name].isnull().any():
-                    return []
-                elif not pd.api.types.is_numeric_dtype(self.df[column_name]):
-                    return []
-                else:
-                    return data
-        except:
-            return
+                return data

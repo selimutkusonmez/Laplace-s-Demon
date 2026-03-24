@@ -39,7 +39,8 @@ class DemonCore(QWidget):
         self.left_groupbox.setLayout(self.left_groupbox_layout)
         self.layout.addWidget(self.left_groupbox)
 
-        self.left_groupbox.setFixedWidth(340)
+        self.left_groupbox.setMinimumWidth(200)
+        self.left_groupbox.setMaximumWidth(340)
 
         self.calculate_button = QPushButton("Calculate")
         self.calculate_button.clicked.connect(self.handle_calculation)
@@ -89,7 +90,8 @@ class DemonCore(QWidget):
         self.right_groupbox.setLayout(self.right_groupbox_layout)
         self.layout.addWidget(self.right_groupbox)
 
-        self.right_groupbox.setFixedWidth(300)
+        self.right_groupbox.setMinimumWidth(200)
+        self.right_groupbox.setMaximumWidth(250)
 
         self.toggle_right = True
         self.toggle_left = True

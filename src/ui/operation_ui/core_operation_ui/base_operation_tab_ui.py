@@ -1,8 +1,5 @@
-from PyQt6.QtWidgets import QLabel,QTextEdit,QTabWidget,QVBoxLayout,QWidget,QComboBox,QPushButton,QMessageBox
+from PyQt6.QtWidgets import QTabWidget,QVBoxLayout,QWidget,QComboBox,QPushButton
 import pandas as pd
-import datetime
-
-
 from src.ui.widgets.drag_and_drop_text_edit.drag_and_drop_text_edit import DragAndDropTextEdit
 from src.ui.widgets.drag_and_drop_table_widget.drag_and_drop_table_widget import DragAndDropTableView
 from src.ui.widgets.drag_and_drop_table_widget.table_model.df_table_model import DFTableModel
@@ -75,7 +72,7 @@ class BaseOperationTabUI(DemonCore):
     #Clear Text Data and delete variables
     def reset_text_data_input_function(self):
             self.text_data_input.setText("")
-            self.data = []
+            self.data = None
             self.update_display()
 
     #Set and empty df model to the table_data_input clear column_picker and delete variables
@@ -83,7 +80,7 @@ class BaseOperationTabUI(DemonCore):
             self.table_data_input.setModel(DFTableModel(pd.DataFrame()))
             self.column_picker.clear()
             self.table_data = False
-            self.data = []
+            self.data = None
             self.update_display()
 
     
