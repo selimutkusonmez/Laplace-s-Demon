@@ -80,7 +80,7 @@ QListWidget[class="list"]::item:selected {
 QStatusBar {
     background-color: #2D333B;
     color: #768390;
-    border-top: 1px solid #444C56;
+    border : none;
     padding-left: 8px;
 }
 
@@ -88,13 +88,32 @@ QStatusBar::item {
     border: none;
 }
 
+QToolButton {
+    color: #ADBAC7;
+    background-color: transparent;
+    border: none;
+    padding: 5px ;
+    font-size: 12px;
+}
+QToolButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+QToolButton:pressed {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+QToolButton::menu-indicator {
+    image: none;
+    width: 0px;
+}
 
 /* QMenuBar */
 QMenuBar {
-    background-color: #2D333B;
     color: #ADBAC7;
-    border-bottom: 1px solid #444C56;
-    padding: 2px;
+    background-color: transparent;
+    border: none;
+    padding: 5px ;
+    font-size: 12px;
 }
 
 QMenuBar::item {
@@ -111,22 +130,23 @@ QMenuBar::item:selected {
 /* QMenu*/
 QMenu {
     background-color: #2D333B;
-    border: 1px solid #444C56;
-    border-radius: 6px;
-    padding: 4px;
-}
-
-QMenu::item {
-    padding: 6px 24px 6px 12px;
-    border-radius: 5px;
     color: #ADBAC7;
+    border: 1px solid #444C56;
+    padding: 5px;
 }
-
+QMenu::item {
+    padding: 6px 25px;
+    border-radius: 4px;
+}
 QMenu::item:selected {
     background-color: #3B82F6;
     color: #FFFFFF;
 }
-
+QMenu::separator {
+    height: 1px;
+    background: #444C56;
+    margin: 5px 10px;
+}
 
 /* OPERATİON WİDGET */
 

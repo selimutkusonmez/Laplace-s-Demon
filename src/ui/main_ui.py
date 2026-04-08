@@ -1,8 +1,8 @@
 import sys
 import os
 import subprocess
-from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtWidgets import QApplication,QMainWindow,QMessageBox,QTabWidget,QStatusBar,QColorDialog,QWidget
+from PyQt6.QtCore import pyqtSignal,Qt
+from PyQt6.QtWidgets import QApplication,QMainWindow,QMessageBox,QTabWidget,QStatusBar,QColorDialog,QWidget,QToolButton,QMenu
 from PyQt6.QtGui import QAction,QActionGroup,QIcon
 from src.assets.style.style_reader.style_reader import read_style
 from config import JPG_PATH
@@ -85,14 +85,35 @@ class MainUI(QMainWindow):
         color_action_group.addAction(change_color_action)
         change_color_action.triggered.connect(self.change_color_action_function)
 
+        #Profile Menu
+        self.profile_button = QToolButton()
+        self.profile_button.setText("Profile")
+        self.profile_button.setAutoRaise(True)
+        self.profile_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+
+        self.profile_menu = QMenu()
+
+        about_me_action = QAction("About Me",self)
+        self.profile_menu.addAction(about_me_action)
+
+        preferences_action = QAction("Preferences",self)
+        self.profile_menu.addAction(preferences_action)
+
+        self.profile_menu.addSeparator()
+
+        log_out_action = QAction("Log Out",self)
+        self.profile_menu.addAction(log_out_action)
+
+        self.profile_button.setMenu(self.profile_menu)
+
+        self.menuBar().setCornerWidget(self.profile_button, Qt.Corner.TopRightCorner)
+
 
     #About Action Function
     def about_action_function(self):
         about_text = """
-        <h2>Statistical Calculator v1.0</h2>
-        <p>A comprehensive and interactive statistical analysis tool designed to simplify complex calculations. From basic descriptive statistics to advanced hypothesis testing, this application provides accurate results alongside real-time dynamic formula rendering.</p>
-        <p><b>Developer:</b> Selim Utku Sönmez, Computer Engineering Student<br>
-        <b>Powered by:</b> Python, PyQt6</p>
+        <h2>Laplace's Demon/h2>
+        <p>/p>
         """
         QMessageBox.about(self, "About Statistical Calculator", about_text) 
 

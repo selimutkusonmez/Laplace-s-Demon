@@ -11,7 +11,7 @@ class BaseOperationTabUI(DemonCore):
         super().__init__(operation_name)
 
         self.inputs_tab_widget = QTabWidget()
-        self.left_groupbox_layout.addWidget(self.inputs_tab_widget)
+        self.left_groupbox_layout.addWidget(self.inputs_tab_widget,0,0,1,2)
 
         #Text Tab
         self.text_tab = QWidget()
@@ -20,10 +20,6 @@ class BaseOperationTabUI(DemonCore):
 
         self.text_data_input = DragAndDropTextEdit()
         self.text_tab_layout.addWidget(self.text_data_input)
-
-        self.reset_text_data_input_button = QPushButton("Reset Input")
-        self.reset_text_data_input_button.clicked.connect(self.reset_text_data_input_function)
-        self.text_tab_layout.addWidget(self.reset_text_data_input_button)
 
         self.inputs_tab_widget.addTab(self.text_tab,"Text Data")
 
@@ -40,13 +36,16 @@ class BaseOperationTabUI(DemonCore):
         self.table_data_input.data_loaded.connect(self.load_column_names)
         self.table_tab_layout.addWidget(self.table_data_input)
 
-        self.reset_table_data_input_button = QPushButton("Reset Input")
-        self.reset_table_data_input_button.clicked.connect(self.reset_table_data_input_function)
-        self.table_tab_layout.addWidget(self.reset_table_data_input_button)
+        self.choose_file_button = QPushButton("Choose File")
+        self.table_tab_layout.addWidget(self.choose_file_button)
 
         self.inputs_tab_widget.addTab(self.table_tab,"Table Data")
 
-        self.left_groupbox_layout.addWidget(self.calculate_button)
+        self.reset_input_button = QPushButton("Reset Current Input")
+        self.reset_input_button.clicked.connect(self.reset_text_data_input_function)
+        self.left_groupbox_layout.addWidget(self.reset_input_button,1,0)
+
+        self.left_groupbox_layout.addWidget(self.calculate_button,1,1)
 
         self.text_data_input.textChanged.connect(self.update_display)
         self.inputs_tab_widget.currentChanged.connect(self.update_display)
@@ -68,19 +67,21 @@ class BaseOperationTabUI(DemonCore):
                 self.update_display()
             except:
                 return
-        
-    #Clear Text Data and delete variables
-    def reset_text_data_input_function(self):
+            
+    # Reset input based on tab index 0 = text, 1 = table
+    def reset_input_function(self):
+        index = self.inputs_tab_widget.currentIndex()
+        if index == 0:
             self.text_data_input.setText("")
             self.data = None
             self.update_display()
-
-    #Set and empty df model to the table_data_input clear column_picker and delete variables
-    def reset_table_data_input_function(self):
+        elif index == 1:
             self.table_data_input.setModel(DFTableModel(pd.DataFrame()))
             self.column_picker.clear()
             self.table_data = False
             self.data = None
             self.update_display()
+        
+
 
     

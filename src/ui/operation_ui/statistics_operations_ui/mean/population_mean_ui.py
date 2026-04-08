@@ -1,4 +1,5 @@
 from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtCore import QTimer
 import pandas as pd
 import datetime
 
@@ -15,7 +16,7 @@ class OperationUI(BaseOperationTabUI):
         self.fill_right_groupbox("<b>&Sigma;x<sub>i</sub></b>","<b>&Sigma;x<sub>i</sub> (Sum of Values):</b> The total sum of all individual values in the population dataset.<br><br>",1,0)
         self.fill_right_groupbox("<b>N</b>","<b>N (Population Size):</b> The total number of observations or data points in the entire population.",2,0)
 
-        self.render_latex(r"$\mu = \frac{\sum x_i}{N} = Waiting...$",font_color=self.font_color)
+        QTimer.singleShot(0, self.update_display)
 
         self.data = []
         self.table_data = False

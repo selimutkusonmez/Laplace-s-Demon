@@ -105,6 +105,25 @@ QMenu::item:selected {
     color: #FFFFFF;
 }
 
+QToolButton {
+    color: #24292F;
+    background-color: transparent;
+    border: none;
+    padding: 5px 15px;
+    font-size: 14px;
+}
+QToolButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+QToolButton:pressed {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+QToolButton::menu-indicator {
+    image: none;
+    width: 0px;
+}
+
 QGroupBox {
     border: 1px solid #D0D7DE;
     border-radius: 6px;
