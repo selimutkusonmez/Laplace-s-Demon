@@ -9,6 +9,7 @@ from config import JPG_PATH
 
 class MainUI(QMainWindow):
     color_change_requested = pyqtSignal(str)
+    log_out_requested = pyqtSignal()
     def __init__(self):
         super().__init__()
         self.init_ui()
@@ -85,30 +86,6 @@ class MainUI(QMainWindow):
         color_action_group.addAction(change_color_action)
         change_color_action.triggered.connect(self.change_color_action_function)
 
-        #Profile Menu
-        self.profile_button = QToolButton()
-        self.profile_button.setText("Profile")
-        self.profile_button.setAutoRaise(True)
-        self.profile_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
-
-        self.profile_menu = QMenu()
-
-        about_me_action = QAction("About Me",self)
-        self.profile_menu.addAction(about_me_action)
-
-        preferences_action = QAction("Preferences",self)
-        self.profile_menu.addAction(preferences_action)
-
-        self.profile_menu.addSeparator()
-
-        log_out_action = QAction("Log Out",self)
-        self.profile_menu.addAction(log_out_action)
-
-        self.profile_button.setMenu(self.profile_menu)
-
-        self.menuBar().setCornerWidget(self.profile_button, Qt.Corner.TopRightCorner)
-
-
     #About Action Function
     def about_action_function(self):
         about_text = """
@@ -146,6 +123,54 @@ class MainUI(QMainWindow):
             self.color_change_requested.emit(self.current_font_color)
         else:
             return
+
+    def init_profile_menu(self,current_user_name : str):
+        #Profile Menu
+        self.profile_button = QToolButton(self)
+        self.profile_button.setText(current_user_name)
+        self.profile_button.setAutoRaise(True)
+        self.profile_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+
+        self.profile_menu = QMenu()
+
+        self.about_me_action = QAction("About Me",self)
+        self.about_me_action.triggered.connect(self.about_me_action_function)
+        self.profile_menu.addAction(self.about_me_action)
+
+        self.preferences_action = QAction("Preferences",self)
+        self.preferences_action.triggered.connect(self.preferences_action_function)
+        self.profile_menu.addAction(self.preferences_action)
+
+        self.profile_menu.addSeparator()
+
+        self.log_out_action = QAction("Log Out",self)
+        self.log_out_action.triggered.connect(self.log_out_action_function)
+        self.profile_menu.addAction(self.log_out_action)
+
+        self.profile_button.setMenu(self.profile_menu)
+
+        self.menuBar().setCornerWidget(self.profile_button, Qt.Corner.TopRightCorner)
+
+        self.profile_button.show()
+
+    def about_me_action_function(self):
+        print("about me")
+    
+    def preferences_action_function(self):
+        print("preferences")
+    
+    def log_out_action_function(self):
+        while self.central_widget.count() > 0:
+            widget = self.central_widget.widget(0)
+            self.central_widget.removeTab(0)
+            if widget is not None:
+                widget.deleteLater()
+                
+        if hasattr(self, 'profile_button') and self.profile_button is not None:
+            self.menuBar().setCornerWidget(None, Qt.Corner.TopRightCorner)
+            self.profile_button.deleteLater()
+            
+        self.log_out_requested.emit()
 
     # Central Widget Tab Close Function
     def central_widget_tab_close_function(self,index):

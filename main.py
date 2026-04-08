@@ -5,8 +5,11 @@ from src.ui import MainUI,LoginUI,LogsUI,DatabaseManager,OperationsListingUI
 class AppManager():
     def __init__(self):
         self.app = QApplication(sys.argv)
+
         self.main_ui = MainUI()
         self.main_ui.color_change_requested.connect(self.handle_color_change)
+        self.main_ui.log_out_requested.connect(self.handle_relogin)
+
         self.login_ui = LoginUI()
         self.login_ui.login_signal.connect(self.handle_login)
         
@@ -38,6 +41,8 @@ class AppManager():
             self.login_ui.error_space.setText("Invalid Username or Password")
 
         else:
+            self.main_ui.init_profile_menu(self.username)
+            
             self.main_ui.central_widget.removeTab(0)
 
             self.log_count = self.database_manager.count_logs(self.username) # We ask DatabaseManager how many logs under the name of self.username
@@ -54,6 +59,8 @@ class AppManager():
 
             self.main_ui.central_widget.addTab(self.logs_ui,"Logs")
             self.main_ui.central_widget.tabBar().setTabButton(1, QTabBar.ButtonPosition.RightSide, None)
+
+            del self.login_ui
 
     def handle_new_operation_request(self,operation_input : list):
         self.new_operation_ui = operation_input[0] # QWidget
@@ -85,7 +92,11 @@ class AppManager():
             if hasattr(operation_widget,"change_color"):
                 operation_widget.change_color(color_code)
 
-    
+    def handle_relogin(self):
+        self.login_ui = LoginUI()
+        self.login_ui.login_signal.connect(self.handle_login)
+        self.main_ui.central_widget.addTab(self.login_ui,"Login")
+        self.main_ui.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
 
 if __name__ == "__main__":
     manager = AppManager()
