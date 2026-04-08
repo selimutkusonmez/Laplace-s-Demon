@@ -10,7 +10,7 @@ from src.engine.demon_engine import DemonEngine
 class BaseOperationTextbUI(QWidget):
     calculation_success = pyqtSignal(list)
 
-    def __init__(self, operation_name : str):
+    def __init__(self, operation_name : str,color_code : str):
         super().__init__()
         self.operation_name = operation_name
         self.demon_engine = DemonEngine()

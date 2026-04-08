@@ -14,6 +14,7 @@ class OperationsListingUI(QWidget):
     def __init__(self):
         super().__init__()
         self.icons_dir = os.path.join(JPG_PATH,"icons")
+        self.font_color = "black"
         self.init_ui()
      
     def init_ui(self):
@@ -157,12 +158,13 @@ class OperationsListingUI(QWidget):
         try:
             #module imported
             module = importlib.import_module(module_path)
-            widget = module.OperationUI(operation_name)
+            widget = module.OperationUI(operation_name,self.font_color)
 
             # OperationListingUI.new_operation_requested --> AppManager/MainUI
             self.new_operation_requested.emit([widget,operation_name])
 
         except Exception as e:
+            print(str(e))
             QMessageBox.critical(self, "Module Error", f"Could not load operation:\n{str(e)}")
 
     # get icon

@@ -7,8 +7,8 @@ from src.ui.widgets.drag_and_drop_table_widget.table_model.df_table_model import
 from src.ui.operation_ui.core_operation_ui.demon_core_ui import DemonCore
 
 class BaseOperationTabUI(DemonCore):
-    def __init__(self, operation_name):
-        super().__init__(operation_name)
+    def __init__(self, operation_name,color_code : str):
+        super().__init__(operation_name,color_code)
 
         self.inputs_tab_widget = QTabWidget()
         self.left_groupbox_layout.addWidget(self.inputs_tab_widget,0,0,1,2)
@@ -42,13 +42,15 @@ class BaseOperationTabUI(DemonCore):
         self.inputs_tab_widget.addTab(self.table_tab,"Table Data")
 
         self.reset_input_button = QPushButton("Reset Current Input")
-        self.reset_input_button.clicked.connect(self.reset_text_data_input_function)
+        self.reset_input_button.clicked.connect(self.reset_input_function)
         self.left_groupbox_layout.addWidget(self.reset_input_button,1,0)
 
         self.left_groupbox_layout.addWidget(self.calculate_button,1,1)
 
         self.text_data_input.textChanged.connect(self.update_display)
         self.inputs_tab_widget.currentChanged.connect(self.update_display)
+
+        self.change_color(color_code)
 
     # DragAndDropTableWidget.df.columns --> OperationUI.load_column_names
     def load_column_names(self,columns : list):

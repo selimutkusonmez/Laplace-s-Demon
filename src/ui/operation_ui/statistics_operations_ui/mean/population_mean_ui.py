@@ -8,8 +8,8 @@ from src.ui.widgets.drag_and_drop_table_widget.table_model.df_table_model import
 
 
 class OperationUI(BaseOperationTabUI):
-    def __init__(self, operation_name):
-        super().__init__(operation_name)
+    def __init__(self, operation_name,color_code : str):
+        super().__init__(operation_name,color_code)
 
         # Variables Info
         self.fill_right_groupbox("<i><b>&mu;</b></i>","<b>&mu; (Population Mean):</b> The average value of all observations in the entire population.<br><br>",0,0)

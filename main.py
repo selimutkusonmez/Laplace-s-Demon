@@ -79,12 +79,13 @@ class AppManager():
         self.main_ui.add_new_history_tab(new_history_ui,new_history_name) # add new_history_ui to the main_ui.central_widget as a tab
 
     def handle_color_change(self,color_code : str):
+        self.operations_listing_ui.font_color = color_code
         for i in range(self.main_ui.central_widget.count()):
             operation_widget = self.main_ui.central_widget.widget(i)
             if hasattr(operation_widget,"change_color"):
                 operation_widget.change_color(color_code)
-                
 
+    
 
 if __name__ == "__main__":
     manager = AppManager()

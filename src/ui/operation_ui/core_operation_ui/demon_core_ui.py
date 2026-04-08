@@ -10,10 +10,11 @@ from src.engine.demon_engine import DemonEngine
 class DemonCore(QWidget):
     calculation_success = pyqtSignal(list)
 
-    def __init__(self, operation_name : str):
+    def __init__(self, operation_name : str, color_code : str):
         super().__init__()
         self.operation_name = operation_name
         self.demon_engine = DemonEngine()
+        self.font_color = color_code
         self.init_ui()
 
         # We set the timer 400ms before it starts to draw formula
@@ -159,7 +160,7 @@ class DemonCore(QWidget):
             self.right_groupbox.show()
             self.toggle_right = True
 
-    # MainUI.change_color_action --> AppManager --> BaseOperationUI.change_color --> self.update_display
+    # MainUI.change_color_action --> AppManager --> DemonCoreUI.change_color --> self.update_display
     def change_color(self, color_code):
         self.font_color = color_code
         self.update_display()
