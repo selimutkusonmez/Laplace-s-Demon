@@ -1,7 +1,9 @@
 import psycopg2
-import datetime
+from datetime import datetime
+from getmac import get_mac_address
 import subprocess
 import time
+import socket
 
 class DatabaseManager():
     def __init__(self):
@@ -42,6 +44,29 @@ class DatabaseManager():
                 print(f"⏳ Waiting for database to wake up... ({i+1}/{max})")
                 time.sleep(1)
 
+    def save_user_log(self,username):
+        try:
+            mac_adress = get_mac_address()
+            hostname = socket.gethostname()
+            ip_adress = socket.gethostbyname(hostname)
+        
+        except:
+            mac_adress = "Offline"
+            hostname = "Offline"
+            ip_adress = "Offline"
+        try:
+            query = """
+                    INSERT INTO logs (user_id,ip_adress,mac_adress)
+                    VALUES (
+                            (SELECT id FROM users WHERE username = %s), %s, %s
+                    )
+                    """
+            self.cursor.execute(query,(username,ip_adress,mac_adress))
+            self.conn.commit()
+
+        except Exception as e:
+            print(str(e))
+
     # Login Check
     def check_login(self, username, password) -> int:
         try:
@@ -49,6 +74,7 @@ class DatabaseManager():
             self.cursor.execute(query, (username, password))
             user = self.cursor.fetchone()            
             if user:
+                self.save_user_log(username)
                 return 1    
             else: 
                 return 0
@@ -58,14 +84,11 @@ class DatabaseManager():
             return f"Error: {str(e)}"
         
     # NewOperationUI.calculation_success --> AppManager --> DatabaseManager.save_log --> AppManager --> LogsUI.add_new_log
-    def save_log(self,username : str, new_log : list) -> str:
+    def save_operation_data_to_db(self,username : str, new_log : list) -> str:
         date = new_log[0]
         operation = new_log[1]
         variables = new_log[2]
         input_data = new_log[3]
-        print("db")
-        print(input_data)
-        print(type(input_data))
         output = new_log[4]
 
         try:
@@ -91,7 +114,7 @@ class DatabaseManager():
             return f"Error : {str(e)}"
             
     # LogsUI.logs_button_function.logs_by_date_requested --> AppManager --> DatabaseManager.return_logs_by_date --> AppManager --> LogsUI.show_logs_by_date
-    def return_logs_by_date(self,username,log_date) -> list:
+    def return_operation_data_by_date(self,username,log_date) -> list:
         try:
             query = """
                     SELECT id,date,operation,variables FROM history
@@ -106,9 +129,8 @@ class DatabaseManager():
             print(str(e))
             return f"Error : {str(e)}"
         
-
     #LogsUI.show_log_by_id.log_by_id_requested --> AppManager --> DatabaseManager_return_log_by_id --> AppManager --> LogsUI.init_history_ui    
-    def return_log_by_id(self,db_id : str) -> list:
+    def return_operation_data_by_id(self,db_id : str) -> list:
         try:
             query = """
                     SELECT * FROM history WHERE id = %s
@@ -122,7 +144,7 @@ class DatabaseManager():
             print(str(e))
             return f"Error : {str(e)}"
 
-    def count_logs(self,username):
+    def count_operation_data(self,username):
         try:
             query = """
             SELECT COUNT(user_id) FROM history
@@ -133,6 +155,8 @@ class DatabaseManager():
             return total_count
         except Exception as e:
             print(str(e))
+
+
 
 
     def __del__(self):

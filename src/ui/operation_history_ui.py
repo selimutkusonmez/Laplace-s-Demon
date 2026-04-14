@@ -1,19 +1,18 @@
-
 from PyQt6.QtCore import QSize,pyqtSignal,Qt,QDate
 from PyQt6.QtWidgets import QWidget,QListWidget,QHBoxLayout,QListWidgetItem,QVBoxLayout,QGroupBox,QLabel,QDateEdit,QPushButton,QGridLayout
 from PyQt6.QtGui import QIcon
 from src.ui.operation_ui import *
 
 
-class LogsUI(QWidget):
-    logs_by_date_requested = pyqtSignal(list)
+class OperationHistoryUI(QWidget):
+    operation_data_by_date_requested = pyqtSignal(list)
     create_history_requested = pyqtSignal(list)
-    log_by_id_requested = pyqtSignal(str)
+    operation_data_by_id_requested = pyqtSignal(str)
 
-    def __init__(self,username,log_count):
+    def __init__(self,username,operation_data_count):
         super().__init__()
         self.username = username
-        self.log_count = log_count
+        self.operation_data_count = operation_data_count
         self.init_ui()
         
 
@@ -40,8 +39,8 @@ class LogsUI(QWidget):
         self.upper_groupbox_layout.addStretch()
 
         self.upper_groupbox_layout.addWidget(QLabel("Log Count :"))
-        self.log_count = QLabel(str(self.log_count))
-        self.upper_groupbox_layout.addWidget(self.log_count)
+        self.operation_data_count = QLabel(str(self.operation_data_count))
+        self.upper_groupbox_layout.addWidget(self.operation_data_count)
 
         self.upper_groupbox_layout.addStretch()
 
@@ -64,9 +63,9 @@ class LogsUI(QWidget):
 
         self.upper_groupbox_layout.addStretch()
 
-        self.logs_button = QPushButton("Show Logs By Date")
-        self.logs_button.clicked.connect(self.logs_button_function)
-        self.upper_groupbox_layout.addWidget(self.logs_button)
+        self.operation_data_button = QPushButton("Show Logs By Date")
+        self.operation_data_button.clicked.connect(self.operation_data_button_function)
+        self.upper_groupbox_layout.addWidget(self.operation_data_button)
 
         #lower_groupbox and it's layout created and added to layout
         self.lower_groupbox = QGroupBox()
@@ -76,7 +75,7 @@ class LogsUI(QWidget):
 
         self.logs_list = QListWidget()
         self.logs_list.setProperty("class","list")
-        self.logs_list.itemDoubleClicked.connect(self.show_log_by_id)
+        self.logs_list.itemDoubleClicked.connect(self.show_operation_data_by_id)
         self.lower_groupbox_layout.addWidget(self.logs_list,0,0,1,2)
 
         self.refresh_logs_button = QPushButton("Show Current Session Logs")
@@ -91,50 +90,50 @@ class LogsUI(QWidget):
 
 
     # LogsUI.logs_button_function.logs_by_date_requested --> AppManager --> DatabaseManager.return_logs_by_date --> LogsUI.show_logs_by_date
-    def logs_button_function(self):
+    def operation_data_button_function(self):
         start_date = self.start_date.date().toString()
         end_date = self.end_date.date().toString()
-        self.logs_by_date_requested.emit([start_date,end_date])
+        self.operation_data_by_date_requested.emit([start_date,end_date])
 
     # LogsUI.logs_button_function.logs_by_date_requested --> AppManager --> DatabaseManager.return_logs_by_date --> AppManager --> LogsUI.show_logs_by_date
-    def show_logs_by_date(self,logs : list):
+    def show_operation_data_by_date(self,logs : list):
         self.logs_list.clear()
         for log in logs:
                 db_id = log[0]
                 date = log[1]
                 operation = log[2]
                 variables = log[3]
-                log_text = f"{db_id} | {date} | {operation} | {variables}"
-                log_item = QListWidgetItem(log_text)
-                log_item.setData(Qt.ItemDataRole.UserRole,db_id)
-                self.logs_list.addItem(log_item)
+                operation_data_text = f"{db_id} | {date} | {operation} | {variables}"
+                operation_data_item = QListWidgetItem(operation_data_text)
+                operation_data_item.setData(Qt.ItemDataRole.UserRole,db_id)
+                self.logs_list.addItem(operation_data_item)
         # add logs came from databasemanager
 
     # NewOperationUI.calculation_success --> AppManager --> DatabaseManager.save_log --> AppManager --> LogsUI.add_new_log
-    def add_new_log(self,db_id : str, new_log : list):
+    def add_new_operation_data(self,db_id : str, new_log : list):
         date = new_log[0]
         operation = new_log[1]
         variables = new_log[2]
-        log_text = f"{db_id} | {date} | {operation} | {variables}"
-        log_item = QListWidgetItem(log_text)
-        log_item.setData(Qt.ItemDataRole.UserRole,db_id)
-        self.logs_list.addItem(log_item)
-        self.current_session_logs.append({"db_id" : db_id,"log_text": log_text})
+        operation_data_text = f"{db_id} | {date} | {operation} | {variables}"
+        operation_data_item = QListWidgetItem(operation_data_text)
+        operation_data_item.setData(Qt.ItemDataRole.UserRole,db_id)
+        self.logs_list.addItem(operation_data_item)
+        self.current_session_logs.append({"db_id" : db_id,"operation_data_text": operation_data_text})
         # add logs came from operation_ui
 
-    # LogsUI.show_log_by_id.log_by_id_requested --> AppManager --> DatabaseManager_return_log_by_id --> AppManager --> LogsUI.show_log_by_id
-    def show_log_by_id(self,item : QListWidgetItem):
+    # LogsUI.show_operation_data_by_id.operation_data_by_id_requested --> AppManager --> DatabaseManager_return_operation_data_by_id --> AppManager --> LogsUI.show_operation_data_by_id
+    def show_operation_data_by_id(self,item : QListWidgetItem):
         db_id = item.data(Qt.ItemDataRole.UserRole)
-        self.log_by_id_requested.emit(str(db_id))
+        self.operation_data_by_id_requested.emit(str(db_id))
 
-    # LogsUI.show_log_by_id.log_by_id_requested --> AppManager --> DatabaseManager_return_log_by_id --> AppManager --> LogsUI.init_history_ui --> AppManager --> MainUI.add_new_history_tab
-    def init_history_ui(self,log_by_id : list):
-        db_id = log_by_id[0]
-        date = log_by_id[2]
-        operation = log_by_id[3]
-        variables = log_by_id[4]
-        input_data = log_by_id[5].replace("{","").replace("}","")
-        output = log_by_id[6]
+    # LogsUI.show_operation_data_by_id.operation_data_by_id_requested --> AppManager --> DatabaseManager_return_operation_data_by_id --> AppManager --> LogsUI.init_history_ui --> AppManager --> MainUI.add_new_history_tab
+    def init_history_ui(self,operation_data_by_id : list):
+        db_id = operation_data_by_id[0]
+        date = operation_data_by_id[2]
+        operation = operation_data_by_id[3]
+        variables = operation_data_by_id[4]
+        input_data = operation_data_by_id[5].replace("{","").replace("}","")
+        output = operation_data_by_id[6]
         self.history_map = {
             "Population Mean" : MeanHistoryUI,
             "Sample Mean" : MeanHistoryUI,
@@ -182,9 +181,9 @@ class LogsUI(QWidget):
     def show_current_session_logs_function(self):
         self.logs_list.clear()
         for log in self.current_session_logs:
-            log_item = QListWidgetItem(log["log_text"])
-            log_item.setData(Qt.ItemDataRole.UserRole,log["db_id"])
-            self.logs_list.addItem(log_item)
+            operation_data_item = QListWidgetItem(log["operation_data_text"])
+            operation_data_item.setData(Qt.ItemDataRole.UserRole,log["db_id"])
+            self.logs_list.addItem(operation_data_item)
     
     # Clear Logs
     def clear_logs_button_function(self):

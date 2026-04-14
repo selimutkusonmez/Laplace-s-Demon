@@ -7,6 +7,9 @@ from PyQt6.QtGui import QAction,QActionGroup,QIcon
 from src.assets.style.style_reader.style_reader import read_style
 from config import JPG_PATH
 
+from src.ui.profile.about_me.about_me_ui import AboutMeUI
+from src.ui.profile.preferences.preferences_ui import PreferencesUI
+
 class MainUI(QMainWindow):
     color_change_requested = pyqtSignal(str)
     log_out_requested = pyqtSignal()
@@ -14,7 +17,7 @@ class MainUI(QMainWindow):
         super().__init__()
         self.init_ui()
         self.current_font_size = 20
-        self.change_theme_function()
+        self.change_theme_action_function()
 
     def init_ui(self):
         
@@ -152,7 +155,6 @@ class MainUI(QMainWindow):
             self.current_theme = "light"
             self.setStyleSheet(read_style(self.current_theme))
         
-
     #Font Color Action Function
     def change_color_action_function(self):
         color = QColorDialog.getColor()
@@ -170,10 +172,13 @@ class MainUI(QMainWindow):
         else:
             print("tr")
 
-    def init_profile_menu(self,current_user_name : str):
+    def init_profile_menu(self,current_user : str):
+
+        self.current_user = current_user
+
         #Profile Menu
         self.profile_button = QToolButton(self)
-        self.profile_button.setText(current_user_name)
+        self.profile_button.setText(self.current_user)
         self.profile_button.setAutoRaise(True)
         self.profile_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
 
@@ -200,10 +205,12 @@ class MainUI(QMainWindow):
         self.profile_button.show()
 
     def about_me_action_function(self):
-        print("about me")
+        about_me_ui = AboutMeUI()
+        self.central_widget.addTab(about_me_ui,"About Me")
     
     def preferences_action_function(self):
-        print("preferences")
+        preferences_ui = PreferencesUI()
+        self.central_widget.addTab(preferences_ui,"Preferences")
     
     #Log Out Action Function
     def log_out_action_function(self):
