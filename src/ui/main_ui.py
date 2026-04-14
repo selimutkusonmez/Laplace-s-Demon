@@ -14,7 +14,7 @@ class MainUI(QMainWindow):
         super().__init__()
         self.init_ui()
         self.current_font_size = 20
-        self.dark_theme_action_function()
+        self.change_theme_function()
 
     def init_ui(self):
         
@@ -37,7 +37,7 @@ class MainUI(QMainWindow):
         #MenuBar
         menu_bar = self.menuBar()
 
-        #File Menu
+                            #File Menu
         file_menu = menu_bar.addMenu("File")
 
         about_action = QAction("About",self)
@@ -54,31 +54,38 @@ class MainUI(QMainWindow):
         close_tab_action.setShortcut("Ctrl+W")
         close_tab_action.triggered.connect(self.close_tab_action_function)
 
-        #Settings Menu
+
+
+                            #Settings Menu
         settings_menu = menu_bar.addMenu("Settings")
 
+
+                            #Theme Menu
         theme_menu = settings_menu.addMenu("Theme")
         theme_action_group = QActionGroup(self)
-
-        color_menu = settings_menu.addMenu("Font Color")
-        color_action_group = QActionGroup(self)
-
-        #Light Theme
-        light_theme_action = QAction("Light Theme")
-        light_theme_action.setShortcut("Ctrl+L")
-        light_theme_action.setCheckable(True)
-        theme_menu.addAction(light_theme_action)
-        theme_action_group.addAction(light_theme_action)
-        light_theme_action.triggered.connect(self.light_theme_action_function)
+        theme_action_group.triggered.connect(self.change_theme_action_function)
 
         #Dark Theme
         dark_theme_action = QAction("Dark Theme")
         dark_theme_action.setShortcut("Ctrl+D")
         dark_theme_action.setCheckable(True)
         dark_theme_action.setChecked(True)
+        dark_theme_action.setData("dark_theme")
         theme_menu.addAction(dark_theme_action)
         theme_action_group.addAction(dark_theme_action)
-        dark_theme_action.triggered.connect(self.dark_theme_action_function)
+
+        #Light Theme
+        light_theme_action = QAction("Light Theme")
+        light_theme_action.setShortcut("Ctrl+L")
+        light_theme_action.setCheckable(True)
+        light_theme_action.setData("light_theme")
+        theme_menu.addAction(light_theme_action)
+        theme_action_group.addAction(light_theme_action)
+
+
+                            #Color Menu
+        color_menu = settings_menu.addMenu("Font Color")
+        color_action_group = QActionGroup(self)
 
         #Font Color
         change_color_action = QAction("Change Font Color")
@@ -86,13 +93,41 @@ class MainUI(QMainWindow):
         color_action_group.addAction(change_color_action)
         change_color_action.triggered.connect(self.change_color_action_function)
 
+
+                            #Language Menu
+        language_menu = settings_menu.addMenu("Language")
+        language_action_group = QActionGroup(self)
+        language_action_group.triggered.connect(self.change_language_action_function)
+
+        #English
+        en_action = QAction("English")
+        en_action.setCheckable(True)
+        en_action.setChecked(True)
+        en_action.setData("en")
+        language_menu.addAction(en_action)
+        language_action_group.addAction(en_action)
+
+        #Deutch
+        de_action = QAction("Deutch")
+        de_action.setCheckable(True)
+        language_menu.addAction(de_action)
+        de_action.setData("de")
+        language_action_group.addAction(de_action)
+
+        #Turkish
+        tr_action = QAction("Turkish")
+        tr_action.setCheckable(True)
+        language_menu.addAction(tr_action)
+        tr_action.setData("tr")
+        language_action_group.addAction(tr_action)
+
+
     #About Action Function
     def about_action_function(self):
         about_text = """
-        <h2>Laplace's Demon/h2>
-        <p>/p>
-        """
-        QMessageBox.about(self, "About Statistical Calculator", about_text) 
+                    <h2>Laplace's Demon/h2>
+                    """
+        QMessageBox.about(self, "", about_text) 
 
     #Restart App(Ctrl+R) Action Function
     def restart_app_action_function(self):
@@ -105,15 +140,18 @@ class MainUI(QMainWindow):
         if current_index != 0 and current_index != 1:
             self.central_widget.removeTab(self.central_widget.currentIndex())
 
-    # Light Action Function
-    def light_theme_action_function(self):
-        self.current_theme = "light"
-        self.setStyleSheet(read_style(self.current_theme))
-
-    # Dark Action Function
-    def dark_theme_action_function(self):
-        self.current_theme = "dark"
-        self.setStyleSheet(read_style(self.current_theme))  
+    #Change Theme Function
+    def change_theme_action_function(self, action : QAction = None ):
+        if action is None: 
+            self.current_theme = "dark"
+            self.setStyleSheet(read_style(self.current_theme))
+        elif action.data() == "dark_theme":
+            self.current_theme = "dark"
+            self.setStyleSheet(read_style(self.current_theme))
+        elif action.data() == "light_theme":
+            self.current_theme = "light"
+            self.setStyleSheet(read_style(self.current_theme))
+        
 
     #Font Color Action Function
     def change_color_action_function(self):
@@ -123,6 +161,14 @@ class MainUI(QMainWindow):
             self.color_change_requested.emit(self.current_font_color)
         else:
             return
+        
+    def change_language_action_function(self, action : QAction):
+        if action.data() == "en":
+            print("en")
+        elif action.data() == "de":
+            print("de")
+        else:
+            print("tr")
 
     def init_profile_menu(self,current_user_name : str):
         #Profile Menu
@@ -159,6 +205,7 @@ class MainUI(QMainWindow):
     def preferences_action_function(self):
         print("preferences")
     
+    #Log Out Action Function
     def log_out_action_function(self):
         while self.central_widget.count() > 0:
             widget = self.central_widget.widget(0)
