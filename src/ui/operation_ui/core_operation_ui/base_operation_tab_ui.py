@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QTabWidget,QVBoxLayout,QWidget,QComboBox,QPushButton
+from PyQt6.QtWidgets import QTabWidget,QVBoxLayout,QWidget,QComboBox,QPushButton,QFileDialog
 import pandas as pd
 from src.ui.widgets.drag_and_drop_text_edit.drag_and_drop_text_edit import DragAndDropTextEdit
 from src.ui.widgets.drag_and_drop_table_widget.drag_and_drop_table_widget import DragAndDropTableView
@@ -37,6 +37,7 @@ class BaseOperationTabUI(DemonCore):
         self.table_tab_layout.addWidget(self.table_data_input)
 
         self.choose_file_button = QPushButton("Choose File")
+        self.choose_file_button.clicked.connect(self.choose_file_button_function)
         self.table_tab_layout.addWidget(self.choose_file_button)
 
         self.inputs_tab_widget.addTab(self.table_tab,"Table Data")
@@ -83,6 +84,13 @@ class BaseOperationTabUI(DemonCore):
             self.table_data = False
             self.data = None
             self.update_display()
+
+    def choose_file_button_function(self):
+        file_path,_ = QFileDialog.getOpenFileName(
+            self, "Choose File", "", "(*.csv *.json *.tsv *.txt *.xlsx)"
+        )
+        self.table_data_input.load_data_from_chosen_file(file_path)
+        print(file_path)
         
 
 

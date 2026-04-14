@@ -77,7 +77,27 @@ class DragAndDropTableView(QTableView):
             )
             painter.end()
 
-    
+    def load_data_from_chosen_file(self,file_path):
+            try:
+                self.df = load_table_data(file_path, self)
+                if self.df is None:
+                    return
+                
+                else:
+                    table_model = DFTableModel(self.df)
+                    
+                    self.setModel(table_model)
+                    
+                    self.data_loaded.emit(list(self.df.columns))
+
+            except Exception as e:
+                QMessageBox.warning(
+                    self, 
+                    "System Error", 
+                    "Could not populate table"
+                )
+
+
     # OperationUI.column_picker.currentText() --> DragAndDropTableWidget.load_column_data
     def load_column_data(self,column_name : str):
         try:
@@ -128,3 +148,4 @@ class DragAndDropTableView(QTableView):
                 return None
             else:
                 return data
+            
