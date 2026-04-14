@@ -24,17 +24,17 @@ class PreferencesUI(QWidget):
 
         self.preferences_groupbox_layout.addWidget(QLabel("Language : "),0,0)
         self.language_preference_input = QComboBox()
-        self.language_preference_input.currentIndexChanged.connect(self.save_preferred_language)
         self.language_preference_input.addItem("English","en")
         self.language_preference_input.addItem("Deutsch","de")
         self.language_preference_input.addItem("Türkçe","tr")
+        self.language_preference_input.currentIndexChanged.connect(self.save_preferred_language)
         self.preferences_groupbox_layout.addWidget(self.language_preference_input,0,1)
         
         self.preferences_groupbox_layout.addWidget(QLabel("Theme : "),1,0)
         self.theme_preference_input = QComboBox()
-        self.theme_preference_input.currentIndexChanged.connect(self.save_preferred_theme)
         self.theme_preference_input.addItem("Dark Theme","dark")
         self.theme_preference_input.addItem("Light Theme","light")
+        self.theme_preference_input.currentIndexChanged.connect(self.save_preferred_theme)
         self.preferences_groupbox_layout.addWidget(self.theme_preference_input,1,1)
 
         self.preferences_groupbox_layout.addWidget(QLabel("Font Color : "),2,0)
@@ -64,8 +64,8 @@ class PreferencesUI(QWidget):
     def save_preferred_font_color(self):
         color = QColorDialog.getColor()
         if color.isValid():
-            self.current_font_color = color.name()
-            self.change_preferred_font_color_request.emit(color)
+            color_name = color.name()
+            self.change_preferred_font_color_request.emit(color_name)
             self.output_space.setText("Preferred Font Color Changed")
         else:
             self.output_space.setText("Preferred Font Color Change Interrupted")

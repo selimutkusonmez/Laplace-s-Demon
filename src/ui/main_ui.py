@@ -11,13 +11,20 @@ from src.ui.profile.about_me.about_me_ui import AboutMeUI
 from src.ui.profile.preferences.preferences_ui import PreferencesUI
 
 class MainUI(QMainWindow):
+
     color_change_requested = pyqtSignal(str)
     log_out_requested = pyqtSignal()
+
+    #PreferencesUI.signals --> MainUI.signals --> AppManager --> DatabaseManager
+    change_preferred_language_request = pyqtSignal(str)
+    change_preferred_theme_request = pyqtSignal(str)
+    change_preferred_font_color_request = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
         self.init_ui()
         self.current_font_size = 20
-        self.change_theme_action_function()
+        self.change_preferred_theme_function()
 
     def init_ui(self):
         
@@ -59,7 +66,7 @@ class MainUI(QMainWindow):
 
 
 
-                            #Settings Menu
+        """                            #Settings Menu
         settings_menu = menu_bar.addMenu("Settings")
 
 
@@ -122,7 +129,7 @@ class MainUI(QMainWindow):
         tr_action.setCheckable(True)
         language_menu.addAction(tr_action)
         tr_action.setData("tr")
-        language_action_group.addAction(tr_action)
+        language_action_group.addAction(tr_action)"""
 
 
     #About Action Function
@@ -144,30 +151,25 @@ class MainUI(QMainWindow):
             self.central_widget.removeTab(self.central_widget.currentIndex())
 
     #Change Theme Function
-    def change_theme_action_function(self, action : QAction = None ):
-        if action is None: 
+    def change_preferred_theme_function(self,preferred_theme : str = None):
+        if preferred_theme is None: 
             self.current_theme = "dark"
             self.setStyleSheet(read_style(self.current_theme))
-        elif action.data() == "dark_theme":
+        elif preferred_theme == "dark":
             self.current_theme = "dark"
             self.setStyleSheet(read_style(self.current_theme))
-        elif action.data() == "light_theme":
+        elif preferred_theme == "light":
             self.current_theme = "light"
             self.setStyleSheet(read_style(self.current_theme))
         
     #Font Color Action Function
-    def change_color_action_function(self):
-        color = QColorDialog.getColor()
-        if color.isValid():
-            self.current_font_color = color.name()
-            self.color_change_requested.emit(self.current_font_color)
-        else:
-            return
+    def change_preferred_font_color_function(self,preferred_color : str):
+        self.color_change_requested.emit(preferred_color)
         
-    def change_language_action_function(self, action : QAction):
-        if action.data() == "en":
+    def change_preferred_language_function(self,preferred_language : str):
+        if preferred_language == "en":
             print("en")
-        elif action.data() == "de":
+        elif preferred_language == "de":
             print("de")
         else:
             print("tr")
@@ -211,7 +213,18 @@ class MainUI(QMainWindow):
     
     def preferences_action_function(self):
         preferences_ui = PreferencesUI()
-        self.central_widget.addTab(preferences_ui,"Preferences")
+
+        preferences_ui.change_preferred_language_request.connect(self.change_preferred_language_function)
+        preferences_ui.change_preferred_language_request.connect(self.change_preferred_language_request)
+        
+        preferences_ui.change_preferred_theme_request.connect(self.change_preferred_theme_function)
+        preferences_ui.change_preferred_theme_request.connect(self.change_preferred_theme_request)
+
+        preferences_ui.change_preferred_font_color_request.connect(self.change_preferred_font_color_function)
+        preferences_ui.change_preferred_font_color_request.connect(self.change_preferred_font_color_request)
+
+        index = self.central_widget.addTab(preferences_ui,"Preferences")
+        self.central_widget.setCurrentIndex(index)
     
     #Log Out Action Function
     def log_out_action_function(self):

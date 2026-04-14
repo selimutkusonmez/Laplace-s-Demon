@@ -9,6 +9,9 @@ class AppManager():
         self.main_ui = MainUI()
         self.main_ui.color_change_requested.connect(self.handle_color_change)
         self.main_ui.log_out_requested.connect(self.handle_relogin)
+        self.main_ui.change_preferred_language_request.connect(self.handle_preferred_language_change)
+        self.main_ui.change_preferred_theme_request.connect(self.handle_preferred_theme_change)
+        self.main_ui.change_preferred_font_color_request.connect(self.handle_preffered_font_color_change)
 
         self.login_ui = LoginUI()
         self.login_ui.login_signal.connect(self.handle_login)
@@ -97,6 +100,13 @@ class AppManager():
         self.login_ui.login_signal.connect(self.handle_login)
         self.main_ui.central_widget.addTab(self.login_ui,"Login")
         self.main_ui.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
+
+    def handle_preferred_language_change(self):
+        print("language")
+    def handle_preferred_theme_change(self):
+        print("theme")
+    def handle_preffered_font_color_change(self):
+        print("font color")
 
 if __name__ == "__main__":
     manager = AppManager()
