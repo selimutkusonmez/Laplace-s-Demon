@@ -205,8 +205,9 @@ class MainUI(QMainWindow):
         self.profile_button.show()
 
     def about_me_action_function(self):
-        about_me_ui = AboutMeUI()
-        self.central_widget.addTab(about_me_ui,"About Me")
+        about_me_ui = AboutMeUI(self.current_user)
+        index = self.central_widget.addTab(about_me_ui,"About Me")
+        self.central_widget.setCurrentIndex(index)
     
     def preferences_action_function(self):
         preferences_ui = PreferencesUI()

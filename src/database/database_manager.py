@@ -44,7 +44,7 @@ class DatabaseManager():
                 print(f"⏳ Waiting for database to wake up... ({i+1}/{max})")
                 time.sleep(1)
 
-    def save_user_log(self,username):
+    def save_user_log(self,username,attempt):
         try:
             mac_adress = get_mac_address()
             hostname = socket.gethostname()
@@ -56,12 +56,12 @@ class DatabaseManager():
             ip_adress = "Offline"
         try:
             query = """
-                    INSERT INTO logs (user_id,ip_adress,mac_adress)
+                    INSERT INTO logs (user_id,ip_adress,mac_adress,attempt)
                     VALUES (
-                            (SELECT id FROM users WHERE username = %s), %s, %s
+                            (SELECT id FROM users WHERE username = %s), %s, %s, %s
                     )
                     """
-            self.cursor.execute(query,(username,ip_adress,mac_adress))
+            self.cursor.execute(query,(username,ip_adress,mac_adress,attempt))
             self.conn.commit()
 
         except Exception as e:
@@ -74,9 +74,10 @@ class DatabaseManager():
             self.cursor.execute(query, (username, password))
             user = self.cursor.fetchone()            
             if user:
-                self.save_user_log(username)
+                self.save_user_log(username,"successful")
                 return 1    
             else: 
+                self.save_user_log(username,"failed")
                 return 0
                 
         except Exception as e:
@@ -143,6 +144,7 @@ class DatabaseManager():
         except Exception as e:
             print(str(e))
             return f"Error : {str(e)}"
+
 
     def count_operation_data(self,username):
         try:
