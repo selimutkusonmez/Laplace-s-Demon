@@ -44,6 +44,9 @@ class DatabaseManager():
                 print(f"⏳ Waiting for database to wake up... ({i+1}/{max})")
                 time.sleep(1)
 
+
+    #LOGIN AND LOGS (users and logs tables)
+
     # Save user log into the database wheter successful or failed
     def save_user_log(self,username : str, attempt : str) -> None:
         try:
@@ -85,6 +88,9 @@ class DatabaseManager():
             self.conn.rollback()
             return f"Error: {str(e)}"
         
+
+    # SAVE OPERATION DATA -- GET OPERATION DATA BY ID OR DATE -- COUNT TOTAL OPERATION BASED ON user_id (operation_history table)
+
     # NewOperationUI.calculation_success --> AppManager --> DatabaseManager.save_log --> AppManager --> LogsUI.add_new_log
     def save_operation_data_to_db(self, username : str, new_log : list) -> str:
         date = new_log[0]
@@ -159,6 +165,8 @@ class DatabaseManager():
         except Exception as e:
             print(str(e))
 
+
+    #USER PREFERENCES (user_preferences table)
 
     def update_preferred_language(self, username : str, preferred_language : str) -> None:
         try:
