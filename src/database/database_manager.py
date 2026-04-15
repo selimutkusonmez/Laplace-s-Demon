@@ -44,7 +44,8 @@ class DatabaseManager():
                 print(f"⏳ Waiting for database to wake up... ({i+1}/{max})")
                 time.sleep(1)
 
-    def save_user_log(self,username,attempt):
+    # Save user log into the database wheter successful or failed
+    def save_user_log(self,username : str, attempt : str) -> None:
         try:
             mac_adress = get_mac_address()
             hostname = socket.gethostname()
@@ -65,10 +66,10 @@ class DatabaseManager():
             self.conn.commit()
 
         except Exception as e:
-            print(str(e))
+            self.conn.rollback()
 
-    # Login Check
-    def check_login(self, username, password) -> int:
+    # Check login inputs and save log
+    def check_login(self, username : str, password : str) -> int:
         try:
             query = "SELECT * FROM users WHERE username = %s AND password = %s"
             self.cursor.execute(query, (username, password))
@@ -85,7 +86,7 @@ class DatabaseManager():
             return f"Error: {str(e)}"
         
     # NewOperationUI.calculation_success --> AppManager --> DatabaseManager.save_log --> AppManager --> LogsUI.add_new_log
-    def save_operation_data_to_db(self,username : str, new_log : list) -> str:
+    def save_operation_data_to_db(self, username : str, new_log : list) -> str:
         date = new_log[0]
         operation = new_log[1]
         variables = new_log[2]
@@ -94,7 +95,7 @@ class DatabaseManager():
 
         try:
             query = """
-                    INSERT INTO history (user_id,date,operation,variables,input_data,output)
+                    INSERT INTO operation_history (user_id,date,operation,variables,input_data,output)
                     VALUES (
                             (SELECT id FROM users WHERE username = %s), %s, %s, %s, %s, %s
                     ) RETURNING id;
@@ -115,10 +116,10 @@ class DatabaseManager():
             return f"Error : {str(e)}"
             
     # LogsUI.logs_button_function.logs_by_date_requested --> AppManager --> DatabaseManager.return_logs_by_date --> AppManager --> LogsUI.show_logs_by_date
-    def return_operation_data_by_date(self,username,log_date) -> list:
+    def return_operation_data_by_date(self, username : str,log_date : str) -> list:
         try:
             query = """
-                    SELECT id,date,operation,variables FROM history
+                    SELECT id,date,operation,variables FROM operation_history
                     WHERE user_id = (SELECT id FROM users WHERE username = %s)
                     AND date::date BETWEEN %s AND %s ORDER BY date DESC
                     """
@@ -131,10 +132,10 @@ class DatabaseManager():
             return f"Error : {str(e)}"
         
     #LogsUI.show_log_by_id.log_by_id_requested --> AppManager --> DatabaseManager_return_log_by_id --> AppManager --> LogsUI.init_history_ui    
-    def return_operation_data_by_id(self,db_id : str) -> list:
+    def return_operation_data_by_id(self, db_id : str) -> list:
         try:
             query = """
-                    SELECT * FROM history WHERE id = %s
+                    SELECT * FROM operation_history WHERE id = %s
                     """
             self.cursor.execute(query,(db_id,))
             log_by_id_data = self.cursor.fetchall()
@@ -145,11 +146,11 @@ class DatabaseManager():
             print(str(e))
             return f"Error : {str(e)}"
 
-
-    def count_operation_data(self,username):
+    # Count how many operations has user used
+    def count_operation_data(self, username : str) -> str:
         try:
             query = """
-            SELECT COUNT(user_id) FROM history
+            SELECT COUNT(user_id) FROM operation_history
             WHERE user_id = (SELECT id FROM users WHERE username = %s)
             """
             self.cursor.execute(query, (username,))
@@ -159,7 +160,40 @@ class DatabaseManager():
             print(str(e))
 
 
+    def update_preferred_language(self, username : str, preferred_language : str) -> None:
+        try:
+            query = """
+                    UPDATE user_preferences SET preferred_language = %s WHERE user_id = (SELECT id FROM users WHERE username = %s);
+                    """
+            self.cursor.execute(query,(preferred_language,username))
+            self.conn.commit()
+            print("language db")
+            
+        except Exception as e:
+            print(str(e))
+            self.conn.rollback()
 
+    def update_preferred_theme(self, username : str, preferred_theme : str) -> None :
+        try:
+            query = """
+                    UPDATE user_preferences SET preferred_theme = %s WHERE user_id = (SELECT id FROM users WHERE username = %s);
+                    """
+            self.cursor.execute(query,(preferred_theme,username))
+            self.conn.commit()
+            print("theme db")
+        except:
+            self.conn.rollback()
+
+    def update_preferred_font_color(self, username : str, preferred_font_color : str) -> None:
+        try:
+            query = """
+                    UPDATE user_preferences SET preferred_font_color = %s WHERE user_id = (SELECT id FROM users WHERE username = %s);
+                    """
+            self.cursor.execute(query,(preferred_font_color,username))
+            self.conn.commit()
+            print("font color db")
+        except:
+            self.conn.rollback()
 
     def __del__(self):
         if hasattr(self, 'conn') and self.conn is not None:

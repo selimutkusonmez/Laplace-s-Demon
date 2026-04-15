@@ -39,11 +39,8 @@ class MainUI(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         self.central_widget.setTabsClosable(True)
-        self.central_widget.tabCloseRequested.connect(self.central_widget_tab_close_function)      
-
-        #StatusBar
-        self.setStatusBar(QStatusBar())
-
+        self.central_widget.tabCloseRequested.connect(self.central_widget_tab_close_function)   
+           
         #MenuBar
         menu_bar = self.menuBar()
 
@@ -63,74 +60,6 @@ class MainUI(QMainWindow):
         file_menu.addAction(close_tab_action)
         close_tab_action.setShortcut("Ctrl+W")
         close_tab_action.triggered.connect(self.close_tab_action_function)
-
-
-
-        """                            #Settings Menu
-        settings_menu = menu_bar.addMenu("Settings")
-
-
-                            #Theme Menu
-        theme_menu = settings_menu.addMenu("Theme")
-        theme_action_group = QActionGroup(self)
-        theme_action_group.triggered.connect(self.change_theme_action_function)
-
-        #Dark Theme
-        dark_theme_action = QAction("Dark Theme")
-        dark_theme_action.setShortcut("Ctrl+D")
-        dark_theme_action.setCheckable(True)
-        dark_theme_action.setChecked(True)
-        dark_theme_action.setData("dark_theme")
-        theme_menu.addAction(dark_theme_action)
-        theme_action_group.addAction(dark_theme_action)
-
-        #Light Theme
-        light_theme_action = QAction("Light Theme")
-        light_theme_action.setShortcut("Ctrl+L")
-        light_theme_action.setCheckable(True)
-        light_theme_action.setData("light_theme")
-        theme_menu.addAction(light_theme_action)
-        theme_action_group.addAction(light_theme_action)
-
-
-                            #Color Menu
-        color_menu = settings_menu.addMenu("Font Color")
-        color_action_group = QActionGroup(self)
-
-        #Font Color
-        change_color_action = QAction("Change Font Color")
-        color_menu.addAction(change_color_action)
-        color_action_group.addAction(change_color_action)
-        change_color_action.triggered.connect(self.change_color_action_function)
-
-
-                            #Language Menu
-        language_menu = settings_menu.addMenu("Language")
-        language_action_group = QActionGroup(self)
-        language_action_group.triggered.connect(self.change_language_action_function)
-
-        #English
-        en_action = QAction("English")
-        en_action.setCheckable(True)
-        en_action.setChecked(True)
-        en_action.setData("en")
-        language_menu.addAction(en_action)
-        language_action_group.addAction(en_action)
-
-        #Deutch
-        de_action = QAction("Deutch")
-        de_action.setCheckable(True)
-        language_menu.addAction(de_action)
-        de_action.setData("de")
-        language_action_group.addAction(de_action)
-
-        #Turkish
-        tr_action = QAction("Turkish")
-        tr_action.setCheckable(True)
-        language_menu.addAction(tr_action)
-        tr_action.setData("tr")
-        language_action_group.addAction(tr_action)"""
-
 
     #About Action Function
     def about_action_function(self):

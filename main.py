@@ -101,12 +101,17 @@ class AppManager():
         self.main_ui.central_widget.addTab(self.login_ui,"Login")
         self.main_ui.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
 
-    def handle_preferred_language_change(self):
-        print("language")
-    def handle_preferred_theme_change(self):
-        print("theme")
-    def handle_preffered_font_color_change(self):
-        print("font color")
+    def handle_preferred_language_change(self, preferred_language : str) -> None:
+        print("language main")
+        self.database_manager.update_preferred_language(self.username, preferred_language)
+
+    def handle_preferred_theme_change(self, preferred_theme : str) -> None:
+        print("theme main")
+        self.database_manager.update_preferred_theme(self.username, preferred_theme)
+
+    def handle_preffered_font_color_change(self, preferred_font_color : str) -> None:
+        print("font color main")
+        self.database_manager.update_preferred_font_color(self.username, preferred_font_color)
 
 if __name__ == "__main__":
     manager = AppManager()

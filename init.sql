@@ -30,9 +30,9 @@ CREATE TABLE IF NOT EXISTS logs (
 -- USER PREFERENCES TABLE --
 CREATE TABLE IF NOT EXISTS user_preferences (
     user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    language_preference varchar(10) DEFAULT 'en' NOT NULL,
-    theme varchar(10) DEFAULT 'dark',
-    font_color varchar(50) DEFAULT '#ADBAC7'
+    preferred_language varchar(10) DEFAULT 'en' NOT NULL,
+    preferred_theme varchar(10) DEFAULT 'dark',
+    preferred_font_color varchar(50) DEFAULT '#ADBAC7'
 );
 
 -- USER STATS TABLE --
@@ -54,3 +54,7 @@ CREATE TABLE IF NOT EXISTS user_stats (
 INSERT INTO users (username, password)
 VALUES ('d', 'd')
 ON CONFLICT (username) DO NOTHING;
+
+INSERT INTO user_preferences (user_id)
+VALUES ((SELECT id FROM users WHERE username = 'd'))
+ON CONFLICT (user_id) DO NOTHING;
