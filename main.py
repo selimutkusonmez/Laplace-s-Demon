@@ -1,6 +1,7 @@
 import sys
 from PyQt6.QtWidgets import QApplication,QTabBar
 from src.ui import MainUI,LoginUI,OperationHistoryUI,DatabaseManager,OperationsListingUI
+from src.ui.profile.create_new_account.create_new_account_ui import CreateNewAccountUI
 
 class AppManager():
     def __init__(self):
@@ -14,7 +15,8 @@ class AppManager():
         self.main_ui.change_preferred_font_color_request.connect(self.handle_preffered_font_color_change)
 
         self.login_ui = LoginUI()
-        self.login_ui.login_signal.connect(self.handle_login)
+        self.login_ui.login_requested.connect(self.handle_login)
+        self.login_ui.create_an_account_requested.connect(self.handle_create_new_account)
         
     def init_database_manager(self):
         try:
@@ -48,6 +50,11 @@ class AppManager():
             
             self.main_ui.central_widget.removeTab(0)
 
+            if self.main_ui.central_widget.tabText(0) == "Create An Account":
+                create_new_account_ui_to_delete = self.main_ui.central_widget.widget(0)
+                self.main_ui.central_widget.removeTab(0)
+                create_new_account_ui_to_delete.deleteLater()
+
             self.operation_data_count = self.database_manager.count_operation_data(self.username) # We ask DatabaseManager how many logs under the name of self.username
             self.operation_history_ui = OperationHistoryUI(self.username,self.operation_data_count)
             self.operation_history_ui.create_history_requested.connect(self.handle_create_new_history) #create history_ui and send it to the appmanager
@@ -63,7 +70,16 @@ class AppManager():
             self.main_ui.central_widget.addTab(self.operation_history_ui,"Logs")
             self.main_ui.central_widget.tabBar().setTabButton(1, QTabBar.ButtonPosition.RightSide, None)
 
-            del self.login_ui
+            self.login_ui.deleteLater()
+
+    def handle_create_new_account(self):
+        create_new_account_ui = CreateNewAccountUI()
+        create_new_account_ui.save_account_info_requested.connect(self.handle_save_account_info)
+        self.main_ui.add_create_new_account_tab(create_new_account_ui)
+
+    def handle_save_account_info(self,create_new_account_ui_reference,account_info : list):
+        db_output = self.database_manager.save_account_info(account_info)
+        create_new_account_ui_reference.output.setText(db_output)
 
     def handle_new_operation_request(self,operation_input : list):
         self.new_operation_ui = operation_input[0] # QWidget
@@ -97,7 +113,8 @@ class AppManager():
 
     def handle_relogin(self):
         self.login_ui = LoginUI()
-        self.login_ui.login_signal.connect(self.handle_login)
+        self.login_ui.login_requested.connect(self.handle_login)
+        self.login_ui.create_an_account_requested.connect(self.handle_create_new_account)
         self.main_ui.central_widget.addTab(self.login_ui,"Login")
         self.main_ui.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
 

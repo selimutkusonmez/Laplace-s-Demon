@@ -5,7 +5,8 @@ from PyQt6.QtWidgets import (
      QApplication,QWidget,QLineEdit,QPushButton,QLabel,QGridLayout,QGroupBox)
 
 class LoginUI(QWidget):
-    login_signal = pyqtSignal(list)
+    login_requested = pyqtSignal(list)
+    create_an_account_requested = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -58,13 +59,12 @@ class LoginUI(QWidget):
         self.portfolio_button = QPushButton("My Web Site")
         self.central_groupbox_layout.addWidget(self.portfolio_button,4,0,1,2)
 
-        self.restart_app_button = QPushButton("Restart App")
-        self.restart_app_button.clicked.connect(self.restart_app_button_func)
+        self.restart_app_button = QPushButton("Create New Account")
+        self.restart_app_button.clicked.connect(self.create_an_account_button_function)
         self.central_groupbox_layout.addWidget(self.restart_app_button,5,0,1,2)
 
-    def restart_app_button_func(self):
-        QApplication.quit()
-        subprocess.Popen([sys.executable, *sys.argv])
+    def create_an_account_button_function(self):
+        self.create_an_account_requested.emit()
 
     def login_button_func(self):
         username = self.username_input.text()
@@ -73,6 +73,6 @@ class LoginUI(QWidget):
             self.error_space.setText("Please Fill In All Fields")
             return
         else:
-            self.login_signal.emit([username,password])
+            self.login_requested.emit([username,password])
 
 

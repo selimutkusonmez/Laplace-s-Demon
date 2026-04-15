@@ -1,5 +1,5 @@
 from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtWidgets import QGroupBox,QLineEdit,QComboBox,QLabel,QPushButton,QWidget,QGridLayout,QVBoxLayout,QHBoxLayout,QColorDialog
+from PyQt6.QtWidgets import QGroupBox,QLineEdit,QComboBox,QLabel,QPushButton,QWidget,QGridLayout,QColorDialog
 
 
 class PreferencesUI(QWidget):

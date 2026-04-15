@@ -103,6 +103,7 @@ class MainUI(QMainWindow):
         else:
             print("tr")
 
+
     def init_profile_menu(self,current_user : str):
 
         self.current_user = current_user
@@ -171,8 +172,7 @@ class MainUI(QMainWindow):
 
     # Central Widget Tab Close Function
     def central_widget_tab_close_function(self,index):
-        if index != 0 and index != 1:
-            self.central_widget.removeTab(index)
+        self.central_widget.removeTab(index)
 
     # OperationsListingUI/AppManager --> MainUI.add_new_operation_tab
     def add_new_operation_tab(self, new_operation_ui : QWidget, new_operation_name : str):
@@ -182,3 +182,7 @@ class MainUI(QMainWindow):
     # LogsUI/AppManager --> MainUI.add_new_history_tab
     def add_new_history_tab(self, new_history_ui : QWidget ,new_history_name : str):
         self.central_widget.addTab(new_history_ui,new_history_name)
+
+    def add_create_new_account_tab(self, create_new_account_ui : QWidget):
+        index = self.central_widget.addTab(create_new_account_ui,"Create An Account")
+        self.central_widget.setCurrentIndex(index)

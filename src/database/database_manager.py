@@ -89,6 +89,35 @@ class DatabaseManager():
             return f"Error: {str(e)}"
         
 
+    #CREATE NEW ACCOUNT (users)
+
+    def save_account_info(self,account_info : list) -> str:
+        try:
+            username = account_info[0]
+            password = account_info[1]
+
+            query = """
+                    INSERT INTO users (username,password) VALUES (%s,%s)
+                    """
+            self.cursor.execute(query, (username,password))
+
+            self.conn.commit()
+
+            return "Account Created Successfully"
+            
+        except psycopg2.errors.UniqueViolation:
+            self.conn.rollback()
+            return "Username Already In Use"
+            
+        except psycopg2.Error:
+            self.conn.rollback()
+            return "An Error Occured With Database"
+            
+        except Exception:
+            self.conn.rollback()
+            return "An Error Occured With System"
+
+
     # SAVE OPERATION DATA -- GET OPERATION DATA BY ID OR DATE -- COUNT TOTAL OPERATION BASED ON user_id (operation_history table)
 
     # NewOperationUI.calculation_success --> AppManager --> DatabaseManager.save_log --> AppManager --> LogsUI.add_new_log
