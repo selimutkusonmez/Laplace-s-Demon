@@ -4,10 +4,11 @@ from PyQt6.QtGui import QIcon
 from src.ui.operation_ui import *
 
 
-class OperationHistoryUI(QWidget):
-    operation_data_by_date_requested = pyqtSignal(list)
-    create_history_requested = pyqtSignal(list)
-    operation_data_by_id_requested = pyqtSignal(str)
+class LaplaceArchiveUI(QWidget):
+
+    archive_records_by_date_requested = pyqtSignal(list)
+    archive_record_data_by_id_requested = pyqtSignal(str)
+    init_new_archive_record_ui_requested = pyqtSignal(list)
 
     def __init__(self,username,operation_data_count):
         super().__init__()
@@ -18,15 +19,12 @@ class OperationHistoryUI(QWidget):
 
     def init_ui(self):
 
-        #object name and styling background permit granted
         self.setProperty("class","ui")
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
 
-        #layout created and set
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
-        #upper_groupbox and it's layout created and added to layout
         self.upper_groupbox = QGroupBox()
         self.upper_groupbox_layout = QHBoxLayout()
         self.upper_groupbox.setLayout(self.upper_groupbox_layout)
@@ -63,78 +61,69 @@ class OperationHistoryUI(QWidget):
 
         self.upper_groupbox_layout.addStretch()
 
-        self.operation_data_button = QPushButton("Show Logs By Date")
-        self.operation_data_button.clicked.connect(self.operation_data_button_function)
-        self.upper_groupbox_layout.addWidget(self.operation_data_button)
+        self.list_archive_records_by_date_button = QPushButton("List Archive Record By Date")
+        self.list_archive_records_by_date_button.clicked.connect(self.list_archive_records_by_date_button_function)
+        self.upper_groupbox_layout.addWidget(self.list_archive_records_by_date_button)
 
-        #lower_groupbox and it's layout created and added to layout
         self.lower_groupbox = QGroupBox()
         self.lower_groupbox_layout = QGridLayout()
         self.lower_groupbox.setLayout(self.lower_groupbox_layout)
         self.layout.addWidget(self.lower_groupbox)
 
-        self.logs_list = QListWidget()
-        self.logs_list.setProperty("class","list")
-        self.logs_list.itemDoubleClicked.connect(self.show_operation_data_by_id)
-        self.lower_groupbox_layout.addWidget(self.logs_list,0,0,1,2)
+        self.archive_records_list = QListWidget()
+        self.archive_records_list.setProperty("class","list")
+        self.archive_records_list.itemDoubleClicked.connect(self.request_archive_record_data_by_id)
+        self.lower_groupbox_layout.addWidget(self.archive_records_list,0,0,1,2)
 
-        self.refresh_logs_button = QPushButton("Show Current Session Logs")
-        self.refresh_logs_button.clicked.connect(self.show_current_session_logs_function)
-        self.lower_groupbox_layout.addWidget(self.refresh_logs_button,1,0)
+        self.show_current_session_archives_button = QPushButton("Show Current Session Records")
+        self.show_current_session_archives_button.clicked.connect(self.show_current_session_archives_button_function)
+        self.lower_groupbox_layout.addWidget(self.show_current_session_archives_button,1,0)
 
-        self.clear_logs_button = QPushButton("Clear Logs")
-        self.clear_logs_button.clicked.connect(self.clear_logs_button_function)
-        self.lower_groupbox_layout.addWidget(self.clear_logs_button,1,1)
+        self.clear_archive_list_button = QPushButton("Clear Records List")
+        self.clear_archive_list_button.clicked.connect(self.clear_archive_list_button_function)
+        self.lower_groupbox_layout.addWidget(self.clear_archive_list_button,1,1)
 
-        self.current_session_logs = []
+        self.current_session_archives_records_and_datas = []
 
 
-    # LogsUI.logs_button_function.logs_by_date_requested --> AppManager --> DatabaseManager.return_logs_by_date --> LogsUI.show_logs_by_date
-    def operation_data_button_function(self):
+    # LaplaceArchiveUI.list_archive_records_by_date_button_function.archive_records_by_date_requested --> AppManager.hanlde_archive_records_by_date --> DatabaseManager.return_logs_by_date --> LaplaceArchiveUI.list_archive_records_by_date
+    def list_archive_records_by_date_button_function(self):
         start_date = self.start_date.date().toString()
         end_date = self.end_date.date().toString()
-        self.operation_data_by_date_requested.emit([start_date,end_date])
+        self.archive_records_by_date_requested.emit([start_date,end_date])
 
-    # LogsUI.logs_button_function.logs_by_date_requested --> AppManager --> DatabaseManager.return_logs_by_date --> AppManager --> LogsUI.show_logs_by_date
-    def show_operation_data_by_date(self,logs : list):
-        self.logs_list.clear()
+    def list_archive_records_by_date(self,logs : list):
+
+        self.archive_records_list.clear()
+
         for log in logs:
                 db_id = log[0]
                 date = log[1]
                 operation = log[2]
                 variables = log[3]
-                operation_data_text = f"{db_id} | {date} | {operation} | {variables}"
-                operation_data_item = QListWidgetItem(operation_data_text)
-                operation_data_item.setData(Qt.ItemDataRole.UserRole,db_id)
-                self.logs_list.addItem(operation_data_item)
-        # add logs came from databasemanager
+                archive_record = f"{db_id} | {date} | {operation} | {variables}"
+                archive_record = QListWidgetItem(archive_record)
+                archive_record.setData(Qt.ItemDataRole.UserRole,db_id)
+                self.archive_records_list.addItem(archive_record)
 
-    # NewOperationUI.calculation_success --> AppManager --> DatabaseManager.save_log --> AppManager --> LogsUI.add_new_log
-    def add_new_operation_data(self,db_id : str, new_log : list):
-        date = new_log[0]
-        operation = new_log[1]
-        variables = new_log[2]
-        operation_data_text = f"{db_id} | {date} | {operation} | {variables}"
-        operation_data_item = QListWidgetItem(operation_data_text)
-        operation_data_item.setData(Qt.ItemDataRole.UserRole,db_id)
-        self.logs_list.addItem(operation_data_item)
-        self.current_session_logs.append({"db_id" : db_id,"operation_data_text": operation_data_text})
-        # add logs came from operation_ui
 
-    # LogsUI.show_operation_data_by_id.operation_data_by_id_requested --> AppManager --> DatabaseManager_return_operation_data_by_id --> AppManager --> LogsUI.show_operation_data_by_id
-    def show_operation_data_by_id(self,item : QListWidgetItem):
-        db_id = item.data(Qt.ItemDataRole.UserRole)
-        self.operation_data_by_id_requested.emit(str(db_id))
 
-    # LogsUI.show_operation_data_by_id.operation_data_by_id_requested --> AppManager --> DatabaseManager_return_operation_data_by_id --> AppManager --> LogsUI.init_history_ui --> AppManager --> MainUI.add_new_history_tab
-    def init_history_ui(self,operation_data_by_id : list):
+    # LaplaceArchiveUI.request_archive_record_data_by_id.archive_record_data_by_id_requested --> AppManager.handle_archive_record_data_by_id --> DatabaseManager_return_operation_data_by_id --> LaplaceArchiveUI.init_new_archive_record_ui
+    def request_archive_record_data_by_id(self,item : QListWidgetItem):
+        record_database_id = item.data(Qt.ItemDataRole.UserRole)
+        self.archive_record_data_by_id_requested.emit(str(record_database_id))
+
+    # LaplaceArchiveUI.request_archive_record_data_by_id --> LaplaceArchiveUI.init_new_archive_record_ui.init_new_archive_record_ui_requested --> AppManager.handle_add_new_archive_record_ui --> MainUI.add_new_archive_record_tab
+    def init_new_archive_record_ui(self,operation_data_by_id : list):
+
         db_id = operation_data_by_id[0]
         date = operation_data_by_id[2]
-        operation = operation_data_by_id[3]
+        new_archive_record_operation_name = operation_data_by_id[3]
         variables = operation_data_by_id[4]
         input_data = operation_data_by_id[5].replace("{","").replace("}","")
         output = operation_data_by_id[6]
-        self.history_map = {
+
+        history_map = {
             "Population Mean" : MeanHistoryUI,
             "Sample Mean" : MeanHistoryUI,
             "Population Variance" : VarianceHistoryUI,
@@ -173,21 +162,41 @@ class OperationHistoryUI(QWidget):
             "Chi Square Test" : ChiSquareTestHistoryUI,
             "ANOVA" : AnovaHistoryUI,
         }
-        worker_class = self.history_map.get(operation)
-        self.history_ui = worker_class(str(db_id),date,operation,variables,input_data,output)
-        self.create_history_requested.emit([self.history_ui,operation])
 
-    # self.current_session_logs --> self.logs_list
-    def show_current_session_logs_function(self):
-        self.logs_list.clear()
-        for log in self.current_session_logs:
-            operation_data_item = QListWidgetItem(log["operation_data_text"])
-            operation_data_item.setData(Qt.ItemDataRole.UserRole,log["db_id"])
-            self.logs_list.addItem(operation_data_item)
+        worker_class = history_map.get(new_archive_record_operation_name)
+        new_archive_record_ui = worker_class(str(db_id),date,new_archive_record_operation_name,variables,input_data,output)
+        self.init_new_archive_record_ui_requested.emit([new_archive_record_ui,new_archive_record_operation_name])
+
+
+
+    # NewOperationUI.calculation_success --> AppManager.handle_new_archive_record --> DatabaseManager.save_archive_record --> LaplaceArchiveUI.add_new_archive_record
+    def add_new_archive_record(self,db_id : str, new_log : list):
+
+        date = new_log[0]
+        operation = new_log[1]
+        variables = new_log[2]
+
+        new_archive_record_text = f"{db_id} | {date} | {operation} | {variables}"
+        new_archive_record_item = QListWidgetItem(new_archive_record_text)
+        new_archive_record_item.setData(Qt.ItemDataRole.UserRole,db_id)
+        self.archive_records_list.addItem(new_archive_record_item)
+        self.current_session_archives_records_and_datas.append({"db_id" : db_id,"operation_data_text": new_archive_record_text})
+        # add logs came from operation_ui
+
+
+
+    # LaplaceArchiveUI.current_session_archives_records_and_datas --> LaplaceArchiveUI.archive_records_list
+    def show_current_session_archives_button_function(self):
+        self.archive_records_list.clear()
+
+        for data in self.current_session_archives_records_and_datas:
+            archive_item = QListWidgetItem(data["operation_data_text"])
+            archive_item.setData(Qt.ItemDataRole.UserRole,data["db_id"])
+            self.archive_records_list.addItem(archive_item)
     
-    # Clear Logs
-    def clear_logs_button_function(self):
-        self.logs_list.clear()
+    # Clear Archive Records List
+    def clear_archive_list_button_function(self):
+        self.archive_records_list.clear()
     
     
     

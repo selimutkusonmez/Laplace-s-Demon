@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS user_stats (
     last_used_operation varchar(50) DEFAULT NULL
 );
 
+-- CREATE NEW ROWS INTO user_stats AND user_preferences TABLES WHEN NEW ACCOUNT CREATED --
 CREATE OR REPLACE FUNCTION create_user_profiles()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -69,6 +70,8 @@ AFTER INSERT ON users
 FOR EACH ROW
 EXECUTE FUNCTION create_user_profiles();
 
+
+-- WHEN NEW LOGIN UPDATE user_stats TABLE --
 CREATE OR REPLACE FUNCTION update_login_telemetry()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -97,6 +100,39 @@ FOR EACH ROW
 EXECUTE FUNCTION update_login_telemetry();
 
 
-INSERT INTO users (username, password)
-VALUES ('d', 'd')
-ON CONFLICT (username) DO NOTHING;
+-- WHEN NEW OPERATION USED UPDATE user_stats TABLE --
+CREATE OR REPLACE FUNCTION update_operation_analytics()
+RETURNS TRIGGER AS $$
+DECLARE
+    updated_counts JSONB;
+    top_operation VARCHAR(50);
+BEGIN
+    SELECT jsonb_set(
+        operation_usage_counts,
+        array[NEW.operation],
+        to_jsonb(COALESCE((operation_usage_counts->>NEW.operation)::int, 0) + 1)
+    )
+    INTO updated_counts
+    FROM user_stats
+    WHERE user_id = NEW.user_id;
+
+    SELECT key INTO top_operation
+    FROM jsonb_each_text(updated_counts)
+    ORDER BY value::int DESC
+    LIMIT 1;
+
+    UPDATE user_stats
+    SET total_operation_usage = total_operation_usage + 1,
+        last_used_operation = NEW.operation,
+        operation_usage_counts = updated_counts,
+        most_used_operation = top_operation
+    WHERE user_id = NEW.user_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER after_operation_insert
+AFTER INSERT ON operation_history
+FOR EACH ROW
+EXECUTE FUNCTION update_operation_analytics();

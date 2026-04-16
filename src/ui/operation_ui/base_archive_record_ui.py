@@ -6,7 +6,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-class BaseHistoryUI(QWidget):
+class BaseArchiveRecordUI(QWidget):
     def __init__(self,db_id,date,operation,variables,input_data,output):
         super().__init__()
         self.db_id = db_id
@@ -165,6 +165,7 @@ class BaseHistoryUI(QWidget):
                     item = self.layout.itemAt(i)
                     if item and item.spacerItem():
                         self.layout.takeAt(i)
+                        
     def export_to_pdf_function(self):
         raise NotImplementedError("Subclasses must implement this!")
 

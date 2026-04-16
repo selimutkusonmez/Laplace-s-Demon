@@ -1,10 +1,10 @@
 from PyQt6.QtWidgets import QTableView,QAbstractItemView
 
-from src.ui.operation_ui.base_history_ui import BaseHistoryUI
+from src.ui.operation_ui.base_archive_record_ui import BaseArchiveRecordUI
 from src.ui.widgets.drag_and_drop_table_widget.table_model.list_table_model import ListTableModel
 
 
-class MeanHistoryUI(BaseHistoryUI):
+class MeanHistoryUI(BaseArchiveRecordUI):
     def __init__(self, db_id, date, operation, variables, input_data, output):
         super().__init__(db_id, date, operation, variables, input_data, output)
 

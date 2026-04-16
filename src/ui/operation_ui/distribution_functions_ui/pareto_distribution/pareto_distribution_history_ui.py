@@ -1,10 +1,10 @@
 from PyQt6.QtWidgets import QTextEdit,QLabel
 from PyQt6.QtGui import QPixmap
 
-from src.ui.operation_ui.base_history_ui import BaseHistoryUI
+from src.ui.operation_ui.base_archive_record_ui import BaseArchiveRecordUI
 
 
-class ParetoDistributionHistoryUI(BaseHistoryUI):
+class ParetoDistributionHistoryUI(BaseArchiveRecordUI):
     def __init__(self, db_id, date, operation, variables, input_data, output):
         super().__init__(db_id, date, operation, variables, input_data, output)
 

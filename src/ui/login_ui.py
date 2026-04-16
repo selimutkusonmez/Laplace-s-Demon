@@ -53,7 +53,7 @@ class LoginUI(QWidget):
         self.central_groupbox_layout.addWidget(self.error_space,2,0,1,2)
 
         self.login_button = QPushButton("Login")
-        self.login_button.clicked.connect(self.login_button_func)
+        self.login_button.clicked.connect(self.login_button_function)
         self.central_groupbox_layout.addWidget(self.login_button,3,0,1,2)
 
         self.portfolio_button = QPushButton("My Web Site")
@@ -63,10 +63,12 @@ class LoginUI(QWidget):
         self.restart_app_button.clicked.connect(self.create_an_account_button_function)
         self.central_groupbox_layout.addWidget(self.restart_app_button,5,0,1,2)
 
+    #LoginUI.create_an_account_button_function.create_an_account_requested --> AppManager.handle_create_new_account
     def create_an_account_button_function(self):
         self.create_an_account_requested.emit()
 
-    def login_button_func(self):
+    #LoginUI.login_button_function.login_requested --> AppManager.handle_login --> DatabaseManager.check_login --> DatabaseManager.save_user_log --> login_code --> AppManager.handle_login
+    def login_button_function(self):
         username = self.username_input.text()
         password = self.password_input.text()
         if username == "" or password == "":

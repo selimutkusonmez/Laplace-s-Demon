@@ -3,11 +3,9 @@ import os
 from PyQt6.QtCore import QSize,pyqtSignal,Qt
 from PyQt6.QtWidgets import QWidget,QListWidget,QHBoxLayout,QListWidgetItem,QMessageBox
 from PyQt6.QtGui import QIcon
-
-
 from config import JPG_PATH
 
-class OperationsListingUI(QWidget):
+class LaplaceLibraryUI(QWidget):
 
     new_operation_requested = pyqtSignal(list)
 
@@ -144,8 +142,7 @@ class OperationsListingUI(QWidget):
             list_3_item.setIcon(icon)
             self.subjects_list_3.addItem(list_3_item)
 
-
-    # When third layer item is chosed find it on the dict, import it and send it to the appmanager
+    # OperationsListingUI.subjects_list_3_item_double_clicked.new_operation_requested --> AppManager.handle_new_operation_request --> MainUI.add_new_operation_tab
     def subjects_list_3_item_double_clicked(self,item):
         operation_name = item.text()
         main_folder = self.main_subject.lower().replace(" ","_")

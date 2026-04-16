@@ -79,31 +79,8 @@ class MainUI(QMainWindow):
         if current_index != 0 and current_index != 1:
             self.central_widget.removeTab(self.central_widget.currentIndex())
 
-    #Change Theme Function
-    def change_preferred_theme_function(self,preferred_theme : str = None):
-        if preferred_theme is None: 
-            self.current_theme = "dark"
-            self.setStyleSheet(read_style(self.current_theme))
-        elif preferred_theme == "dark":
-            self.current_theme = "dark"
-            self.setStyleSheet(read_style(self.current_theme))
-        elif preferred_theme == "light":
-            self.current_theme = "light"
-            self.setStyleSheet(read_style(self.current_theme))
-        
-    #Font Color Action Function
-    def change_preferred_font_color_function(self,preferred_color : str):
-        self.color_change_requested.emit(preferred_color)
-        
-    def change_preferred_language_function(self,preferred_language : str):
-        if preferred_language == "en":
-            print("en")
-        elif preferred_language == "de":
-            print("de")
-        else:
-            print("tr")
 
-
+    #                   PROFILE MENU
     def init_profile_menu(self,current_user : str):
 
         self.current_user = current_user
@@ -136,11 +113,41 @@ class MainUI(QMainWindow):
 
         self.profile_button.show()
 
+
+    #                   ABOUT ME UI
     def about_me_action_function(self):
         about_me_ui = AboutMeUI(self.current_user)
         index = self.central_widget.addTab(about_me_ui,"About Me")
         self.central_widget.setCurrentIndex(index)
-    
+
+
+    #                   PREFERENCES UI
+
+    #PreferencesUI.save_preferred_language.change_preferred_language_request --> MainUI.change_preferred_language_function
+    def change_preferred_language_function(self,preferred_language : str):
+        if preferred_language == "en":
+            print("en")
+        elif preferred_language == "de":
+            print("de")
+        else:
+            print("tr")
+
+    #PreferencesUI.save_preferred_theme.change_preferred_theme_request --> MainUI.change_preferred_theme_function
+    def change_preferred_theme_function(self,preferred_theme : str = None):
+        if preferred_theme is None: 
+            self.current_theme = "dark"
+            self.setStyleSheet(read_style(self.current_theme))
+        elif preferred_theme == "dark":
+            self.current_theme = "dark"
+            self.setStyleSheet(read_style(self.current_theme))
+        elif preferred_theme == "light":
+            self.current_theme = "light"
+            self.setStyleSheet(read_style(self.current_theme))
+        
+    #PreferencesUI.save_preferred_language.change_preferred_font_color_request --> MainUI.change_preferred_font_color_function
+    def change_preferred_font_color_function(self,preferred_color : str):
+        self.color_change_requested.emit(preferred_color)
+
     def preferences_action_function(self):
         preferences_ui = PreferencesUI()
 
@@ -156,6 +163,7 @@ class MainUI(QMainWindow):
         index = self.central_widget.addTab(preferences_ui,"Preferences")
         self.central_widget.setCurrentIndex(index)
     
+
     #Log Out Action Function
     def log_out_action_function(self):
         while self.central_widget.count() > 0:
@@ -174,7 +182,7 @@ class MainUI(QMainWindow):
     def central_widget_tab_close_function(self,index):
         self.central_widget.removeTab(index)
 
-    # OperationsListingUI/AppManager --> MainUI.add_new_operation_tab
+    # OperationsListingUI.subjects_list_3_item_double_clicked.new_operation_requested --> AppManager.handle_new_operation_request --> MainUI.add_new_operation_tab
     def add_new_operation_tab(self, new_operation_ui : QWidget, new_operation_name : str):
         index = self.central_widget.addTab(new_operation_ui,new_operation_name)
         self.central_widget.setCurrentIndex(index)

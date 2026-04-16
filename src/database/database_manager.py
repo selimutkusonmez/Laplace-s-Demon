@@ -16,7 +16,7 @@ class DatabaseManager():
             "connect_timeout": 2
         }
 
-    # 1) Try to connect 2)Run Docker 3)Wait 4)Try connecting again
+    #AppManager --> AppManager.init_database_manager --> DatabaseManager.start_docker_and_connect_db
     def start_docker_and_connect_db(self) -> bool:
         print("Checking system status...")
         try:
@@ -47,7 +47,7 @@ class DatabaseManager():
 
     #LOGIN AND LOGS (users and logs tables)
 
-    # Save user log into the database wheter successful or failed
+    #LoginUI.login_button_function.login_requested --> AppManager.handle_login --> DatabaseManager.check_login --> DatabaseManager.save_user_log
     def save_user_log(self,username : str, attempt : str) -> None:
         try:
             mac_adress = get_mac_address()
@@ -71,7 +71,7 @@ class DatabaseManager():
         except Exception as e:
             self.conn.rollback()
 
-    # Check login inputs and save log
+    #LoginUI.login_button_function.login_requested --> AppManager.handle_login --> DatabaseManager.check_login.login_code --> AppManager.handle_login
     def check_login(self, username : str, password : str) -> int:
         try:
             query = "SELECT * FROM users WHERE username = %s AND password = %s"
@@ -91,6 +91,7 @@ class DatabaseManager():
 
     #CREATE NEW ACCOUNT (users)
 
+    # CreateNewAccountUI.create_my_account_button_function.save_account_info_requested --> AppManager.handle_create_new_account --> AppManager.handle_save_account_info --> DatabaseManager.save_account_info
     def save_account_info(self,account_info : list) -> str:
         try:
             username = account_info[0]
@@ -120,8 +121,8 @@ class DatabaseManager():
 
     # SAVE OPERATION DATA -- GET OPERATION DATA BY ID OR DATE -- COUNT TOTAL OPERATION BASED ON user_id (operation_history table)
 
-    # NewOperationUI.calculation_success --> AppManager --> DatabaseManager.save_log --> AppManager --> LogsUI.add_new_log
-    def save_operation_data_to_db(self, username : str, new_log : list) -> str:
+    # NewOperationUI.calculation_success --> AppManager.handle_new_archive_record --> DatabaseManager.save_archive_record
+    def save_archive_record(self, username : str, new_log : list) -> str:
         date = new_log[0]
         operation = new_log[1]
         variables = new_log[2]
@@ -150,15 +151,15 @@ class DatabaseManager():
             print(str(e))
             return f"Error : {str(e)}"
             
-    # LogsUI.logs_button_function.logs_by_date_requested --> AppManager --> DatabaseManager.return_logs_by_date --> AppManager --> LogsUI.show_logs_by_date
-    def return_operation_data_by_date(self, username : str,log_date : str) -> list:
+    # LaplaceArchiveUI.list_archive_records_by_date_button_function.archive_records_by_date_requested --> AppManager.hanlde_archive_records_by_date --> DatabaseManager.return_logs_by_date list_archive_records_by_date
+    def return_archive_records_by_date(self, username : str,records_start_end_date : str) -> list:
         try:
             query = """
                     SELECT id,date,operation,variables FROM operation_history
                     WHERE user_id = (SELECT id FROM users WHERE username = %s)
                     AND date::date BETWEEN %s AND %s ORDER BY date DESC
                     """
-            self.cursor.execute(query,(username,log_date[0],log_date[1]))
+            self.cursor.execute(query,(username,records_start_end_date[0],records_start_end_date[1]))
             log_by_date_data = self.cursor.fetchall()
             return log_by_date_data
         
@@ -166,8 +167,8 @@ class DatabaseManager():
             print(str(e))
             return f"Error : {str(e)}"
         
-    #LogsUI.show_log_by_id.log_by_id_requested --> AppManager --> DatabaseManager_return_log_by_id --> AppManager --> LogsUI.init_history_ui    
-    def return_operation_data_by_id(self, db_id : str) -> list:
+    # LaplaceArchiveUI.request_archive_record_data_by_id.archive_record_data_by_id_requested --> AppManager.handle_archive_record_data_by_id --> DatabaseManager_return_operation_data_by_id
+    def return_archive_record_data_by_id(self, db_id : str) -> list:
         try:
             query = """
                     SELECT * FROM operation_history WHERE id = %s
@@ -181,8 +182,8 @@ class DatabaseManager():
             print(str(e))
             return f"Error : {str(e)}"
 
-    # Count how many operations has user used
-    def count_operation_data(self, username : str) -> str:
+    #DatabaseManager.count_archive_records_on_id --> AppManager.handle_login --> OperationHistoryUI(self.operation_data_count)
+    def count_archive_records_on_id(self, username : str) -> str:
         try:
             query = """
             SELECT COUNT(user_id) FROM operation_history
@@ -191,12 +192,14 @@ class DatabaseManager():
             self.cursor.execute(query, (username,))
             total_count = self.cursor.fetchone()[0]
             return total_count
+        
         except Exception as e:
             print(str(e))
 
 
     #USER PREFERENCES (user_preferences table)
 
+    #PreferencesUI.save_preferred_language.change_preferred_language_request --> AppManager.handle_preferred_language_change --> DatabaseManager.update_preferred_language
     def update_preferred_language(self, username : str, preferred_language : str) -> None:
         try:
             query = """
@@ -210,6 +213,7 @@ class DatabaseManager():
             print(str(e))
             self.conn.rollback()
 
+    #PreferencesUI.save_preferred_theme.change_preferred_theme_request --> AppManager.handle_preferred_theme_change --> DatabaseManager.update_preferred_theme
     def update_preferred_theme(self, username : str, preferred_theme : str) -> None :
         try:
             query = """
@@ -221,6 +225,7 @@ class DatabaseManager():
         except:
             self.conn.rollback()
 
+    #PreferencesUI.save_preferred_font_color.change_preferred_font_color_request --> AppManager.handle_preffered_font_color_change --> DatabaseManager.update_preferred_font_color
     def update_preferred_font_color(self, username : str, preferred_font_color : str) -> None:
         try:
             query = """
