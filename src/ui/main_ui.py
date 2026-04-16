@@ -14,11 +14,12 @@ class MainUI(QMainWindow):
 
     color_change_requested = pyqtSignal(str)
     log_out_requested = pyqtSignal()
+    tab_close_requested = pyqtSignal(int)
 
     #PreferencesUI.signals --> MainUI.signals --> AppManager --> DatabaseManager
-    change_preferred_language_request = pyqtSignal(str)
-    change_preferred_theme_request = pyqtSignal(str)
-    change_preferred_font_color_request = pyqtSignal(str)
+    update_preferred_language_requested = pyqtSignal(str)
+    update_preferred_theme_requested = pyqtSignal(str)
+    update_preferred_font_color_requested = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -61,19 +62,18 @@ class MainUI(QMainWindow):
         close_tab_action.setShortcut("Ctrl+W")
         close_tab_action.triggered.connect(self.close_tab_action_function)
 
-    #About Action Function
+
+    #                   FILE MENU
     def about_action_function(self):
         about_text = """
                     <h2>Laplace's Demon/h2>
                     """
         QMessageBox.about(self, "", about_text) 
 
-    #Restart App(Ctrl+R) Action Function
     def restart_app_action_function(self):
         QApplication.quit()
         subprocess.Popen([sys.executable, *sys.argv])
 
-    #Close Tab(Ctrl+W) Action Function
     def close_tab_action_function(self):
         current_index = self.central_widget.currentIndex()
         if current_index != 0 and current_index != 1:
@@ -151,20 +151,20 @@ class MainUI(QMainWindow):
     def preferences_action_function(self):
         preferences_ui = PreferencesUI()
 
-        preferences_ui.change_preferred_language_request.connect(self.change_preferred_language_function)
-        preferences_ui.change_preferred_language_request.connect(self.change_preferred_language_request)
+        preferences_ui.update_preferred_language_requested.connect(self.change_preferred_language_function)
+        preferences_ui.update_preferred_language_requested.connect(self.update_preferred_language_requested)
         
-        preferences_ui.change_preferred_theme_request.connect(self.change_preferred_theme_function)
-        preferences_ui.change_preferred_theme_request.connect(self.change_preferred_theme_request)
+        preferences_ui.update_preferred_theme_requested.connect(self.change_preferred_theme_function)
+        preferences_ui.update_preferred_theme_requested.connect(self.update_preferred_theme_requested)
 
-        preferences_ui.change_preferred_font_color_request.connect(self.change_preferred_font_color_function)
-        preferences_ui.change_preferred_font_color_request.connect(self.change_preferred_font_color_request)
+        preferences_ui.update_preferred_font_color_requested.connect(self.change_preferred_font_color_function)
+        preferences_ui.update_preferred_font_color_requested.connect(self.update_preferred_font_color_requested)
 
         index = self.central_widget.addTab(preferences_ui,"Preferences")
         self.central_widget.setCurrentIndex(index)
     
 
-    #Log Out Action Function
+    #                   PROFILE MENU LOG OUT FUNCTION
     def log_out_action_function(self):
         while self.central_widget.count() > 0:
             widget = self.central_widget.widget(0)
@@ -178,19 +178,25 @@ class MainUI(QMainWindow):
             
         self.log_out_requested.emit()
 
+
+    #                   CENTRAL WIDGET FUNCTIONS
     # Central Widget Tab Close Function
     def central_widget_tab_close_function(self,index):
         self.central_widget.removeTab(index)
+
+
+    #                   NEW TAB FUNCTIONS
 
     # OperationsListingUI.subjects_list_3_item_double_clicked.new_operation_requested --> AppManager.handle_new_operation_request --> MainUI.add_new_operation_tab
     def add_new_operation_tab(self, new_operation_ui : QWidget, new_operation_name : str):
         index = self.central_widget.addTab(new_operation_ui,new_operation_name)
         self.central_widget.setCurrentIndex(index)
     
-    # LogsUI/AppManager --> MainUI.add_new_history_tab
-    def add_new_history_tab(self, new_history_ui : QWidget ,new_history_name : str):
+    # 
+    def add_new_archive_record_ui_tab(self, new_history_ui : QWidget ,new_history_name : str):
         self.central_widget.addTab(new_history_ui,new_history_name)
 
+    #AppManager.handle_create_new_account --> MainUI.add_create_new_account_tab
     def add_create_new_account_tab(self, create_new_account_ui : QWidget):
         index = self.central_widget.addTab(create_new_account_ui,"Create An Account")
         self.central_widget.setCurrentIndex(index)

@@ -4,19 +4,20 @@ from src.ui import MainUI,LoginUI,LaplaceArchiveUI,DatabaseManager,LaplaceLibrar
 from src.ui.profile.create_new_account.create_new_account_ui import CreateNewAccountUI
 
 class AppManager():
+
     def __init__(self):
         self.app = QApplication(sys.argv)
 
         self.main_ui = MainUI()
         self.main_ui.color_change_requested.connect(self.handle_color_change)
         self.main_ui.log_out_requested.connect(self.handle_relogin)
-        self.main_ui.change_preferred_language_request.connect(self.handle_preferred_language_change)
-        self.main_ui.change_preferred_theme_request.connect(self.handle_preferred_theme_change)
-        self.main_ui.change_preferred_font_color_request.connect(self.handle_preffered_font_color_change)
+        self.main_ui.update_preferred_language_requested.connect(self.handle_preferred_language_update)
+        self.main_ui.update_preferred_theme_requested.connect(self.handle_preferred_theme_update)
+        self.main_ui.update_preferred_font_color_requested.connect(self.handle_preferred_font_color_update)
 
         self.login_ui = LoginUI()
         self.login_ui.login_requested.connect(self.handle_login)
-        self.login_ui.create_an_account_requested.connect(self.handle_create_new_account)
+        self.login_ui.create_new_account_requested.connect(self.handle_create_new_account)
         
     def init_database_manager(self):
         try:
@@ -101,28 +102,29 @@ class AppManager():
     def handle_add_new_archive_record_ui(self,history_input : list):
         new_archive_record_ui = history_input[0] # QWidget
         new_archive_record_name = history_input[1] # str
-        self.main_ui.add_new_history_tab(new_archive_record_ui,new_archive_record_name) # add new_history_ui to the main_ui.central_widget as a tab
+        self.main_ui.add_new_archive_record_ui_tab(new_archive_record_ui,new_archive_record_name) # add new_history_ui to the main_ui.central_widget as a tab
 
 
     #                   PreferencesUI & DatabaseManager
     def handle_color_change(self,color_code : str):
-        self.operations_listing_ui.font_color = color_code
+        self.laplace_library_ui.font_color = color_code
         for i in range(self.main_ui.central_widget.count()):
             operation_widget = self.main_ui.central_widget.widget(i)
             if hasattr(operation_widget,"change_color"):
                 operation_widget.change_color(color_code)
 
-    def handle_preferred_language_change(self, preferred_language : str) -> None:
+    def handle_preferred_language_update(self, preferred_language : str) -> None:
         print("language main")
         self.database_manager.update_preferred_language(self.username, preferred_language)
 
-    def handle_preferred_theme_change(self, preferred_theme : str) -> None:
+    def handle_preferred_theme_update(self, preferred_theme : str) -> None:
         print("theme main")
         self.database_manager.update_preferred_theme(self.username, preferred_theme)
 
-    def handle_preffered_font_color_change(self, preferred_font_color : str) -> None:
+    def handle_preferred_font_color_update(self, preferred_font_color : str) -> None:
         print("font color main")
         self.database_manager.update_preferred_font_color(self.username, preferred_font_color)
+
 
     #                   LoginUI & MainUI
     def handle_relogin(self):

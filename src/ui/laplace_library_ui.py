@@ -81,7 +81,7 @@ class LaplaceLibraryUI(QWidget):
             list_1_item.setIcon(icon)
             self.subjects_list_1.addItem(list_1_item)
 
-    # When first layer item is chosed find it on the dict and bring the second layer
+    # When first layer item is chosen find it on the dict and bring the second layer
     def subjects_list_1_item_double_clicked(self,item):
         # if already remove them
         if hasattr(self, "subjects_list_3"):

@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
 
 class LoginUI(QWidget):
     login_requested = pyqtSignal(list)
-    create_an_account_requested = pyqtSignal()
+    create_new_account_requested = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -59,13 +59,13 @@ class LoginUI(QWidget):
         self.portfolio_button = QPushButton("My Web Site")
         self.central_groupbox_layout.addWidget(self.portfolio_button,4,0,1,2)
 
-        self.restart_app_button = QPushButton("Create New Account")
-        self.restart_app_button.clicked.connect(self.create_an_account_button_function)
-        self.central_groupbox_layout.addWidget(self.restart_app_button,5,0,1,2)
+        self.create_new_account_button = QPushButton("Create New Account")
+        self.create_new_account_button.clicked.connect(self.create_new_account_button_function)
+        self.central_groupbox_layout.addWidget(self.create_new_account_button,5,0,1,2)
 
-    #LoginUI.create_an_account_button_function.create_an_account_requested --> AppManager.handle_create_new_account
-    def create_an_account_button_function(self):
-        self.create_an_account_requested.emit()
+    #LoginUI.create_new_account_button_function.create_new_account_requested --> AppManager.handle_create_new_account
+    def create_new_account_button_function(self):
+        self.create_new_account_requested.emit()
 
     #LoginUI.login_button_function.login_requested --> AppManager.handle_login --> DatabaseManager.check_login --> DatabaseManager.save_user_log --> login_code --> AppManager.handle_login
     def login_button_function(self):

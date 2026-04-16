@@ -36,7 +36,7 @@ class CreateNewAccountUI(QWidget):
         self.create_my_account_button.clicked.connect(self.create_my_account_button_function)
         self.create_an_account_groupbox_layout.addWidget(self.create_my_account_button,3,0,1,2)
 
-    # self.create_my_account_button_function.save_account_info_requested --> AppManager.handle_create_new_account --> AppManager.handle_save_account_info --> DatabaseManager.save_account_info
+    # CreateNewAccountUI.create_my_account_button_function.save_account_info_requested --> AppManager.handle_save_account_info --> DatabaseManager.save_account_info
     def create_my_account_button_function(self):
         username = self.username_input.text()
         password = self.password_input.text()

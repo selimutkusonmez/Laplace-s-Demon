@@ -45,7 +45,7 @@ class DatabaseManager():
                 time.sleep(1)
 
 
-    #LOGIN AND LOGS (users and logs tables)
+    #                   LOGIN AND LOGS (users and logs tables)
 
     #LoginUI.login_button_function.login_requested --> AppManager.handle_login --> DatabaseManager.check_login --> DatabaseManager.save_user_log
     def save_user_log(self,username : str, attempt : str) -> None:
@@ -89,7 +89,7 @@ class DatabaseManager():
             return f"Error: {str(e)}"
         
 
-    #CREATE NEW ACCOUNT (users)
+    #                   CREATE NEW ACCOUNT (users)
 
     # CreateNewAccountUI.create_my_account_button_function.save_account_info_requested --> AppManager.handle_create_new_account --> AppManager.handle_save_account_info --> DatabaseManager.save_account_info
     def save_account_info(self,account_info : list) -> str:
@@ -119,7 +119,7 @@ class DatabaseManager():
             return "An Error Occured With System"
 
 
-    # SAVE OPERATION DATA -- GET OPERATION DATA BY ID OR DATE -- COUNT TOTAL OPERATION BASED ON user_id (operation_history table)
+    #                   SAVE OPERATION DATA -- GET OPERATION DATA BY ID OR DATE -- COUNT TOTAL OPERATION BASED ON user_id (operation_history table)
 
     # NewOperationUI.calculation_success --> AppManager.handle_new_archive_record --> DatabaseManager.save_archive_record
     def save_archive_record(self, username : str, new_log : list) -> str:
@@ -197,7 +197,7 @@ class DatabaseManager():
             print(str(e))
 
 
-    #USER PREFERENCES (user_preferences table)
+    #                   USER PREFERENCES (user_preferences table)
 
     #PreferencesUI.save_preferred_language.change_preferred_language_request --> AppManager.handle_preferred_language_change --> DatabaseManager.update_preferred_language
     def update_preferred_language(self, username : str, preferred_language : str) -> None:
