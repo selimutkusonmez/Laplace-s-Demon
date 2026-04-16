@@ -10,10 +10,10 @@ class LaplaceArchiveUI(QWidget):
     archive_record_data_by_id_requested = pyqtSignal(str)
     init_new_archive_record_ui_requested = pyqtSignal(list)
 
-    def __init__(self,username,operation_data_count,font_color : str = "black"):
+    def __init__(self,username,laplace_archive_records_count,font_color : str = "black"):
         super().__init__()
         self.username = username
-        self.operation_data_count = operation_data_count
+        self.laplace_archive_records_count = laplace_archive_records_count
         self.font_color = font_color
 
         self.init_ui()
@@ -39,8 +39,8 @@ class LaplaceArchiveUI(QWidget):
         self.upper_groupbox_layout.addStretch()
 
         self.upper_groupbox_layout.addWidget(QLabel("Log Count :"))
-        self.operation_data_count = QLabel(str(self.operation_data_count))
-        self.upper_groupbox_layout.addWidget(self.operation_data_count)
+        self.laplace_archive_records_count_label = QLabel(str(self.laplace_archive_records_count))
+        self.upper_groupbox_layout.addWidget(self.laplace_archive_records_count_label)
 
         self.upper_groupbox_layout.addStretch()
 
@@ -200,5 +200,7 @@ class LaplaceArchiveUI(QWidget):
     def clear_archive_list_button_function(self):
         self.archive_records_list.clear()
     
-    
+    def update_laplace_arhcive_records_count(self):
+        self.laplace_archive_records_count = self.laplace_archive_records_count + 1
+        self.laplace_archive_records_count_label.setText(str(self.laplace_archive_records_count))
     

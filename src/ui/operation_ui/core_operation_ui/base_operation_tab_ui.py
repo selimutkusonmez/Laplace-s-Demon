@@ -55,7 +55,6 @@ class BaseOperationTabUI(DemonCore):
         self.inputs_tab_widget.currentChanged.connect(self.update_display)
 
         self.change_color(color_code)
-        print(self.is_dirty)
 
     # DragAndDropTableWidget.df.columns --> OperationUI.load_column_names
     def load_column_names(self,columns : list):
@@ -75,7 +74,6 @@ class BaseOperationTabUI(DemonCore):
                 self.update_display()
             except:
                 return
-            print(self.is_dirty)
             
     # Reset input based on tab index 0 = text, 1 = table
     def reset_input_function(self):
@@ -96,7 +94,6 @@ class BaseOperationTabUI(DemonCore):
             self, "Choose File", "", "(*.csv *.json *.tsv *.txt *.xlsx)"
         )
         self.table_data_input.load_data_from_chosen_file(file_path)
-        print(file_path)
         
     def update_is_dirty(self):
         self.is_dirty = True

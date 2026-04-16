@@ -219,8 +219,6 @@ class DatabaseManager():
                     """
             self.cursor.execute(query,(db_id,))
             log_by_id_data = self.cursor.fetchall()
-            print(log_by_id_data)
-            print(type(log_by_id_data))
             return log_by_id_data[0]
         except Exception as e:
             print(str(e))
@@ -271,7 +269,6 @@ class DatabaseManager():
                     """
             self.cursor.execute(query,(preferred_language,username))
             self.conn.commit()
-            print("language db")
             
         except Exception as e:
             print(str(e))
@@ -285,7 +282,6 @@ class DatabaseManager():
                     """
             self.cursor.execute(query,(preferred_theme,username))
             self.conn.commit()
-            print("theme db")
         except:
             self.conn.rollback()
 

@@ -78,7 +78,7 @@ class MainUI(QMainWindow):
     def close_tab_action_function(self):
         current_index = self.central_widget.currentIndex()
         if current_index != 0 and current_index != 1:
-            self.central_widget.removeTab(self.central_widget.currentIndex())
+            self.tab_close_requested.emit(current_index)
 
 
     #                   PROFILE MENU
@@ -155,8 +155,6 @@ class MainUI(QMainWindow):
             self.change_preferred_language_function(current_user_preferences[1])
             self.change_preferred_theme_function(current_user_preferences[2])
             self.change_preferred_font_color_function(current_user_preferences[3])
-            print(current_user_preferences[3])
-            print("main_ui")
         else:
             self.change_preferred_language_function("en")
             self.change_preferred_theme_function("dark")
@@ -182,10 +180,6 @@ class MainUI(QMainWindow):
     # Central Widget Tab Close Function
     def central_widget_tab_close_function(self,index : int):
         self.tab_close_requested.emit(index)
-        """widget = self.central_widget.widget(index)
-            self.central_widget.removeTab(index)
-            if widget is not None:
-                widget.deleteLater()"""
 
 
     #                   NEW TAB FUNCTION

@@ -15,8 +15,6 @@ class DemonCore(QWidget):
         self.operation_name = operation_name
         self.demon_engine = DemonEngine()
         self.font_color = color_code
-        print("demon")
-        print(self.font_color)
         self.init_ui()
 
         # We set the timer 400ms before it starts to draw formula

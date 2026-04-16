@@ -13,7 +13,7 @@ class AboutMeUI(QWidget):
 
         # User Info Groupbox
         self.user_info_groupbox = QGroupBox()
-        self.user_info_groupbox.setMaximumHeight(82)
+        self.user_info_groupbox.setMaximumHeight(85)
         self.user_info_groupbox_layout = QHBoxLayout()
         self.user_info_groupbox.setLayout(self.user_info_groupbox_layout)
         self.layout.addWidget(self.user_info_groupbox,0,0,1,3)

@@ -48,7 +48,7 @@ class PreferencesUI(QWidget):
         self.output_space = QLineEdit()
         self.output_space.setReadOnly(True)
         self.output_space.setStyleSheet("""border : none;
-                                        background-color :#2d333b; """)
+                                        """)
         self.preferences_groupbox_layout.addWidget(self.output_space,3,0,1,2)
 
     # PreferencesUI.request_update_preferred_language.change_preferred_language_request --> MainUI.update_preferred_language_requested --> AppManager.handle_preferred_language_change --> DatabaseManager.update_preferred_language

@@ -29,7 +29,7 @@ class AppManager():
         self.current_user_preferences = self.database_manager.pull_user_preferences(self.username)
 
         self.main_ui = MainUI(self.current_user_preferences)
-        self.main_ui.init_profile_menu(self.username)
+
         self.main_ui.color_change_requested.connect(self.handle_color_change)
         self.main_ui.log_out_requested.connect(self.handle_relogin)
         self.main_ui.tab_close_requested.connect(self.handle_tab_close)
@@ -42,7 +42,7 @@ class AppManager():
 
             if login_code:
 
-
+                self.main_ui.init_profile_menu(self.username)
                 self.laplace_library_ui = LaplaceLibraryUI(self.current_user_preferences[3])
                 self.laplace_library_ui.new_operation_requested.connect(self.handle_new_operation_request)
 
@@ -128,9 +128,12 @@ class AppManager():
 
     #                   LoginUI & MainUI & DatabaseManager
     def handle_create_new_account(self):
-        create_new_account_ui = CreateNewAccountUI()
-        create_new_account_ui.save_account_info_requested.connect(self.handle_save_account_info)
-        self.main_ui.add_new_tab(create_new_account_ui,"Create An Account")
+        if hasattr(self,"create_new_account_ui"):
+            return
+        else:
+            self.create_new_account_ui = CreateNewAccountUI()
+            self.create_new_account_ui.save_account_info_requested.connect(self.handle_save_account_info)
+            self.main_ui.add_new_tab(self.create_new_account_ui,"Create An Account")
 
     def handle_save_account_info(self,create_new_account_ui_reference : QWidget,account_info : list):
         db_output = self.database_manager.save_account_info(account_info)
@@ -155,24 +158,29 @@ class AppManager():
         new_archive_record_name = history_input[1] # str
         self.main_ui.add_new_tab(new_archive_record_ui,new_archive_record_name) # add new_history_ui to the main_ui.central_widget as a tab
 
+    def handle_update_laplace_archive_ui(self):
+        self.laplace_archive_ui.update_laplace_arhcive_records_count()
 
     #                   PreferencesUI & DatabaseManager & MainUI
 
     #MainUI.preferences_action_function.init_preferences_ui_requested --> AppManager.handle_init_preferences_ui --> DatabaseManager.pull_user_preferences --> PreferencesUI(user_preferences) --> MainUI.add_new_tab
     def handle_init_preferences_ui(self):
+        if hasattr(self,"preferences_ui"):
+            return
+        else:
 
-        self.preferences_ui = PreferencesUI(self.current_user_preferences)
+            self.preferences_ui = PreferencesUI(self.current_user_preferences)
 
-        self.preferences_ui.update_preferred_language_requested.connect(self.handle_preferred_language_update)
-        self.preferences_ui.update_preferred_language_requested.connect(self.main_ui.change_preferred_language_function)
+            self.preferences_ui.update_preferred_language_requested.connect(self.handle_preferred_language_update)
+            self.preferences_ui.update_preferred_language_requested.connect(self.main_ui.change_preferred_language_function)
 
-        self.preferences_ui.update_preferred_theme_requested.connect(self.handle_preferred_theme_update)
-        self.preferences_ui.update_preferred_theme_requested.connect(self.main_ui.change_preferred_theme_function)
+            self.preferences_ui.update_preferred_theme_requested.connect(self.handle_preferred_theme_update)
+            self.preferences_ui.update_preferred_theme_requested.connect(self.main_ui.change_preferred_theme_function)
 
-        self.preferences_ui.update_preferred_font_color_requested.connect(self.handle_preferred_font_color_update)
-        self.preferences_ui.update_preferred_font_color_requested.connect(self.main_ui.change_preferred_font_color_function)
+            self.preferences_ui.update_preferred_font_color_requested.connect(self.handle_preferred_font_color_update)
+            self.preferences_ui.update_preferred_font_color_requested.connect(self.main_ui.change_preferred_font_color_function)
 
-        self.main_ui.add_new_tab(self.preferences_ui,"Preferences")
+            self.main_ui.add_new_tab(self.preferences_ui,"Preferences")
 
     def handle_color_change(self,color_code : str):
         self.laplace_library_ui.font_color = color_code
@@ -196,10 +204,13 @@ class AppManager():
 
     #MainUI.about_me_action_function --> AppManager.handle_init_about_me_ui --> DatabaseManager.pull_user_stats --> AboutMeUI(current_user_stats)
     def handle_init_about_me_ui(self):
-        current_user_stats = self.database_manager.pull_user_stats(self.username)
-        self.about_me_ui = AboutMeUI(self.username,current_user_stats)
+        if hasattr(self,"about_me_ui"):
+            return
+        else:
+            current_user_stats = self.database_manager.pull_user_stats(self.username)
+            self.about_me_ui = AboutMeUI(self.username,current_user_stats)
 
-        self.main_ui.add_new_tab(self.about_me_ui,self.username)
+            self.main_ui.add_new_tab(self.about_me_ui,self.username)
 
     #OperationUI.calculation_success --> AppManager.handle_update_about_me_ui --> AboutMeUI.fill_user_stats(current_user_stats)
     def handle_update_about_me_ui(self):
@@ -256,6 +267,7 @@ class AppManager():
         self.new_operation_ui = operation_input[0] # QWidget
         self.new_operation_ui.calculation_success.connect(self.handle_new_archive_record) # calculate button connection
         self.new_operation_ui.calculation_success.connect(self.handle_update_about_me_ui) # calculate button connection
+        self.new_operation_ui.calculation_success.connect(self.handle_update_laplace_archive_ui)
         new_operation_name = operation_input[1] # str
         self.main_ui.add_new_tab(self.new_operation_ui,new_operation_name) # add new_operation_ui to the main_ui.central_widget as a tab
 
