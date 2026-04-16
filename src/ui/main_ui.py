@@ -20,10 +20,13 @@ class MainUI(QMainWindow):
     init_about_me_ui_requested = pyqtSignal()
     
 
-    def __init__(self):
+    def __init__(self,current_user_preferences : list):
         super().__init__()
 
+        self.set_current_user_preferences(current_user_preferences)
         self.init_ui()
+
+
 
     def init_ui(self):
         
@@ -122,11 +125,11 @@ class MainUI(QMainWindow):
     #PreferencesUI.save_preferred_language.change_preferred_language_request --> MainUI.change_preferred_language_function
     def change_preferred_language_function(self,preferred_language : str):
         if preferred_language == "en":
-            print("en")
+            return
         elif preferred_language == "de":
-            print("de")
+            return
         else:
-            print("tr")
+            return
 
     #PreferencesUI.save_preferred_theme.change_preferred_theme_request --> MainUI.change_preferred_theme_function
     def change_preferred_theme_function(self,preferred_theme : str = None):
@@ -146,6 +149,18 @@ class MainUI(QMainWindow):
 
     def preferences_action_function(self):
         self.init_preferences_ui_requested.emit()
+
+    def set_current_user_preferences(self,current_user_preferences):
+        if current_user_preferences:
+            self.change_preferred_language_function(current_user_preferences[1])
+            self.change_preferred_theme_function(current_user_preferences[2])
+            self.change_preferred_font_color_function(current_user_preferences[3])
+            print(current_user_preferences[3])
+            print("main_ui")
+        else:
+            self.change_preferred_language_function("en")
+            self.change_preferred_theme_function("dark")
+            self.change_preferred_font_color_function("black")
 
 
     #                   PROFILE MENU LOG OUT FUNCTION
@@ -170,7 +185,6 @@ class MainUI(QMainWindow):
             widget = self.central_widget.widget(index)
             self.central_widget.removeTab(index)
             if widget is not None:
-                print("sa")
                 widget.deleteLater()
 
 
@@ -179,3 +193,5 @@ class MainUI(QMainWindow):
     def add_new_tab(self, widget : QWidget, tab_text : str):
         index = self.central_widget.addTab(widget,tab_text)
         self.central_widget.setCurrentIndex(index)
+
+    

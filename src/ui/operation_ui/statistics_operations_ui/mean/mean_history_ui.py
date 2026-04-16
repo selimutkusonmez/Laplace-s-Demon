@@ -5,8 +5,8 @@ from src.ui.widgets.drag_and_drop_table_widget.table_model.list_table_model impo
 
 
 class MeanHistoryUI(BaseArchiveRecordUI):
-    def __init__(self, db_id, date, operation, variables, input_data, output):
-        super().__init__(db_id, date, operation, variables, input_data, output)
+    def __init__(self, db_id, date, operation, variables, input_data, output, font_color):
+        super().__init__(db_id, date, operation, variables, input_data, output, font_color)
 
         self.input_data_area = QTableView()
         self.input_data_area.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)

@@ -10,10 +10,12 @@ class LaplaceArchiveUI(QWidget):
     archive_record_data_by_id_requested = pyqtSignal(str)
     init_new_archive_record_ui_requested = pyqtSignal(list)
 
-    def __init__(self,username,operation_data_count):
+    def __init__(self,username,operation_data_count,font_color : str = "black"):
         super().__init__()
         self.username = username
         self.operation_data_count = operation_data_count
+        self.font_color = font_color
+
         self.init_ui()
         
 
@@ -164,7 +166,7 @@ class LaplaceArchiveUI(QWidget):
         }
 
         worker_class = history_map.get(new_archive_record_operation_name)
-        new_archive_record_ui = worker_class(str(db_id),date,new_archive_record_operation_name,variables,input_data,output)
+        new_archive_record_ui = worker_class(str(db_id),date,new_archive_record_operation_name,variables,input_data,output,self.font_color)
         self.init_new_archive_record_ui_requested.emit([new_archive_record_ui,new_archive_record_operation_name])
 
 

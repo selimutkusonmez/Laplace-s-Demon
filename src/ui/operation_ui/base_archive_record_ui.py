@@ -7,7 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 class BaseArchiveRecordUI(QWidget):
-    def __init__(self,db_id,date,operation,variables,input_data,output):
+    def __init__(self,db_id,date,operation,variables,input_data,output,font_color):
         super().__init__()
         self.db_id = db_id
         self.date = date
@@ -15,6 +15,7 @@ class BaseArchiveRecordUI(QWidget):
         self.variables = variables
         self.input_data = input_data
         self.output = output
+        self.font_color = font_color
         self.init_ui()
 
     def init_ui(self):
@@ -93,11 +94,11 @@ class BaseArchiveRecordUI(QWidget):
         self.toggle_middle = True  
         self.toggle_lower = True  
 
-    def render_latex(self, formula_string: str, font_size: int = 25, font_color : str = "black"):
-        fig = plt.figure(figsize=(4, 1), dpi=300)
+    def render_latex(self, formula_string: str):
+        fig = plt.figure(figsize=(4, 1), dpi=500)
         fig.patch.set_alpha(0.0)
         
-        fig.text(0.5, 0.5, formula_string, fontsize=font_size, ha='center', va='center', math_fontfamily='cm', color = font_color)
+        fig.text(0.5, 0.5, formula_string, ha='center', va='center', math_fontfamily='cm', color = self.font_color)
         
         buf = io.BytesIO()
         plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1, transparent=True)
@@ -165,7 +166,11 @@ class BaseArchiveRecordUI(QWidget):
                     item = self.layout.itemAt(i)
                     if item and item.spacerItem():
                         self.layout.takeAt(i)
-                        
+
+    def change_color(self,color_code : str):
+        self.font_color = color_code
+        self.render_latex(self.output,self.font_color)
+
     def export_to_pdf_function(self):
         raise NotImplementedError("Subclasses must implement this!")
 

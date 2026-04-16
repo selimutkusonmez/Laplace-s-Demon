@@ -1,4 +1,3 @@
-from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QGroupBox,QLabel,QWidget,QGridLayout,QHBoxLayout,QLineEdit,QTableWidget,QTableWidgetItem
 
 class AboutMeUI(QWidget):
@@ -110,7 +109,6 @@ class AboutMeUI(QWidget):
         self.operation_usage_info_groupbox_layout.addWidget(self.last_used_operation_label,2,1)
 
 
-
         # Operation Usage Table Groupbox
         self.operation_usage_table_groupbox = QGroupBox()
         self.operation_usage_table_groupbox.setMinimumSize(100,100)
@@ -123,6 +121,9 @@ class AboutMeUI(QWidget):
         self.operation_usage_table.setHorizontalHeaderLabels(("Count",))
         self.operation_usage_table_groupbox_layout.addWidget(self.operation_usage_table)
 
+
+    #MainUI.about_me_action_function --> AppManager.handle_init_about_me_ui --> DatabaseManager.pull_user_stats --> AboutMeUI(current_user_stats)
+    #OperationUI.calculation_success --> AppManager.handle_update_about_me_ui --> AboutMeUI.fill_user_stats(current_user_stats)
     def fill_user_stats(self,username,current_user_stats):
         user_id = str(current_user_stats[0])
         account_opening_date = str(current_user_stats[1])

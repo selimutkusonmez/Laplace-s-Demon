@@ -297,7 +297,6 @@ class DatabaseManager():
                     """
             self.cursor.execute(query,(preferred_font_color,username))
             self.conn.commit()
-            print("font color db")
         except:
             self.conn.rollback()
 

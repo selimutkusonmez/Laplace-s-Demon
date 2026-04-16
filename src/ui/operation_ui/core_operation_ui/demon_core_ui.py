@@ -15,6 +15,8 @@ class DemonCore(QWidget):
         self.operation_name = operation_name
         self.demon_engine = DemonEngine()
         self.font_color = color_code
+        print("demon")
+        print(self.font_color)
         self.init_ui()
 
         # We set the timer 400ms before it starts to draw formula
@@ -23,7 +25,6 @@ class DemonCore(QWidget):
         self.debounce_timer.setInterval(400)
         self.debounce_timer.timeout.connect(self.update_display)
 
-        self.font_color = "black"
 
     def init_ui(self):
 
@@ -99,11 +100,11 @@ class DemonCore(QWidget):
 
 
     # This is out Matplotlib.mathtext
-    def render_latex(self, formula_string: str, font_size: int = 25 , font_color : str = "black"):
+    def render_latex(self, formula_string: str, font_color : str, font_size: int = 25):
         fig = plt.figure(figsize=(4, 1), dpi=300)
         fig.patch.set_alpha(0.0)
         
-        fig.text(0.5, 0.5, formula_string, fontsize=font_size, ha='center', va='center', math_fontfamily='cm', color = font_color)
+        fig.text(0.5, 0.5, formula_string, fontsize=font_size, ha='center', va='center', math_fontfamily='cm', color = self.font_color)
         
         buf = io.BytesIO()
         plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1, transparent=True)

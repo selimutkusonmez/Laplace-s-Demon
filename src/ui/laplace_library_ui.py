@@ -9,10 +9,10 @@ class LaplaceLibraryUI(QWidget):
 
     new_operation_requested = pyqtSignal(list)
 
-    def __init__(self):
+    def __init__(self,font_color : str = "black"):
         super().__init__()
         self.icons_dir = os.path.join(JPG_PATH,"icons")
-        self.font_color = "black"
+        self.font_color = font_color
         self.init_ui()
      
     def init_ui(self):
@@ -155,6 +155,8 @@ class LaplaceLibraryUI(QWidget):
         try:
             #module imported
             module = importlib.import_module(module_path)
+            print("library")
+            print(self.font_color)
             widget = module.OperationUI(operation_name,self.font_color)
 
             # OperationListingUI.new_operation_requested --> AppManager/MainUI
