@@ -46,9 +46,8 @@ class AppManager():
         self.username = login_signal[0]
         password = login_signal[1]
         remember_me_checkbox_state = login_signal[2]
-        login_code = self.database_manager.check_login(self.username,password)
-
-        if login_code == 0:
+        login_code, auth_token = self.database_manager.check_login(self.username,password)
+        if not login_code:
             self.login_ui.error_space.setText("Invalid Username or Password")
 
         else:

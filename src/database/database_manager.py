@@ -3,7 +3,8 @@ from getmac import get_mac_address
 import subprocess
 import time
 import socket
-import bcrypt
+import secrets
+from src.logic.hash_password.hash_password import hash_password,verify_password
 
 class DatabaseManager():
     def __init__(self):
@@ -72,17 +73,30 @@ class DatabaseManager():
             self.conn.rollback()
 
     #LoginUI.login_button_function.login_requested --> AppManager.handle_login --> DatabaseManager.check_login.login_code --> AppManager.handle_login
-    def check_login(self, username : str, password : str) -> int:
+    def check_login(self, username : str, plain_text_password : str):
         try:
-            query = "SELECT * FROM users WHERE username = %s AND password = %s"
-            self.cursor.execute(query, (username, password))
-            user = self.cursor.fetchone()            
-            if user:
+            query = "SELECT password FROM users WHERE username = %s"
+            self.cursor.execute(query, (username,))
+            result = self.cursor.fetchone()    
+            
+            if result is None:
+                self.conn.rollback()
+                return False, None
+            
+            stored_hash = result[0]
+            if verify_password(plain_text_password,stored_hash):
+                auth_token = secrets.token_hex(32) 
+
+                update_query  = "UPDATE users SET auth_token = %s WHERE username = %s"
+                self.cursor.execute(update_query, (auth_token,username))
+                self.conn.commit()      
+
                 self.save_user_log(username,"successful")
-                return 1    
+
+                return True , auth_token    
             else: 
                 self.save_user_log(username,"failed")
-                return 0
+                return False, None
                 
         except Exception as e:
             self.conn.rollback()
@@ -95,12 +109,14 @@ class DatabaseManager():
     def save_account_info(self,account_info : list) -> str:
         try:
             username = account_info[0]
-            password = account_info[1]
+            raw_password = account_info[1]
+
+            secure_hash = hash_password(raw_password)
 
             query = """
                     INSERT INTO users (username,password) VALUES (%s,%s)
                     """
-            self.cursor.execute(query, (username,password))
+            self.cursor.execute(query, (username,secure_hash))
 
             self.conn.commit()
 
@@ -204,7 +220,7 @@ class DatabaseManager():
             query = """
                     SELECT * FROM user_preferences WHERE user_id = (SELECT id FROM users WHERE username = %s)
                     """
-            self.cursor.execute(query,(username))
+            self.cursor.execute(query,(username,))
             current_user_preferences = self.cursor.fetchone()
             return current_user_preferences
 
