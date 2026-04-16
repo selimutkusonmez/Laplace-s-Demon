@@ -102,6 +102,34 @@ class DatabaseManager():
             self.conn.rollback()
             return f"Error: {str(e)}"
         
+    # AppManager.init_main_ui --> DatabaseManager.check_token_login
+    def check_token_login(self, username: str, auth_token: str) -> bool:
+        try:
+            query = "SELECT auth_token FROM users WHERE username = %s"
+            self.cursor.execute(query, (username,))
+            result = self.cursor.fetchone()    
+            
+            # If the database token matches the local registry token exactly
+            if result is not None and result[0] == auth_token:
+                self.save_user_log(username, "silent_token_success")
+                return True
+            else:
+                return False
+                
+        except Exception as e:
+            self.conn.rollback()
+            return False
+        
+    #AppManager.handle_relogin --> DatabaseManager.revoke_token
+    def revoke_token(self, username: str) -> None:
+        try:
+            query = "UPDATE users SET auth_token = NULL WHERE username = %s"
+            self.cursor.execute(query, (username,))
+            self.conn.commit()
+
+        except Exception as e:
+            self.conn.rollback()
+
 
     #                   CREATE NEW ACCOUNT (users)
 
@@ -227,6 +255,13 @@ class DatabaseManager():
         except:
             self.conn.rollback()
         
+    def pull_user_stats(self,username : str) -> list:
+        try:
+            query = "SELECT * FROM user_stats WHERE user_id = (SELECT id FROM users WHERE username = %s)"
+            self.cursor.execute(query,(username,))
+            return self.cursor.fetchone()
+        except:
+            self.conn.rollback()
 
     #PreferencesUI.save_preferred_language.change_preferred_language_request --> AppManager.handle_preferred_language_change --> DatabaseManager.update_preferred_language
     def update_preferred_language(self, username : str, preferred_language : str) -> None:

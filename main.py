@@ -26,6 +26,7 @@ class AppManager():
         self.main_ui = MainUI()
         self.main_ui.color_change_requested.connect(self.handle_color_change)
         self.main_ui.log_out_requested.connect(self.handle_relogin)
+        self.main_ui.tab_close_requested.connect(self.handle_tab_close)
         self.main_ui.init_preferences_ui_requested.connect(self.handle_init_preferences_ui)
         self.main_ui.init_about_me_ui_requested.connect(self.handle_init_about_me_ui)
 
@@ -41,12 +42,14 @@ class AppManager():
 
         self.main_ui.showMaximized()
         sys.exit(self.app.exec())
+        
     
     def handle_login(self,login_signal):
         self.username = login_signal[0]
         password = login_signal[1]
         remember_me_checkbox_state = login_signal[2]
         login_code, auth_token = self.database_manager.check_login(self.username,password)
+
         if not login_code:
             self.login_ui.error_space.setText("Invalid Username or Password")
 
@@ -157,7 +160,8 @@ class AppManager():
     #                   AboutMeUI & DatabaseManager & MainUI
 
     def handle_init_about_me_ui(self):
-        self.about_me_ui = AboutMeUI(self.username)
+        current_user_stats = self.database_manager.pull_user_stats(self.username)
+        self.about_me_ui = AboutMeUI(self.username,current_user_stats)
 
         self.main_ui.add_new_tab(self.about_me_ui,self.username)
 
@@ -172,6 +176,12 @@ class AppManager():
         self.main_ui.central_widget.addTab(self.login_ui,"Login")
         self.main_ui.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
 
+
+    #                   OperationUI & MainUI
+
+    #MainUI.central_widget_tab_close_function.tab_close_requested --> AppManager.handle_tab_close
+    def handle_tab_close(self, index : int):
+        return
 
     #                   LaplaceLibraryUI & MainUI
     def handle_new_operation_request(self,operation_input : list):

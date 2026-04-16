@@ -165,7 +165,8 @@ class MainUI(QMainWindow):
 
     #                   CENTRAL WIDGET FUNCTIONS
     # Central Widget Tab Close Function
-    def central_widget_tab_close_function(self,index):
+    def central_widget_tab_close_function(self,index : int):
+            self.tab_close_requested.emit(index)
             widget = self.central_widget.widget(index)
             self.central_widget.removeTab(index)
             if widget is not None:
