@@ -1,5 +1,6 @@
 import sys
 from PyQt6.QtWidgets import QApplication,QTabBar,QWidget
+from PyQt6.QtCore import QSettings
 from src.ui import MainUI,LoginUI,LaplaceArchiveUI,DatabaseManager,LaplaceLibraryUI
 from src.ui.profile import *
 
@@ -21,13 +22,17 @@ class AppManager():
 
     def init_main_ui(self):
 
+
         self.main_ui = MainUI()
         self.main_ui.color_change_requested.connect(self.handle_color_change)
         self.main_ui.log_out_requested.connect(self.handle_relogin)
         self.main_ui.init_preferences_ui_requested.connect(self.handle_init_preferences_ui)
         self.main_ui.init_about_me_ui_requested.connect(self.handle_init_about_me_ui)
 
-        self.login_ui = LoginUI()
+        laplace_settings = QSettings("LaplacesDemonOrg", "LaplacesDemon")
+        remember_me_state = laplace_settings.value("remember_me", False, type=bool)
+
+        self.login_ui = LoginUI(remember_me_default=remember_me_state)
         self.login_ui.login_requested.connect(self.handle_login)
         self.login_ui.create_new_account_requested.connect(self.handle_create_new_account)
 
@@ -40,12 +45,19 @@ class AppManager():
     def handle_login(self,login_signal):
         self.username = login_signal[0]
         password = login_signal[1]
+        remember_me_checkbox_state = login_signal[2]
         login_code = self.database_manager.check_login(self.username,password)
 
         if login_code == 0:
             self.login_ui.error_space.setText("Invalid Username or Password")
 
         else:
+            settings = QSettings("LaplacesDemonOrg", "LaplacesDemon")
+            if remember_me_checkbox_state:
+                settings.setValue("remember_me", True)
+            else:
+                settings.setValue("remember_me", False)
+
             self.main_ui.init_profile_menu(self.username)
             self.current_user_preferences = self.database_manager.pull_user_preferences(self.username)
             
@@ -153,7 +165,9 @@ class AppManager():
 
     #                   LoginUI & MainUI
     def handle_relogin(self):
-        self.login_ui = LoginUI()
+        settings = QSettings("LaplacesDemonOrg", "LaplacesDemon")
+        settings.setValue("remember_me", False)
+        self.login_ui = LoginUI(remember_me_default=False)
         self.login_ui.login_requested.connect(self.handle_login)
         self.login_ui.create_new_account_requested.connect(self.handle_create_new_account)
         self.main_ui.central_widget.addTab(self.login_ui,"Login")

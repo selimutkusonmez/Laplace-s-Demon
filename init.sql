@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username varchar(50) UNIQUE NOT NULL,
     password varchar(255) NOT NULL,
+    auth_token varchar(255),
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
