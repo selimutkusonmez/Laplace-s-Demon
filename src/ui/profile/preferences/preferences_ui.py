@@ -1,5 +1,6 @@
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QGroupBox,QLineEdit,QComboBox,QLabel,QPushButton,QWidget,QGridLayout,QColorDialog
+from PyQt6.QtGui import QColor
 
 
 class PreferencesUI(QWidget):
@@ -7,9 +8,11 @@ class PreferencesUI(QWidget):
     update_preferred_theme_requested = pyqtSignal(str)
     update_preferred_font_color_requested = pyqtSignal(str)
     
-    def __init__(self):
+    def __init__(self,current_user_preferences):
         super().__init__()
+
         self.init_ui()
+        self.set_current_user_preferences(current_user_preferences)
 
     def init_ui(self):
         
@@ -62,13 +65,33 @@ class PreferencesUI(QWidget):
 
     # PreferencesUI.request_update_preferred_font_color.update_preferred_font_color_requested --> MainUI.update_preferred_font_color_requested --> AppManager.handle_preffered_font_color_change --> DatabaseManager.update_preferred_font_color
     def request_preferred_font_color_update(self):
-        color = QColorDialog.getColor()
+        color = QColorDialog.getColor(self.current_preferred_font_color)
         if color.isValid():
             color_name = color.name()
+            self.current_preferred_font_color = color
             self.update_preferred_font_color_requested.emit(color_name)
             self.output_space.setText("Preferred Font Color Updated")
         else:
             self.output_space.setText("Preferred Font Color Update Interrupted")
+
+    def set_current_user_preferences(self,current_user_preferences):
+        current_preferred_language = current_user_preferences[1]
+        if current_preferred_language == "en":
+            current_preferred_language = "English"
+        elif current_preferred_language == "de":
+            current_preferred_language = "Deutsch"
+        elif current_preferred_language == "tr":
+            current_preferred_language = "Türkçe"
+        self.language_preference_input.setCurrentText(current_preferred_language)
+
+        current_preferred_theme = current_user_preferences[2]
+        if current_preferred_theme == "dark":
+            current_preferred_theme = "Dark Theme"
+        elif current_preferred_theme == "light":
+            current_preferred_theme = "Light Theme"
+        self.theme_preference_input.setCurrentText(current_preferred_theme)
+
+        self.current_preferred_font_color = QColor(current_user_preferences[3])
         
 
 

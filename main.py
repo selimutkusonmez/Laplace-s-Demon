@@ -1,23 +1,12 @@
 import sys
 from PyQt6.QtWidgets import QApplication,QTabBar,QWidget
 from src.ui import MainUI,LoginUI,LaplaceArchiveUI,DatabaseManager,LaplaceLibraryUI
-from src.ui.profile.create_new_account.create_new_account_ui import CreateNewAccountUI
+from src.ui.profile import *
 
 class AppManager():
 
     def __init__(self):
         self.app = QApplication(sys.argv)
-
-        self.main_ui = MainUI()
-        self.main_ui.color_change_requested.connect(self.handle_color_change)
-        self.main_ui.log_out_requested.connect(self.handle_relogin)
-        self.main_ui.update_preferred_language_requested.connect(self.handle_preferred_language_update)
-        self.main_ui.update_preferred_theme_requested.connect(self.handle_preferred_theme_update)
-        self.main_ui.update_preferred_font_color_requested.connect(self.handle_preferred_font_color_update)
-
-        self.login_ui = LoginUI()
-        self.login_ui.login_requested.connect(self.handle_login)
-        self.login_ui.create_new_account_requested.connect(self.handle_create_new_account)
         
     def init_database_manager(self):
         try:
@@ -31,6 +20,16 @@ class AppManager():
             print(str(e))
 
     def init_main_ui(self):
+
+        self.main_ui = MainUI()
+        self.main_ui.color_change_requested.connect(self.handle_color_change)
+        self.main_ui.log_out_requested.connect(self.handle_relogin)
+        self.main_ui.init_preferences_ui_requested.connect(self.handle_init_preferences_ui)
+        self.main_ui.init_about_me_ui_requested.connect(self.handle_init_about_me_ui)
+
+        self.login_ui = LoginUI()
+        self.login_ui.login_requested.connect(self.handle_login)
+        self.login_ui.create_new_account_requested.connect(self.handle_create_new_account)
 
         self.main_ui.central_widget.addTab(self.login_ui,"Login")
         self.main_ui.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
@@ -48,6 +47,7 @@ class AppManager():
 
         else:
             self.main_ui.init_profile_menu(self.username)
+            self.current_user_preferences = self.database_manager.pull_user_preferences(self.username)
             
             self.main_ui.central_widget.removeTab(0)
 
@@ -79,7 +79,7 @@ class AppManager():
     def handle_create_new_account(self):
         create_new_account_ui = CreateNewAccountUI()
         create_new_account_ui.save_account_info_requested.connect(self.handle_save_account_info)
-        self.main_ui.add_create_new_account_tab(create_new_account_ui)
+        self.main_ui.add_new_tab(create_new_account_ui,"Create An Account")
 
     def handle_save_account_info(self,create_new_account_ui_reference : QWidget,account_info : list):
         db_output = self.database_manager.save_account_info(account_info)
@@ -102,10 +102,27 @@ class AppManager():
     def handle_add_new_archive_record_ui(self,history_input : list):
         new_archive_record_ui = history_input[0] # QWidget
         new_archive_record_name = history_input[1] # str
-        self.main_ui.add_new_archive_record_ui_tab(new_archive_record_ui,new_archive_record_name) # add new_history_ui to the main_ui.central_widget as a tab
+        self.main_ui.add_new_tab(new_archive_record_ui,new_archive_record_name) # add new_history_ui to the main_ui.central_widget as a tab
 
 
-    #                   PreferencesUI & DatabaseManager
+    #                   PreferencesUI & DatabaseManager & MainUI
+
+    #MainUI.preferences_action_function.init_preferences_ui_requested --> AppManager.handle_init_preferences_ui --> DatabaseManager.pull_user_preferences --> PreferencesUI(user_preferences) --> MainUI.add_new_tab
+    def handle_init_preferences_ui(self):
+
+        self.preferences_ui = PreferencesUI(self.current_user_preferences)
+
+        self.preferences_ui.update_preferred_language_requested.connect(self.handle_preferred_language_update)
+        self.preferences_ui.update_preferred_language_requested.connect(self.main_ui.change_preferred_language_function)
+
+        self.preferences_ui.update_preferred_theme_requested.connect(self.handle_preferred_theme_update)
+        self.preferences_ui.update_preferred_theme_requested.connect(self.main_ui.change_preferred_theme_function)
+
+        self.preferences_ui.update_preferred_font_color_requested.connect(self.handle_preferred_font_color_update)
+        self.preferences_ui.update_preferred_font_color_requested.connect(self.main_ui.change_preferred_font_color_function)
+
+        self.main_ui.add_new_tab(self.preferences_ui,"Preferences")
+
     def handle_color_change(self,color_code : str):
         self.laplace_library_ui.font_color = color_code
         for i in range(self.main_ui.central_widget.count()):
@@ -126,11 +143,19 @@ class AppManager():
         self.database_manager.update_preferred_font_color(self.username, preferred_font_color)
 
 
+    #                   AboutMeUI & DatabaseManager & MainUI
+
+    def handle_init_about_me_ui(self):
+        self.about_me_ui = AboutMeUI(self.username)
+
+        self.main_ui.add_new_tab(self.about_me_ui,self.username)
+
+
     #                   LoginUI & MainUI
     def handle_relogin(self):
         self.login_ui = LoginUI()
         self.login_ui.login_requested.connect(self.handle_login)
-        self.login_ui.create_an_account_requested.connect(self.handle_create_new_account)
+        self.login_ui.create_new_account_requested.connect(self.handle_create_new_account)
         self.main_ui.central_widget.addTab(self.login_ui,"Login")
         self.main_ui.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
 
@@ -140,8 +165,11 @@ class AppManager():
         self.new_operation_ui = operation_input[0] # QWidget
         self.new_operation_ui.calculation_success.connect(self.handle_new_archive_record) # calculate button connection
         new_operation_name = operation_input[1] # str
-        self.main_ui.add_new_operation_tab(self.new_operation_ui,new_operation_name) # add new_operation_ui to the main_ui.central_widget as a tab
+        self.main_ui.add_new_tab(self.new_operation_ui,new_operation_name) # add new_operation_ui to the main_ui.central_widget as a tab
 
 if __name__ == "__main__":
-    manager = AppManager()
-    manager.init_database_manager()
+    try:
+        manager = AppManager()
+        manager.init_database_manager()
+    except Exception as e:
+        print(str(e))

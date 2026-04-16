@@ -199,6 +199,19 @@ class DatabaseManager():
 
     #                   USER PREFERENCES (user_preferences table)
 
+    def pull_user_preferences(self,username : str) -> list:
+        try:
+            query = """
+                    SELECT * FROM user_preferences WHERE user_id = (SELECT id FROM users WHERE username = %s)
+                    """
+            self.cursor.execute(query,(username))
+            current_user_preferences = self.cursor.fetchone()
+            return current_user_preferences
+
+        except:
+            self.conn.rollback()
+        
+
     #PreferencesUI.save_preferred_language.change_preferred_language_request --> AppManager.handle_preferred_language_change --> DatabaseManager.update_preferred_language
     def update_preferred_language(self, username : str, preferred_language : str) -> None:
         try:

@@ -16,16 +16,14 @@ class MainUI(QMainWindow):
     log_out_requested = pyqtSignal()
     tab_close_requested = pyqtSignal(int)
 
-    #PreferencesUI.signals --> MainUI.signals --> AppManager --> DatabaseManager
-    update_preferred_language_requested = pyqtSignal(str)
-    update_preferred_theme_requested = pyqtSignal(str)
-    update_preferred_font_color_requested = pyqtSignal(str)
+    init_preferences_ui_requested = pyqtSignal()
+    init_about_me_ui_requested = pyqtSignal()
+    
 
     def __init__(self):
         super().__init__()
+
         self.init_ui()
-        self.current_font_size = 20
-        self.change_preferred_theme_function()
 
     def init_ui(self):
         
@@ -116,9 +114,7 @@ class MainUI(QMainWindow):
 
     #                   ABOUT ME UI
     def about_me_action_function(self):
-        about_me_ui = AboutMeUI(self.current_user)
-        index = self.central_widget.addTab(about_me_ui,"About Me")
-        self.central_widget.setCurrentIndex(index)
+        self.init_about_me_ui_requested.emit()
 
 
     #                   PREFERENCES UI
@@ -149,20 +145,8 @@ class MainUI(QMainWindow):
         self.color_change_requested.emit(preferred_color)
 
     def preferences_action_function(self):
-        preferences_ui = PreferencesUI()
+        self.init_preferences_ui_requested.emit()
 
-        preferences_ui.update_preferred_language_requested.connect(self.change_preferred_language_function)
-        preferences_ui.update_preferred_language_requested.connect(self.update_preferred_language_requested)
-        
-        preferences_ui.update_preferred_theme_requested.connect(self.change_preferred_theme_function)
-        preferences_ui.update_preferred_theme_requested.connect(self.update_preferred_theme_requested)
-
-        preferences_ui.update_preferred_font_color_requested.connect(self.change_preferred_font_color_function)
-        preferences_ui.update_preferred_font_color_requested.connect(self.update_preferred_font_color_requested)
-
-        index = self.central_widget.addTab(preferences_ui,"Preferences")
-        self.central_widget.setCurrentIndex(index)
-    
 
     #                   PROFILE MENU LOG OUT FUNCTION
     def log_out_action_function(self):
@@ -182,21 +166,15 @@ class MainUI(QMainWindow):
     #                   CENTRAL WIDGET FUNCTIONS
     # Central Widget Tab Close Function
     def central_widget_tab_close_function(self,index):
-        self.central_widget.removeTab(index)
+            widget = self.central_widget.widget(index)
+            self.central_widget.removeTab(index)
+            if widget is not None:
+                print("sa")
+                widget.deleteLater()
 
 
-    #                   NEW TAB FUNCTIONS
+    #                   NEW TAB FUNCTION
 
-    # OperationsListingUI.subjects_list_3_item_double_clicked.new_operation_requested --> AppManager.handle_new_operation_request --> MainUI.add_new_operation_tab
-    def add_new_operation_tab(self, new_operation_ui : QWidget, new_operation_name : str):
-        index = self.central_widget.addTab(new_operation_ui,new_operation_name)
-        self.central_widget.setCurrentIndex(index)
-    
-    # 
-    def add_new_archive_record_ui_tab(self, new_history_ui : QWidget ,new_history_name : str):
-        self.central_widget.addTab(new_history_ui,new_history_name)
-
-    #AppManager.handle_create_new_account --> MainUI.add_create_new_account_tab
-    def add_create_new_account_tab(self, create_new_account_ui : QWidget):
-        index = self.central_widget.addTab(create_new_account_ui,"Create An Account")
+    def add_new_tab(self, widget : QWidget, tab_text : str):
+        index = self.central_widget.addTab(widget,tab_text)
         self.central_widget.setCurrentIndex(index)
