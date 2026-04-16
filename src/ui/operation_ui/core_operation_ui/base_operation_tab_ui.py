@@ -10,6 +10,8 @@ class BaseOperationTabUI(DemonCore):
     def __init__(self, operation_name,color_code : str):
         super().__init__(operation_name,color_code)
 
+        self.is_dirty = False
+
         self.inputs_tab_widget = QTabWidget()
         self.left_groupbox_layout.addWidget(self.inputs_tab_widget,0,0,1,2)
 
@@ -19,6 +21,7 @@ class BaseOperationTabUI(DemonCore):
         self.text_tab.setLayout(self.text_tab_layout)
 
         self.text_data_input = DragAndDropTextEdit()
+        self.text_data_input.textChanged.connect(self.update_is_dirty)
         self.text_tab_layout.addWidget(self.text_data_input)
 
         self.inputs_tab_widget.addTab(self.text_tab,"Text Data")
@@ -52,12 +55,14 @@ class BaseOperationTabUI(DemonCore):
         self.inputs_tab_widget.currentChanged.connect(self.update_display)
 
         self.change_color(color_code)
+        print(self.is_dirty)
 
     # DragAndDropTableWidget.df.columns --> OperationUI.load_column_names
     def load_column_names(self,columns : list):
         self.column_picker.clear()
         self.column_picker.addItem("All")
         self.column_picker.addItems(columns)
+        self.is_dirty = True
 
     # OperationUI.column_picker.currentText() --> DragAndDropTableWidget.load_column_data
     def column_chosen(self):
@@ -70,6 +75,7 @@ class BaseOperationTabUI(DemonCore):
                 self.update_display()
             except:
                 return
+            print(self.is_dirty)
             
     # Reset input based on tab index 0 = text, 1 = table
     def reset_input_function(self):
@@ -92,6 +98,7 @@ class BaseOperationTabUI(DemonCore):
         self.table_data_input.load_data_from_chosen_file(file_path)
         print(file_path)
         
-
+    def update_is_dirty(self):
+        self.is_dirty = True
 
     

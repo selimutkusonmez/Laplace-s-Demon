@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS user_preferences (
     user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     preferred_language varchar(10) DEFAULT 'en' NOT NULL,
     preferred_theme varchar(10) DEFAULT 'dark',
-    preferred_font_color varchar(50) DEFAULT '#ADBAC7'
+    preferred_font_color varchar(50) DEFAULT '#0000'
 );
 
 -- USER STATS TABLE --

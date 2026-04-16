@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtWidgets import QApplication,QTabBar,QWidget
+from PyQt6.QtWidgets import QApplication,QTabBar,QWidget,QMessageBox
 from PyQt6.QtCore import QSettings
 from src.ui import MainUI,LoginUI,LaplaceArchiveUI,DatabaseManager,LaplaceLibraryUI
 from src.ui.profile import *
@@ -121,6 +121,8 @@ class AppManager():
             self.main_ui.central_widget.addTab(self.laplace_archive_ui,"Laplace's Archive")
             self.main_ui.central_widget.tabBar().setTabButton(1, QTabBar.ButtonPosition.RightSide, None)
 
+            self.main_ui.set_current_user_preferences(self.current_user_preferences)
+
             self.login_ui.deleteLater()
 
 
@@ -229,7 +231,25 @@ class AppManager():
 
     #MainUI.central_widget_tab_close_function.tab_close_requested --> AppManager.handle_tab_close
     def handle_tab_close(self, index : int):
-        return
+        widget = self.main_ui.central_widget.widget(index)
+        
+        if hasattr(widget, "is_dirty") and widget.is_dirty:
+            verdict = QMessageBox.warning(
+                self.main_ui,
+                "Unsaved Data",
+                "This tab contains uncalculated input. Are you sure you want to close it?",
+                QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel,
+                QMessageBox.StandardButton.Cancel
+            )
+            
+            if verdict == QMessageBox.StandardButton.Discard:
+                self.main_ui.central_widget.removeTab(index)
+                widget.deleteLater()
+            elif verdict == QMessageBox.StandardButton.Cancel:
+                return
+        else:
+            self.main_ui.central_widget.removeTab(index)
+            widget.deleteLater()
 
     #                   LaplaceLibraryUI & MainUI
     def handle_new_operation_request(self,operation_input : list):
