@@ -302,6 +302,7 @@ class DatabaseManager():
         except:
             self.conn.rollback()
 
+
     def __del__(self):
         if hasattr(self, 'conn') and self.conn is not None:
             self.conn.close()    

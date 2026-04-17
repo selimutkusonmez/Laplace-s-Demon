@@ -63,7 +63,7 @@ class LaplaceArchiveUI(QWidget):
 
         self.upper_groupbox_layout.addStretch()
 
-        self.list_archive_records_by_date_button = QPushButton("List Archive Record By Date")
+        self.list_archive_records_by_date_button = QPushButton("List Archive Records By Date")
         self.list_archive_records_by_date_button.clicked.connect(self.list_archive_records_by_date_button_function)
         self.upper_groupbox_layout.addWidget(self.list_archive_records_by_date_button)
 
@@ -167,7 +167,7 @@ class LaplaceArchiveUI(QWidget):
 
         worker_class = history_map.get(new_archive_record_operation_name)
         new_archive_record_ui = worker_class(str(db_id),date,new_archive_record_operation_name,variables,input_data,output,self.font_color)
-        self.init_new_archive_record_ui_requested.emit([new_archive_record_ui,f"{new_archive_record_operation_name} (Archive)"])
+        self.init_new_archive_record_ui_requested.emit([new_archive_record_ui,f"{new_archive_record_operation_name} (ID : {db_id})"])
 
 
 
@@ -200,7 +200,13 @@ class LaplaceArchiveUI(QWidget):
     def clear_archive_list_button_function(self):
         self.archive_records_list.clear()
     
-    def update_laplace_arhcive_records_count(self):
-        self.laplace_archive_records_count = self.laplace_archive_records_count + 1
-        self.laplace_archive_records_count_label.setText(str(self.laplace_archive_records_count))
+    def update_laplace_arhcive_records_count(self,archive_records_count_on_id):
+        self.laplace_archive_records_count_label.setText(str(archive_records_count_on_id))
     
+    def set_button_enabled(self,list_records_by_date):
+        if list_records_by_date:
+            self.list_archive_records_by_date_button.setEnabled(False)
+            self.list_archive_records_by_date_button.setText("Processing...")
+        else:
+            self.list_archive_records_by_date_button.setEnabled(True)
+            self.list_archive_records_by_date_button.setText("List Archive Records By Date")

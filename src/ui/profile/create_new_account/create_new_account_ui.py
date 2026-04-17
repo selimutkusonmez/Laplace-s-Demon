@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QWidget,QPushButton,QLabel,QLineEdit,QGridLayout,QGr
 from PyQt6.QtCore import pyqtSignal
 
 class CreateNewAccountUI(QWidget):
-    save_account_info_requested = pyqtSignal(QWidget,list)
+    save_account_info_requested = pyqtSignal(list)
     def __init__(self):
         super().__init__()
         self.init_ui()
@@ -43,4 +43,15 @@ class CreateNewAccountUI(QWidget):
         if username == "" or password == "":
             self.output.setText("Please Fill In All Fields")
             return
-        self.save_account_info_requested.emit(self,[username,password])
+        self.save_account_info_requested.emit([username,password])
+
+    def set_button_enabled(self,create_account):
+        if create_account:
+            self.create_my_account_button.setEnabled(False)
+            self.create_my_account_button.setText("Processing...")
+        else:
+            self.create_my_account_button.setEnabled(True)
+            self.create_my_account_button.setText("Create My Account")
+
+    def set_output(self,output : str):
+        self.output.setText(output)

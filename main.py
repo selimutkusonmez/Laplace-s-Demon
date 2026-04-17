@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QApplication, QTabBar, QWidget, QMessageBox
 from PyQt6.QtCore import QSettings, Qt, QRunnable, QObject, pyqtSignal, pyqtSlot, QThreadPool
 from src.ui import MainUI, LoginUI, LaplaceArchiveUI, DatabaseManager, LaplaceLibraryUI
 from src.ui.profile import *
+import re
 
 class DatabaseWorkerSignals(QObject):
     result = pyqtSignal(object)
@@ -47,8 +48,9 @@ class AppManager():
         laplace_settings = QSettings("LaplacesDemonOrg", "LaplacesDemon")
         remember_me_state = laplace_settings.value("remember_me", False, type=bool)
         saved_username = laplace_settings.value("saved_username", "", type=str)
-        self.username = saved_username
         auth_token = laplace_settings.value("auth_token", "", type=str)
+        
+        self.username = saved_username
 
         self.current_user_preferences = self.database_manager.pull_user_preferences(self.username)
 
@@ -95,8 +97,7 @@ class AppManager():
             sys.exit(self.app.exec())
         
     def handle_login_without_token(self, login_signal):
-        self.login_ui.login_button.setEnabled(False)
-        self.login_ui.login_button.setText("Authenticating...")
+        self.login_ui.set_button_enabled(True)
 
         self.username_attempt = login_signal[0]
         self.password_attempt = login_signal[1]
@@ -108,17 +109,16 @@ class AppManager():
         self.threadpool.start(worker)
 
     def process_login_result(self, result):
-        self.login_ui.login_button.setEnabled(True)
-        self.login_ui.login_button.setText("Login")
+        self.login_ui.set_button_enabled(False)
 
         if isinstance(result, str) and result.startswith("Error"):
-            self.login_ui.error_space.setText("Database Connection Error")
+            self.login_ui.set_output_text("Database Connection Error")
             return
 
         login_code, auth_token = result
 
         if not login_code:
-            self.login_ui.error_space.setText("Invalid Username or Password")
+            self.login_ui.set_output_text("Invalid Username or Password")
         else:
             self.username = self.username_attempt
             settings = QSettings("LaplacesDemonOrg", "LaplacesDemon")
@@ -165,26 +165,46 @@ class AppManager():
 
     #                   CREATE NEW ACCOUNT
     def handle_create_new_account(self):
-        if hasattr(self, "create_new_account_ui"):
-            return
+        if hasattr(self,"create_new_account_ui"):
+            for i in range(self.main_ui.central_widget.count()):
+                if self.main_ui.central_widget.widget(i).property("widget_name") == "create_new_account_ui":
+                    self.main_ui.central_widget.setCurrentIndex(i)
+        
         else:
             self.create_new_account_ui = CreateNewAccountUI()
+            self.create_new_account_ui.setProperty("widget_name","create_new_account_ui")
             self.create_new_account_ui.save_account_info_requested.connect(self.handle_save_account_info)
+
             self.main_ui.add_new_tab(self.create_new_account_ui, "Create An Account")
 
-    def handle_save_account_info(self, create_new_account_ui_reference: QWidget, account_info: list):
-        db_output = self.database_manager.save_account_info(account_info)
-        create_new_account_ui_reference.output.setText(db_output)
+    def handle_save_account_info(self, account_info: list):
+        self.create_new_account_ui.set_button_enabled(True)
+        worker = DatabaseWorker(self.database_manager.save_account_info,account_info)
+        worker.signals.result.connect(self.process_account_info)
+        self.threadpool.start(worker)
+
+    def process_account_info(self,db_output : str):
+        if not hasattr(self, "create_new_account_ui"):
+            return
+        self.create_new_account_ui.set_button_enabled(False)
+        self.create_new_account_ui.set_output(db_output)
 
 
     #                   UPDATE AND PULL ARCHIVE RECORDS
     def handle_new_archive_record(self, new_archive_record_data: list):
-        new_archive_record_db_id = self.database_manager.save_archive_record(self.username, new_archive_record_data)
-        self.laplace_archive_ui.add_new_archive_record(new_archive_record_db_id, new_archive_record_data)
+        
+        worker = DatabaseWorker(self.database_manager.save_archive_record,self.username,new_archive_record_data)
+        worker.signals.result.connect(lambda result, data=new_archive_record_data: self.process_new_archive_record(result, data))
+        self.threadpool.start(worker)
+        
+    def process_new_archive_record(self,new_record_data_db_id,new_archive_record_data):
+        if not hasattr(self, "laplace_archive_ui"):
+            return
+        self.laplace_archive_ui.add_new_archive_record(new_record_data_db_id, new_archive_record_data)
+
 
     def handle_archive_records_by_date(self, operation_data_date: list):
-        self.laplace_archive_ui.list_archive_records_by_date_button.setEnabled(False)
-        self.laplace_archive_ui.list_archive_records_by_date_button.setText("Processing")
+        self.laplace_archive_ui.set_button_enabled(True)
         worker = DatabaseWorker(self.database_manager.return_archive_records_by_date,self.username,operation_data_date)
         worker.signals.result.connect(self.process_archive_records_by_date)
         self.threadpool.start(worker)
@@ -192,30 +212,48 @@ class AppManager():
     def process_archive_records_by_date(self,archive_records_by_date):
         if not hasattr(self, "laplace_archive_ui"):
             return
-        self.laplace_archive_ui.list_archive_records_by_date_button.setEnabled(True)
-        self.laplace_archive_ui.list_archive_records_by_date_button.setText("List Archive Records By Date")
+        self.laplace_archive_ui.set_button_enabled(False)
         self.laplace_archive_ui.list_archive_records_by_date(archive_records_by_date)
     
+
     def handle_archive_record_data_by_id(self, db_id: str):
-        archive_record_data_by_id = self.database_manager.return_archive_record_data_by_id(db_id)
+        for i in range(self.main_ui.central_widget.count()):
+            if self.main_ui.central_widget.tabText(i).endswith(f"(ID : {db_id})"):
+                self.main_ui.central_widget.setCurrentIndex(i)
+                return
+        worker = DatabaseWorker(self.database_manager.return_archive_record_data_by_id,db_id)
+        worker.signals.result.connect(self.process_archive_record_data_by_id)
+        self.threadpool.start(worker)        
+    
+    def process_archive_record_data_by_id(self,archive_record_data_by_id):
         self.laplace_archive_ui.init_new_archive_record_ui(archive_record_data_by_id)
+
 
     def handle_add_new_archive_record_ui(self, history_input: list):
         self.main_ui.add_new_tab(history_input[0], history_input[1])
 
+
     def handle_update_laplace_archive_ui(self):
-        self.laplace_archive_ui.update_laplace_arhcive_records_count()
+        worker = DatabaseWorker(self.database_manager.count_archive_records_on_id,self.username)
+        worker.signals.result.connect(self.process_update_laplace_archive_ui)
+        self.threadpool.start(worker)
+
+    def process_update_laplace_archive_ui(self,archive_records_count_on_id):
+        if not hasattr(self,"laplace_archive_ui"):
+            return
+        self.laplace_archive_ui.update_laplace_arhcive_records_count(archive_records_count_on_id)
+        
 
 
     #                   UPDATE PULL AND APPLY PREFERENCES
     def handle_init_preferences_ui(self):
         if hasattr(self, "preferences_ui"):
             for i in range(self.main_ui.central_widget.count()):
-                tab_text = self.main_ui.central_widget.tabText(i)
-                if tab_text == "Preferences":
+                if self.main_ui.central_widget.widget(i).property("widget_name") == "preferences_ui":
                     self.main_ui.central_widget.setCurrentIndex(i)
         else:
             self.preferences_ui = PreferencesUI(self.current_user_preferences)
+            self.preferences_ui.setProperty("widget_name","preferences_ui")
 
             self.preferences_ui.update_preferred_language_requested.connect(self.handle_preferred_language_update)
             self.preferences_ui.update_preferred_language_requested.connect(self.main_ui.change_preferred_language_function)
@@ -237,24 +275,27 @@ class AppManager():
                 operation_widget.change_color(color_code)
 
     def handle_preferred_language_update(self, preferred_language: str) -> None:
-        self.database_manager.update_preferred_language(self.username, preferred_language)
-
+        worker = DatabaseWorker(self.database_manager.update_preferred_language,self.username,preferred_language)
+        self.threadpool.start(worker)
+        
     def handle_preferred_theme_update(self, preferred_theme: str) -> None:
-        self.database_manager.update_preferred_theme(self.username, preferred_theme)
+        worker = DatabaseWorker(self.database_manager.update_preferred_theme,self.username,preferred_theme)
+        self.threadpool.start(worker)
 
     def handle_preferred_font_color_update(self, preferred_font_color: str) -> None:
-        self.database_manager.update_preferred_font_color(self.username, preferred_font_color)
+        worker = DatabaseWorker(self.database_manager.update_preferred_font_color,self.username,preferred_font_color)
+        self.threadpool.start(worker)
 
 
     #                   INIT AND UPDATE ABOUT ME
     def handle_init_about_me_ui(self):
         if hasattr(self, "about_me_ui"):
             for i in range(self.main_ui.central_widget.count()):
-                tab_text = self.main_ui.central_widget.tabText(i)
-                if tab_text == "About Me":
+                if self.main_ui.central_widget.widget(i).property("widget_name") == "about_me_ui":
                     self.main_ui.central_widget.setCurrentIndex(i)
         else:
             self.about_me_ui = AboutMeUI(self.username, [None for i in range(13)])
+            self.about_me_ui.setProperty("widget_name","about_me_ui")
             self.main_ui.add_new_tab(self.about_me_ui, "About Me")
 
             worker = DatabaseWorker(self.database_manager.pull_user_stats,self.username)
@@ -265,14 +306,18 @@ class AppManager():
         if hasattr(self,"about_me_ui"):
             self.about_me_ui.fill_user_stats(self.username,current_user_stats)
 
-
     def handle_update_about_me_ui(self):
         if hasattr(self, "about_me_ui"):
-            current_user_stats = self.database_manager.pull_user_stats(self.username)
-            self.about_me_ui.fill_user_stats(self.username, current_user_stats)
+            worker = DatabaseWorker(self.database_manager.pull_user_stats,self.username)
+            worker.signals.result.connect(self.process_update_about_me_ui)
+            self.threadpool.start(worker)            
         else:
             return
-
+        
+    def process_update_about_me_ui(self,current_user_stats):
+        if not hasattr(self,"about_me_ui"):
+            return
+        self.about_me_ui.fill_user_stats(self.username, current_user_stats)
 
     #                   RELOGIN
     def handle_relogin(self):
@@ -303,7 +348,8 @@ class AppManager():
         settings.setValue("saved_username", "")
         settings.setValue("auth_token", "")
 
-        self.database_manager.revoke_token(self.username)
+        worker = DatabaseWorker(self.database_manager.revoke_token,self.username)
+        self.threadpool.start(worker)
         self.username = None
 
         self.login_ui = LoginUI(remember_me_default=False)

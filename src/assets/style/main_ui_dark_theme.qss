@@ -129,8 +129,8 @@ QMenu::separator {
 QGroupBox {
     border: 1px solid #444C56;
     border-radius: 6px;
-    margin-top: 18px;
-    padding-top: 16px;
+    margin-top: 10px;
+    padding-top: 8;
     background-color: #2D333B;
 }
 QGroupBox::title {

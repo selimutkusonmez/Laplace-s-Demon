@@ -83,4 +83,15 @@ class LoginUI(QWidget):
         else:
             self.login_requested.emit([username,password,remember_me_checkbox_state])
 
+    def set_button_enabled(self,logging_in):
+        if logging_in:
+            self.login_button.setEnabled(False)
+            self.login_button.setText("Authenticating...")
+        else:
+            self.login_button.setEnabled(True)
+            self.login_button.setText("Login")
+
+    def set_output_text(self,output_text):
+        self.error_space.setText(output_text)
+
 
