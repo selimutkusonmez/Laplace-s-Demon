@@ -31,7 +31,9 @@ class AppManager():
     def __init__(self):
         self.app = QApplication(sys.argv)
         self.threadpool = QThreadPool()
+
         
+    #                   INIT DOCKER AND POSTGRE SERVER
     def init_database_manager(self):
         self.database_manager = DatabaseManager()
         docker_and_db = self.database_manager.start_docker_and_connect_db()
@@ -39,7 +41,8 @@ class AppManager():
             self.handle_login_with_token()
         else:
             return
-
+        
+    #                   LOGIN
     def handle_login_with_token(self):
         laplace_settings = QSettings("LaplacesDemonOrg", "LaplacesDemon")
         remember_me_state = laplace_settings.value("remember_me", False, type=bool)
@@ -159,6 +162,8 @@ class AppManager():
 
             self.login_ui.deleteLater()
 
+
+    #                   CREATE NEW ACCOUNT
     def handle_create_new_account(self):
         if hasattr(self, "create_new_account_ui"):
             return
@@ -171,6 +176,8 @@ class AppManager():
         db_output = self.database_manager.save_account_info(account_info)
         create_new_account_ui_reference.output.setText(db_output)
 
+
+    #                   UPDATE AND PULL ARCHIVE RECORDS
     def handle_new_archive_record(self, new_archive_record_data: list):
         new_archive_record_db_id = self.database_manager.save_archive_record(self.username, new_archive_record_data)
         self.laplace_archive_ui.add_new_archive_record(new_archive_record_db_id, new_archive_record_data)
@@ -189,6 +196,8 @@ class AppManager():
     def handle_update_laplace_archive_ui(self):
         self.laplace_archive_ui.update_laplace_arhcive_records_count()
 
+
+    #                   UPDATE PULL AND APPLY PREFERENCES
     def handle_init_preferences_ui(self):
         if hasattr(self, "preferences_ui"):
             for i in range(self.main_ui.central_widget.count()):
@@ -226,6 +235,8 @@ class AppManager():
     def handle_preferred_font_color_update(self, preferred_font_color: str) -> None:
         self.database_manager.update_preferred_font_color(self.username, preferred_font_color)
 
+
+    #                   INIT AND UPDATE ABOUT ME
     def handle_init_about_me_ui(self):
         if hasattr(self, "about_me_ui"):
             for i in range(self.main_ui.central_widget.count()):
@@ -244,6 +255,8 @@ class AppManager():
         else:
             return
 
+
+    #                   RELOG
     def handle_relogin(self):
         ui_singletons = [
             "preferences_ui", 
@@ -282,6 +295,8 @@ class AppManager():
         self.main_ui.central_widget.addTab(self.login_ui, "Login")
         self.main_ui.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
 
+
+    #                   TAB CLOSE
     def handle_tab_close(self, index: int):
         widget = self.main_ui.central_widget.widget(index)
         
@@ -312,6 +327,8 @@ class AppManager():
         self.main_ui.central_widget.removeTab(index)
         widget.deleteLater()
 
+
+    #                   ADD NEW OPERATION
     def handle_new_operation_request(self, operation_input: list):
         operation_input[0].calculation_success.connect(self.handle_new_archive_record) 
         operation_input[0].calculation_success.connect(self.handle_update_about_me_ui) 
