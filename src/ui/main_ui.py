@@ -152,9 +152,9 @@ class MainUI(QMainWindow):
 
     def set_current_user_preferences(self,current_user_preferences):
         if current_user_preferences:
-            self.change_preferred_language_function(current_user_preferences[1])
-            self.change_preferred_theme_function(current_user_preferences[2])
-            self.change_preferred_font_color_function(current_user_preferences[3])
+            self.change_preferred_language_function(current_user_preferences[2])
+            self.change_preferred_theme_function(current_user_preferences[3])
+            self.change_preferred_font_color_function(current_user_preferences[4])
         else:
             self.change_preferred_language_function("en")
             self.change_preferred_theme_function("dark")
@@ -162,17 +162,7 @@ class MainUI(QMainWindow):
 
 
     #                   PROFILE MENU LOG OUT FUNCTION
-    def log_out_action_function(self):
-        while self.central_widget.count() > 0:
-            widget = self.central_widget.widget(0)
-            self.central_widget.removeTab(0)
-            if widget is not None:
-                widget.deleteLater()
-                
-        if hasattr(self, 'profile_button') and self.profile_button is not None:
-            self.menuBar().setCornerWidget(None, Qt.Corner.TopRightCorner)
-            self.profile_button.deleteLater()
-            
+    def log_out_action_function(self):          
         self.log_out_requested.emit()
 
 

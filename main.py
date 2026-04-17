@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtWidgets import QApplication,QTabBar,QWidget,QMessageBox
-from PyQt6.QtCore import QSettings
+from PyQt6.QtCore import QSettings,Qt
 from src.ui import MainUI,LoginUI,LaplaceArchiveUI,DatabaseManager,LaplaceLibraryUI
 from src.ui.profile import *
 
@@ -17,7 +17,7 @@ class AppManager():
             else:
                 return
 
-
+    #                   LOGIN
     def handle_login_with_token(self):
 
         laplace_settings = QSettings("LaplacesDemonOrg", "LaplacesDemon")
@@ -43,7 +43,7 @@ class AppManager():
             if login_code:
 
                 self.main_ui.init_profile_menu(self.username)
-                self.laplace_library_ui = LaplaceLibraryUI(self.current_user_preferences[3])
+                self.laplace_library_ui = LaplaceLibraryUI(self.current_user_preferences[4])
                 self.laplace_library_ui.new_operation_requested.connect(self.handle_new_operation_request)
 
                 self.main_ui.central_widget.addTab(self.laplace_library_ui, "Laplace's Library")
@@ -51,7 +51,7 @@ class AppManager():
 
                 archive_records_count_on_id = self.database_manager.count_archive_records_on_id(self.username)
 
-                self.laplace_archive_ui = LaplaceArchiveUI(self.username, archive_records_count_on_id,self.current_user_preferences[3])
+                self.laplace_archive_ui = LaplaceArchiveUI(self.username, archive_records_count_on_id,self.current_user_preferences[4])
                 self.laplace_archive_ui.archive_records_by_date_requested.connect(self.hanlde_archive_records_by_date)
                 self.laplace_archive_ui.archive_record_data_by_id_requested.connect(self.handle_archive_record_data_by_id)
                 self.laplace_archive_ui.init_new_archive_record_ui_requested.connect(self.handle_add_new_archive_record_ui)
@@ -73,7 +73,6 @@ class AppManager():
             self.main_ui.showMaximized()
             sys.exit(self.app.exec())
         
-    
     def handle_login_without_token(self,login_signal):
         self.username = login_signal[0]
         password = login_signal[1]
@@ -154,9 +153,7 @@ class AppManager():
         self.laplace_archive_ui.init_new_archive_record_ui(archive_record_data_by_id) # take operation_data_by_id and give it to history_ui
 
     def handle_add_new_archive_record_ui(self,history_input : list):
-        new_archive_record_ui = history_input[0] # QWidget
-        new_archive_record_name = history_input[1] # str
-        self.main_ui.add_new_tab(new_archive_record_ui,new_archive_record_name) # add new_history_ui to the main_ui.central_widget as a tab
+        self.main_ui.add_new_tab(history_input[0],history_input[1])
 
     def handle_update_laplace_archive_ui(self):
         self.laplace_archive_ui.update_laplace_arhcive_records_count()
@@ -170,8 +167,9 @@ class AppManager():
                 tab_text = self.main_ui.central_widget.tabText(i)
                 if tab_text == "Preferences":
                     self.main_ui.central_widget.setCurrentIndex(i)
+            print("hasattr")
         else:
-
+            print("else")
             self.preferences_ui = PreferencesUI(self.current_user_preferences)
 
             self.preferences_ui.update_preferred_language_requested.connect(self.handle_preferred_language_update)
@@ -229,6 +227,28 @@ class AppManager():
 
     #                   LoginUI & MainUI
     def handle_relogin(self):
+        ui_singletons = [
+            "preferences_ui", 
+            "about_me_ui", 
+            "laplace_library_ui", 
+            "laplace_archive_ui", 
+            "login_ui"
+        ]
+        
+        for ui_name in ui_singletons:
+            if hasattr(self, ui_name):
+                delattr(self, ui_name)
+
+        while self.main_ui.central_widget.count() > 0:
+            widget = self.main_ui.central_widget.widget(0)
+            self.main_ui.central_widget.removeTab(0)
+            if widget is not None:
+                widget.deleteLater()
+
+        if hasattr(self.main_ui, 'profile_button') and self.main_ui.profile_button is not None:
+            self.main_ui.menuBar().setCornerWidget(None, Qt.Corner.TopRightCorner)
+            self.main_ui.profile_button.deleteLater()
+
         settings = QSettings("LaplacesDemonOrg", "LaplacesDemon")
         settings.setValue("remember_me", False)
         settings.setValue("saved_username", "")
@@ -241,7 +261,7 @@ class AppManager():
         self.login_ui.login_requested.connect(self.handle_login_without_token)
         self.login_ui.create_new_account_requested.connect(self.handle_create_new_account)
 
-        self.main_ui.central_widget.addTab(self.login_ui,"Login")
+        self.main_ui.central_widget.addTab(self.login_ui, "Login")
         self.main_ui.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
 
 
@@ -260,23 +280,30 @@ class AppManager():
                 QMessageBox.StandardButton.Cancel
             )
             
-            if verdict == QMessageBox.StandardButton.Discard:
-                self.main_ui.central_widget.removeTab(index)
-                widget.deleteLater()
-            elif verdict == QMessageBox.StandardButton.Cancel:
+            if verdict == QMessageBox.StandardButton.Cancel:
                 return
-        else:
-            self.main_ui.central_widget.removeTab(index)
-            widget.deleteLater()
+
+        try:
+            if widget is self.preferences_ui:
+                delattr(self, "preferences_ui")
+        except AttributeError:
+            pass
+
+        try:
+            if widget is self.about_me_ui:
+                delattr(self, "about_me_ui")
+        except AttributeError:
+            pass
+
+        self.main_ui.central_widget.removeTab(index)
+        widget.deleteLater()
 
     #                   LaplaceLibraryUI & MainUI
     def handle_new_operation_request(self,operation_input : list):
-        self.new_operation_ui = operation_input[0] # QWidget
-        self.new_operation_ui.calculation_success.connect(self.handle_new_archive_record) # calculate button connection
-        self.new_operation_ui.calculation_success.connect(self.handle_update_about_me_ui) # calculate button connection
-        self.new_operation_ui.calculation_success.connect(self.handle_update_laplace_archive_ui)
-        new_operation_name = operation_input[1] # str
-        self.main_ui.add_new_tab(self.new_operation_ui,new_operation_name) # add new_operation_ui to the main_ui.central_widget as a tab
+        operation_input[0].calculation_success.connect(self.handle_new_archive_record) # calculate button connection
+        operation_input[0].calculation_success.connect(self.handle_update_about_me_ui) # calculate button connection
+        operation_input[0].calculation_success.connect(self.handle_update_laplace_archive_ui)
+        self.main_ui.add_new_tab(operation_input[0],operation_input[1]) # add new_operation_ui to the main_ui.central_widget as a tab
 
 if __name__ == "__main__":
         manager = AppManager()

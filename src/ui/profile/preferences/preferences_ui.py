@@ -75,7 +75,7 @@ class PreferencesUI(QWidget):
             self.output_space.setText("Preferred Font Color Update Interrupted")
 
     def set_current_user_preferences(self,current_user_preferences):
-        current_preferred_language = current_user_preferences[1]
+        current_preferred_language = current_user_preferences[2]
         if current_preferred_language == "en":
             current_preferred_language = "English"
         elif current_preferred_language == "de":
@@ -84,14 +84,14 @@ class PreferencesUI(QWidget):
             current_preferred_language = "Türkçe"
         self.language_preference_input.setCurrentText(current_preferred_language)
 
-        current_preferred_theme = current_user_preferences[2]
+        current_preferred_theme = current_user_preferences[3]
         if current_preferred_theme == "dark":
             current_preferred_theme = "Dark Theme"
         elif current_preferred_theme == "light":
             current_preferred_theme = "Light Theme"
         self.theme_preference_input.setCurrentText(current_preferred_theme)
 
-        self.current_preferred_font_color = QColor(current_user_preferences[3])
+        self.current_preferred_font_color = QColor(current_user_preferences[4])
         
 
 

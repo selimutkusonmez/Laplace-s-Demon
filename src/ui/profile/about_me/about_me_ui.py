@@ -125,18 +125,18 @@ class AboutMeUI(QWidget):
     #MainUI.about_me_action_function --> AppManager.handle_init_about_me_ui --> DatabaseManager.pull_user_stats --> AboutMeUI(current_user_stats)
     #OperationUI.calculation_success --> AppManager.handle_update_about_me_ui --> AboutMeUI.fill_user_stats(current_user_stats)
     def fill_user_stats(self,username,current_user_stats):
-        user_id = str(current_user_stats[0])
-        account_opening_date = str(current_user_stats[1])
-        last_successful_login_date = str(current_user_stats[2])
-        last_successful_login_ip = current_user_stats[3]
-        last_successful_login_mac = current_user_stats[4]
-        last_failed_login_date = str(current_user_stats[5])
-        last_failed_login_ip = current_user_stats[6] if current_user_stats[6] != None else "None"
-        last_failed_login_mac = current_user_stats[7] if current_user_stats[7] != None else "None"
-        total_operation_usage = str(current_user_stats[8]) if current_user_stats[8] != 0 else "None"
-        operation_usage_counts = current_user_stats[9]
-        most_used_operation = current_user_stats[10] if current_user_stats[10] != None else "None"
-        last_used_operation = current_user_stats[11] if current_user_stats[11] != None else "None"
+        user_id = str(current_user_stats[1])
+        account_opening_date = str(current_user_stats[2])
+        last_successful_login_date = str(current_user_stats[3])
+        last_successful_login_ip = current_user_stats[4]
+        last_successful_login_mac = current_user_stats[5]
+        last_failed_login_date = str(current_user_stats[6])
+        last_failed_login_ip = current_user_stats[7] if current_user_stats[7] != None else "None"
+        last_failed_login_mac = current_user_stats[8] if current_user_stats[8] != None else "None"
+        total_operation_usage = str(current_user_stats[9]) if current_user_stats[9] != 0 else "None"
+        operation_usage_counts = current_user_stats[10]
+        most_used_operation = current_user_stats[11] if current_user_stats[11] != None else "None"
+        last_used_operation = current_user_stats[12] if current_user_stats[12] != None else "None"
 
         self.username_label.setText(username)
         self.username_id_label.setText(user_id)

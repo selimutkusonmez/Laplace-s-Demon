@@ -167,7 +167,7 @@ class LaplaceArchiveUI(QWidget):
 
         worker_class = history_map.get(new_archive_record_operation_name)
         new_archive_record_ui = worker_class(str(db_id),date,new_archive_record_operation_name,variables,input_data,output,self.font_color)
-        self.init_new_archive_record_ui_requested.emit([new_archive_record_ui,new_archive_record_operation_name])
+        self.init_new_archive_record_ui_requested.emit([new_archive_record_ui,f"{new_archive_record_operation_name} (Archive)"])
 
 
 

@@ -169,7 +169,7 @@ class BaseArchiveRecordUI(QWidget):
 
     def change_color(self,color_code : str):
         self.font_color = color_code
-        self.render_latex(self.output,self.font_color)
+        self.render_latex(self.output)
 
     def export_to_pdf_function(self):
         raise NotImplementedError("Subclasses must implement this!")

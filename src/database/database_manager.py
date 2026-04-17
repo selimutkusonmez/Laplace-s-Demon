@@ -292,6 +292,7 @@ class DatabaseManager():
 
     #PreferencesUI.save_preferred_font_color.change_preferred_font_color_request --> AppManager.handle_preffered_font_color_change --> DatabaseManager.update_preferred_font_color
     def update_preferred_font_color(self, username : str, preferred_font_color : str) -> None:
+        print(preferred_font_color)
         try:
             query = """
                     UPDATE user_preferences SET preferred_font_color = %s WHERE user_id = (SELECT id FROM users WHERE username = %s);
