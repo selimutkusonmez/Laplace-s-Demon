@@ -1,21 +1,26 @@
+import os
 import psycopg2
 from getmac import get_mac_address
 import subprocess
 import time
 import socket
 import secrets
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from src.logic.hash_password.hash_password import hash_password,verify_password
 
 class DatabaseManager():
     def __init__(self):
         self.conn_params = {
-            "host": "127.0.0.1",
-            "port": "5432",
-            "database": "laplace_db",
-            "user": "admin",
-            "password": "1234",
+            "host": os.getenv("DB_HOST"),
+            "port": os.getenv("DB_PORT"),
+            "database": os.getenv("DB_NAME"),
+            "user": os.getenv("DB_USER"),
+            "password": os.getenv("DB_PASSWORD"),
             "connect_timeout": 2
-        }
+                            }
 
     #AppManager --> AppManager.init_database_manager --> DatabaseManager.start_docker_and_connect_db
     def start_docker_and_connect_db(self) -> bool:

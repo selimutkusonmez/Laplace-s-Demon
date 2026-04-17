@@ -30,14 +30,16 @@ CREATE TABLE IF NOT EXISTS logs (
 
 -- USER PREFERENCES TABLE --
 CREATE TABLE IF NOT EXISTS user_preferences (
+    id SERIAL PRIMARY KEY,
     user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     preferred_language varchar(10) DEFAULT 'en' NOT NULL,
     preferred_theme varchar(10) DEFAULT 'dark',
-    preferred_font_color varchar(50) DEFAULT '#0000'
+    preferred_font_color varchar(50) DEFAULT '#000000'
 );
 
 -- USER STATS TABLE --
 CREATE TABLE IF NOT EXISTS user_stats (
+    id SERIAL PRIMARY KEY,
     user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     account_opening_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_successful_login_date TIMESTAMP DEFAULT NULL,

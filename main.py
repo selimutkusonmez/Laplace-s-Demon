@@ -166,7 +166,10 @@ class AppManager():
     #MainUI.preferences_action_function.init_preferences_ui_requested --> AppManager.handle_init_preferences_ui --> DatabaseManager.pull_user_preferences --> PreferencesUI(user_preferences) --> MainUI.add_new_tab
     def handle_init_preferences_ui(self):
         if hasattr(self,"preferences_ui"):
-            return
+            for i in range(self.main_ui.central_widget.count()):
+                tab_text = self.main_ui.central_widget.tabText(i)
+                if tab_text == "Preferences":
+                    self.main_ui.central_widget.setCurrentIndex(i)
         else:
 
             self.preferences_ui = PreferencesUI(self.current_user_preferences)
@@ -205,12 +208,16 @@ class AppManager():
     #MainUI.about_me_action_function --> AppManager.handle_init_about_me_ui --> DatabaseManager.pull_user_stats --> AboutMeUI(current_user_stats)
     def handle_init_about_me_ui(self):
         if hasattr(self,"about_me_ui"):
-            return
+            for i in range(self.main_ui.central_widget.count()):
+                tab_text = self.main_ui.central_widget.tabText(i)
+                if tab_text == "About Me":
+                    self.main_ui.central_widget.setCurrentIndex(i)
+
         else:
             current_user_stats = self.database_manager.pull_user_stats(self.username)
             self.about_me_ui = AboutMeUI(self.username,current_user_stats)
 
-            self.main_ui.add_new_tab(self.about_me_ui,self.username)
+            self.main_ui.add_new_tab(self.about_me_ui,"About Me")
 
     #OperationUI.calculation_success --> AppManager.handle_update_about_me_ui --> AboutMeUI.fill_user_stats(current_user_stats)
     def handle_update_about_me_ui(self):
