@@ -74,7 +74,7 @@ class AppManager():
                 archive_records_count_on_id = self.database_manager.count_archive_records_on_id(self.username)
 
                 self.laplace_archive_ui = LaplaceArchiveUI(self.username, archive_records_count_on_id, self.current_user_preferences[4])
-                self.laplace_archive_ui.archive_records_by_date_requested.connect(self.hanlde_archive_records_by_date)
+                self.laplace_archive_ui.archive_records_by_date_requested.connect(self.handle_archive_records_by_date)
                 self.laplace_archive_ui.archive_record_data_by_id_requested.connect(self.handle_archive_record_data_by_id)
                 self.laplace_archive_ui.init_new_archive_record_ui_requested.connect(self.handle_add_new_archive_record_ui)
 
@@ -151,7 +151,7 @@ class AppManager():
             self.main_ui.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
 
             self.laplace_archive_ui = LaplaceArchiveUI(self.username, archive_records_count_on_id)
-            self.laplace_archive_ui.archive_records_by_date_requested.connect(self.hanlde_archive_records_by_date) 
+            self.laplace_archive_ui.archive_records_by_date_requested.connect(self.handle_archive_records_by_date) 
             self.laplace_archive_ui.archive_record_data_by_id_requested.connect(self.handle_archive_record_data_by_id) 
             self.laplace_archive_ui.init_new_archive_record_ui_requested.connect(self.handle_add_new_archive_record_ui) 
 
@@ -182,8 +182,18 @@ class AppManager():
         new_archive_record_db_id = self.database_manager.save_archive_record(self.username, new_archive_record_data)
         self.laplace_archive_ui.add_new_archive_record(new_archive_record_db_id, new_archive_record_data)
 
-    def hanlde_archive_records_by_date(self, operation_data_date: list):
-        archive_records_by_date = self.database_manager.return_archive_records_by_date(self.username, operation_data_date)
+    def handle_archive_records_by_date(self, operation_data_date: list):
+        self.laplace_archive_ui.list_archive_records_by_date_button.setEnabled(False)
+        self.laplace_archive_ui.list_archive_records_by_date_button.setText("Processing")
+        worker = DatabaseWorker(self.database_manager.return_archive_records_by_date,self.username,operation_data_date)
+        worker.signals.result.connect(self.process_archive_records_by_date)
+        self.threadpool.start(worker)
+
+    def process_archive_records_by_date(self,archive_records_by_date):
+        if not hasattr(self, "laplace_archive_ui"):
+            return
+        self.laplace_archive_ui.list_archive_records_by_date_button.setEnabled(True)
+        self.laplace_archive_ui.list_archive_records_by_date_button.setText("List Archive Records By Date")
         self.laplace_archive_ui.list_archive_records_by_date(archive_records_by_date)
     
     def handle_archive_record_data_by_id(self, db_id: str):
@@ -244,9 +254,17 @@ class AppManager():
                 if tab_text == "About Me":
                     self.main_ui.central_widget.setCurrentIndex(i)
         else:
-            current_user_stats = self.database_manager.pull_user_stats(self.username)
-            self.about_me_ui = AboutMeUI(self.username, current_user_stats)
+            self.about_me_ui = AboutMeUI(self.username, [None for i in range(13)])
             self.main_ui.add_new_tab(self.about_me_ui, "About Me")
+
+            worker = DatabaseWorker(self.database_manager.pull_user_stats,self.username)
+            worker.signals.result.connect(self.process_init_about_me_ui)
+            self.threadpool.start(worker)
+
+    def process_init_about_me_ui(self,current_user_stats):
+        if hasattr(self,"about_me_ui"):
+            self.about_me_ui.fill_user_stats(self.username,current_user_stats)
+
 
     def handle_update_about_me_ui(self):
         if hasattr(self, "about_me_ui"):
@@ -256,7 +274,7 @@ class AppManager():
             return
 
 
-    #                   RELOG
+    #                   RELOGIN
     def handle_relogin(self):
         ui_singletons = [
             "preferences_ui", 
