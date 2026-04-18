@@ -8,7 +8,6 @@ import re
 class DatabaseWorkerSignals(QObject):
     result = pyqtSignal(object)
     error = pyqtSignal(str)
-    finished = pyqtSignal()
 
 class DatabaseWorker(QRunnable):
     def __init__(self, fn, *args, **kwargs):
@@ -25,8 +24,6 @@ class DatabaseWorker(QRunnable):
             self.signals.result.emit(result)
         except Exception as e:
             self.signals.error.emit(str(e))
-        finally:
-            self.signals.finished.emit()
 
 class AppManager():
     def __init__(self):
