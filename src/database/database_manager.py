@@ -53,7 +53,7 @@ class DatabaseManager():
 
     #                   LOGIN AND LOGS (users and logs tables)
 
-    #LoginUI.login_button_function.login_requested --> AppManager.handle_login --> DatabaseManager.check_login --> DatabaseManager.save_user_log
+
     def save_user_log(self,username : str, attempt : str) -> None:
         try:
             mac_adress = get_mac_address()
@@ -77,8 +77,8 @@ class DatabaseManager():
         except Exception as e:
             self.conn.rollback()
 
-    #LoginUI.login_button_function.login_requested --> AppManager.handle_login --> DatabaseManager.check_login.login_code --> AppManager.handle_login
-    def check_login(self, username : str, plain_text_password : str):
+
+    def verify_credentials(self, username: str, plain_text_password: str):
         try:
             query = "SELECT password FROM users WHERE username = %s"
             self.cursor.execute(query, (username,))
@@ -86,44 +86,58 @@ class DatabaseManager():
             
             if result is None:
                 self.conn.rollback()
-                return False, None
+                return {"success": False, "error": "Invalid Username or Password"}
             
             stored_hash = result[0]
-            if verify_password(plain_text_password,stored_hash):
+            if verify_password(plain_text_password, stored_hash):
                 auth_token = secrets.token_hex(32) 
 
-                update_query  = "UPDATE users SET auth_token = %s WHERE username = %s"
-                self.cursor.execute(update_query, (auth_token,username))
+                update_query = "UPDATE users SET auth_token = %s WHERE username = %s"
+                self.cursor.execute(update_query, (auth_token, username))
                 self.conn.commit()      
 
-                self.save_user_log(username,"successful")
+                self.save_user_log(username, "successful")
 
-                return True , auth_token    
+                preferences = self.pull_user_preferences(username)
+                records_count = self.pull_archive_records_count(username)
+
+                return {
+                    "success": True,
+                    "auth_token": auth_token,
+                    "preferences": preferences,
+                    "records_count": records_count
+                }    
             else: 
-                self.save_user_log(username,"failed")
-                return False, None
+                self.save_user_log(username, "failed")
+                return {"success": False, "error": "Invalid Username or Password"}
                 
         except Exception as e:
             self.conn.rollback()
-            return f"Error: {str(e)}"
+            return {"success": False, "error": f"Database Connection Error: {str(e)}"}
         
-    # AppManager.init_main_ui --> DatabaseManager.check_token_login
-    def check_token_login(self, username: str, auth_token: str) -> bool:
+    def verify_auth_token(self, username: str, auth_token: str):
         try:
             query = "SELECT auth_token FROM users WHERE username = %s"
             self.cursor.execute(query, (username,))
             result = self.cursor.fetchone()    
             
-            # If the database token matches the local registry token exactly
             if result is not None and result[0] == auth_token:
                 self.save_user_log(username, "silent_token_success")
-                return True
+                
+                preferences = self.pull_user_preferences(username)
+                records_count = self.pull_archive_records_count(username)
+
+                return {
+                    "success": True,
+                    "preferences": preferences,
+                    "records_count": records_count,
+                }
             else:
-                return False
+                return {"success": False, "error": "Authentication Token Expired"}
                 
         except Exception as e:
             self.conn.rollback()
-            return False
+            return {"success": False, "error": f"Database Connection Error: {str(e)}"}
         
     #AppManager.handle_relogin --> DatabaseManager.revoke_token
     def revoke_token(self, username: str) -> None:
@@ -139,12 +153,9 @@ class DatabaseManager():
     #                   CREATE NEW ACCOUNT (users)
 
     # CreateNewAccountUI.create_my_account_button_function.save_account_info_requested --> AppManager.handle_create_new_account --> AppManager.handle_save_account_info --> DatabaseManager.save_account_info
-    def save_account_info(self,account_info : list) -> str:
+    def save_account_info(self,username : str, password : str) -> str:
         try:
-            username = account_info[0]
-            raw_password = account_info[1]
-
-            secure_hash = hash_password(raw_password)
+            secure_hash = hash_password(password)
 
             query = """
                     INSERT INTO users (username,password) VALUES (%s,%s)
@@ -230,7 +241,7 @@ class DatabaseManager():
             return f"Error : {str(e)}"
 
     #DatabaseManager.count_archive_records_on_id --> AppManager.handle_login --> OperationHistoryUI(self.operation_data_count)
-    def count_archive_records_on_id(self, username : str) -> str:
+    def pull_archive_records_count(self, username : str) -> str:
         try:
             query = """
             SELECT COUNT(user_id) FROM operation_history

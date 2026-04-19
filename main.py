@@ -1,44 +1,54 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QTabBar, QWidget, QMessageBox
-from PyQt6.QtCore import QSettings, Qt, QRunnable, QObject, pyqtSignal, pyqtSlot, QThreadPool
+from PyQt6.QtWidgets import QApplication, QTabBar, QMessageBox,QWidget
+from PyQt6.QtCore import QSettings, Qt,QThreadPool
 from src.ui import MainUI, LoginUI, LaplaceArchiveUI, DatabaseManager, LaplaceLibraryUI
 from src.ui.profile import *
-import re
+from src.controllers import *
 
-class DatabaseWorkerSignals(QObject):
-    result = pyqtSignal(object)
-    error = pyqtSignal(str)
-
-class DatabaseWorker(QRunnable):
-    def __init__(self, fn, *args, **kwargs):
-        super().__init__()
-        self.fn = fn
-        self.args = args
-        self.kwargs = kwargs
-        self.signals = DatabaseWorkerSignals()
-
-    @pyqtSlot()
-    def run(self):
-        try:
-            result = self.fn(*self.args, **self.kwargs)
-            self.signals.result.emit(result)
-        except Exception as e:
-            self.signals.error.emit(str(e))
 
 class AppManager():
     def __init__(self):
         self.app = QApplication(sys.argv)
-        self.threadpool = QThreadPool()
-
         
     #                   INIT DOCKER AND POSTGRE SERVER
     def init_database_manager(self):
         self.database_manager = DatabaseManager()
         docker_and_db = self.database_manager.start_docker_and_connect_db()
         if docker_and_db:
-            self.handle_login_with_token()
+            self.threadpool = QThreadPool()
+            self.settings_controller = SettingsController()
+            self.init_window_and_auth_contollers()
+            #self.handle_login_with_token()
         else:
             return
+        
+    def init_window_and_auth_contollers(self):
+        self.window_controller = WindowController(self.database_manager,self.threadpool)
+
+        self.auth_controller = AuthController(self.database_manager,self.threadpool,self.settings_controller)
+
+        self.auth_controller.add_login_ui_tab_requested.connect(self.handle_add_new_tab_request)
+        self.auth_controller.login_successful.connect(self.init_other_controllers)
+
+        self.auth_controller.add_create_new_account_ui_tab_requested.connect(self.handle_add_new_tab_request)
+        
+        self.auth_controller.set_current_index_requested.connect(self.handle_set_current_index_request)
+
+    def init_other_controllers(self, username : str, user_preferences, user_recrods_count : int):
+        self.archive_controller = ArchiveController(self.database_manager,self.threadpool,username,user_preferences,user_recrods_count)
+
+        self.library_controller = LibraryController(self.database_manager,self.threadpool)
+
+        self.preferenes_controller = PreferencesController(self.database_manager,self.threadpool,username,user_preferences,self.settings_controller)
+        
+        self.profile_controller = ProfileController(self.database_manager,self.threadpool,username,user_recrods_count)
+        
+
+    def handle_add_new_tab_request(self, widget : QWidget, tab_text : str):
+        self.window_controller.handle_add_new_tab(widget,tab_text)
+
+    def handle_set_current_index_request(self,tab_property_name : str):
+        self.window_controller.handle_set_current_index(tab_property_name)
         
     #                   LOGIN
     def handle_login_with_token(self):

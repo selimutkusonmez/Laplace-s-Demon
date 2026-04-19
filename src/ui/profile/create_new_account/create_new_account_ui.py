@@ -43,15 +43,15 @@ class CreateNewAccountUI(QWidget):
         if username == "" or password == "":
             self.output.setText("Please Fill In All Fields")
             return
-        self.save_account_info_requested.emit([username,password])
+        self.save_account_info_requested.emit(username,password)
 
     def set_button_enabled(self,create_account):
         if create_account:
-            self.create_my_account_button.setEnabled(False)
-            self.create_my_account_button.setText("Processing...")
-        else:
             self.create_my_account_button.setEnabled(True)
             self.create_my_account_button.setText("Create My Account")
+        else:
+            self.create_my_account_button.setEnabled(False)
+            self.create_my_account_button.setText("Processing...")
 
     def set_output(self,output : str):
         self.output.setText(output)
