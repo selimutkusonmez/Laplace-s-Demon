@@ -6,13 +6,17 @@ import time
 import socket
 import secrets
 from dotenv import load_dotenv
-
+from PyQt6.QtCore import pyqtSignal,QObject
 load_dotenv()
 
 from src.logic.hash_password.hash_password import hash_password,verify_password
 
-class DatabaseManager():
+class DatabaseManager(QObject):
+
+    update_curtain_text_requested = pyqtSignal(str)
+
     def __init__(self):
+        super().__init__()
         self.conn_params = {
             "host": os.getenv("DB_HOST"),
             "port": os.getenv("DB_PORT"),
@@ -28,15 +32,18 @@ class DatabaseManager():
         try:
             self.conn = psycopg2.connect(**self.conn_params)
             self.cursor = self.conn.cursor()
-            print("✅ Database is already running! Skipping Docker command.")
+            print("✅ Docker and Database successfully started and ready!")
+            self.update_curtain_text_requested.emit("✅ Docker and Database successfully started and ready!")
             return True
         except psycopg2.OperationalError:
             print("⚠️ Database is down. Starting Docker...")
+            self.update_curtain_text_requested.emit("⚠️ Database is down. Starting Docker...")
 
         try:
             subprocess.run(["docker-compose","up","-d"],check=True)
         except Exception as e:
-            print("Please Start Docker App First")
+            print("Please Start Docker App First And Restart Laplace's Demon")
+            self.update_curtain_text_requested.emit("Please Start Docker App First And Restart Laplace's Demon")
             return False
 
         max = 20
@@ -45,10 +52,13 @@ class DatabaseManager():
                 self.conn = psycopg2.connect(**self.conn_params)
                 self.cursor = self.conn.cursor()
                 print("✅ Docker and Database successfully started and ready!")
+                self.update_curtain_text_requested.emit("✅ Docker and Database successfully started and ready!")
                 return True
             except psycopg2.OperationalError:
                 print(f"⏳ Waiting for database to wake up... ({i+1}/{max})")
+                self.update_curtain_text_requested.emit(f"⏳ Waiting for database to wake up... ({i+1}/{max})")
                 time.sleep(1)
+                return False
 
 
     #                   LOGIN AND LOGS (users and logs tables)
@@ -314,8 +324,8 @@ class DatabaseManager():
             self.conn.rollback()
 
 
-    def __del__(self):
+"""    def __del__(self):
         if hasattr(self, 'conn') and self.conn is not None:
-            self.conn.close()    
+            self.conn.close() """   
 
 

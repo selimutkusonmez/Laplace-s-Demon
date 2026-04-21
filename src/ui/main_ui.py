@@ -12,21 +12,15 @@ from src.ui.profile.preferences.preferences_ui import PreferencesUI
 
 class MainUI(QMainWindow):
 
-    color_change_requested = pyqtSignal(str)
-    log_out_requested = pyqtSignal()
-    tab_close_requested = pyqtSignal(int)
+    preferences_ui_requested = pyqtSignal()
+    about_me_ui_requested = pyqtSignal()
 
-    init_preferences_ui_requested = pyqtSignal()
-    init_about_me_ui_requested = pyqtSignal()
+    log_out_requested = pyqtSignal()
     
 
-    def __init__(self,current_user_preferences : list):
+    def __init__(self):
         super().__init__()
-
-        self.set_current_user_preferences(current_user_preferences)
         self.init_ui()
-
-
 
     def init_ui(self):
         
@@ -117,7 +111,7 @@ class MainUI(QMainWindow):
 
     #                   ABOUT ME UI
     def about_me_action_function(self):
-        self.init_about_me_ui_requested.emit()
+        self.about_me_ui_requested.emit()
 
 
     #                   PREFERENCES UI
@@ -145,16 +139,17 @@ class MainUI(QMainWindow):
         
     #PreferencesUI.save_preferred_language.change_preferred_font_color_request --> MainUI.change_preferred_font_color_function
     def change_preferred_font_color_function(self,preferred_color : str):
+        return
         self.color_change_requested.emit(preferred_color)
 
     def preferences_action_function(self):
-        self.init_preferences_ui_requested.emit()
+        self.references_ui_requested.emit()
 
-    def set_current_user_preferences(self,current_user_preferences):
-        if current_user_preferences:
-            self.change_preferred_language_function(current_user_preferences[2])
-            self.change_preferred_theme_function(current_user_preferences[3])
-            self.change_preferred_font_color_function(current_user_preferences[4])
+    def apply_user_preferences(self,user_preferences):
+        if user_preferences:
+            self.change_preferred_language_function(user_preferences[2])
+            self.change_preferred_theme_function(user_preferences[3])
+            self.change_preferred_font_color_function(user_preferences[4])
         else:
             self.change_preferred_language_function("en")
             self.change_preferred_theme_function("dark")
@@ -165,17 +160,20 @@ class MainUI(QMainWindow):
     def log_out_action_function(self):          
         self.log_out_requested.emit()
 
-
     #                   CENTRAL WIDGET FUNCTIONS
     # Central Widget Tab Close Function
     def central_widget_tab_close_function(self,index : int):
-        self.tab_close_requested.emit(index)
-
+        return
 
     #                   NEW TAB FUNCTION
-
-    def add_new_tab(self, widget : QWidget, tab_text : str):
+    def add_or_set_tab(self, widget : QWidget, tab_text : str):
+        print("main_ui")
+        print(widget)
+        print(tab_text)
         index = self.central_widget.addTab(widget,tab_text)
         self.central_widget.setCurrentIndex(index)
+
+    def clear_tabs(self):
+        self.central_widget.clear()
 
     

@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QWidget,QLineEdit,QPushButton,QLabel,QGridLayout,QGr
 
 class LoginUI(QWidget):
 
-    login_requested = pyqtSignal(list)
+    login_requested = pyqtSignal(str,str,bool)
     create_new_account_requested = pyqtSignal()
 
     def __init__(self,remember_me_default : bool = False):
@@ -81,7 +81,7 @@ class LoginUI(QWidget):
             self.error_space.setText("Please Fill In All Fields")
             return
         else:
-            self.login_requested.emit([username,password,remember_me_checkbox_state])
+            self.login_requested.emit(username,password,remember_me_checkbox_state)
 
     def set_button_enabled(self,logging_in):
         if logging_in:

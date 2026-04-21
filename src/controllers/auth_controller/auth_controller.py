@@ -1,26 +1,18 @@
 from PyQt6.QtWidgets import QWidget
-from PyQt6.QtCore import QObject,pyqtSignal,QSettings,QThreadPool
+from PyQt6.QtCore import QObject,pyqtSignal,QThreadPool,QTimer
 from src.ui.login_ui import LoginUI
 from src.ui.profile.create_new_account.create_new_account_ui import CreateNewAccountUI
 from src.core.task_worker.task_worker import TaskWorker
 
 class AuthController(QObject):
 
-    #LoginUISignals
-    add_login_ui_tab_requested = pyqtSignal(QWidget, str)
+    #Universal UIRouteRequestedSignal
+    ui_route_requested = pyqtSignal(QWidget, str)
+
+    #LoginSuccessfulSignal
     login_successful = pyqtSignal(str, list, int)
 
-    #CreateNewAccountUISignal
-    add_create_new_account_ui_tab_requested = pyqtSignal(QWidget, str)
-
-    #SetCurrentIndexSignal
-    set_current_index_requested = pyqtSignal(str)
-
-    #DeleteIndexSignal
-    delete_index_requested = pyqtSignal(int)
-
-    #LogOutSignal
-    log_out_requested = pyqtSignal()
+    update_curtain_text_requested = pyqtSignal(str)
 
 
     def __init__(self,database_manager, threadpool : QThreadPool, settings_controller):
@@ -32,7 +24,10 @@ class AuthController(QObject):
 
     #                   LOGIN WITH TOKEN
     def check_authentication_token(self):
+        self.update_curtain_text_requested.emit("Checking Auth Token...")
+        QTimer.singleShot(1000, self.verify_local_settings)
 
+    def verify_local_settings(self):
         auth_token = self.settings_controller.get_auth_token()
         saved_username = self.settings_controller.get_saved_username()
         remember_me_state = self.settings_controller.get_remember_me_state()
@@ -40,42 +35,47 @@ class AuthController(QObject):
         if remember_me_state:
             if auth_token:
                 self.username = saved_username
-                self.handle_verify_auth_token(saved_username,auth_token)
-
+                self.update_curtain_text_requested.emit("Auth Token Found")
+                QTimer.singleShot(1000, lambda: self.handle_verify_auth_token(saved_username, auth_token))
             else:
-                self.init_login_ui()
+                self.update_curtain_text_requested.emit("Auth Token Could Not Be Found")
+                QTimer.singleShot(1000, self.init_login_ui)
         else:
-            self.init_login_ui()
+            self.update_curtain_text_requested.emit("Auth Token Could Not Be Found")
+            QTimer.singleShot(1000, self.init_login_ui)
 
-    def handle_verify_auth_token(self,username, auth_token: str):
-        worker = TaskWorker(self.database_manager.verify_auth_token,username,auth_token)
+    def handle_verify_auth_token(self, username, auth_token: str):
+        self.update_curtain_text_requested.emit("Verifying Auth Token...")
+        QTimer.singleShot(1000, lambda: self.dispatch_auth_worker(username, auth_token))
+
+    def dispatch_auth_worker(self, username, auth_token: str):
+        worker = TaskWorker(self.database_manager.verify_auth_token, username, auth_token)
         worker.signals.result.connect(self.process_auth_token)
         self.threadpool.start(worker)
 
-    def process_auth_token(self,db_output : dict):
+    def process_auth_token(self, db_output: dict):
         success = db_output.get("success")
         preferences = db_output.get("preferences")
         records_count = db_output.get("records_count")
 
         if success:
-
-            self.login_successful.emit(self.username,preferences,records_count)
-
+            self.update_curtain_text_requested.emit("Login Successful")
+            QTimer.singleShot(1000, lambda: self.login_successful.emit(self.username, preferences, records_count))
         else:
-            self.init_login_ui()
-            self.login_ui.set_output_text("Authentication Token Expired")
+            self.update_curtain_text_requested.emit("Authentication Token Expired")
+            QTimer.singleShot(1000, self.init_login_ui)
 
     #                   LOGIN WITHOUT TOKEN
     def init_login_ui(self):
         if hasattr(self, "login_ui"):
-            self.set_current_index_requested.emit("login_ui")
+            self.ui_route_requested.emit(None,"login_ui")
         else:
             self.login_ui = LoginUI()
             
             self.login_ui.login_requested.connect(self.handle_login_without_token)
             self.login_ui.create_new_account_requested.connect(self.init_create_new_account_ui)
             
-            self.add_login_ui_tab_requested.emit(self.login_ui, "Login UI")
+            self.ui_route_requested.emit(self.login_ui, "Login")
 
     def handle_login_without_token(self,username : str, password : str,remember_me_state : bool):
 
@@ -100,7 +100,7 @@ class AuthController(QObject):
 
         else:            
             if self.remember_me_state:
-                self.settings_controller.save_settings(True,self.username,auth_token)
+                self.settings_controller.save_settings(True,self.username,auth_token,preferences)
             else:
                 self.settings_controller.wipe_settings()
 
@@ -111,14 +111,14 @@ class AuthController(QObject):
     #                   CREATE NEW ACCOUNT
     def init_create_new_account_ui(self):
         if hasattr(self,"create_new_account_ui"):
-            self.set_current_index_requested.emit("create_new_account_ui")
+            self.ui_route_requested.emit(None,"create_new_account_ui")
         else:
             self.create_new_account_ui = CreateNewAccountUI()
             self.create_new_account_ui.setProperty("widget_name","create_new_account_ui")
             self.create_new_account_ui.save_account_info_requested.connect(self.handle_save_account_info)
 
-            self.add_create_new_account_ui_tab_requested.emit(self.create_new_account_ui,"Create New Account")
-
+            self.ui_route_requested.emit(self.create_new_account_ui,"Create New Account")
+            
     def handle_save_account_info(self,username : str, password : str):
         self.create_new_account_ui.set_button_enabled(False)
 
@@ -133,13 +133,6 @@ class AuthController(QObject):
         self.create_new_account_ui.set_button_enabled(True)
         self.create_new_account_ui.set_output(db_output)
 
-
-    #                   LOG OUT
-    def handle_log_out(self):
-        self.log_out_requested.emit()
-        worker = TaskWorker(self.database_manager.revoke_token,self.username)
-        self.threadpool.start(worker)
-        self.settings_controller.wipe_settings()
         
 
 
