@@ -13,7 +13,7 @@ from src.logic.hash_password.hash_password import hash_password,verify_password
 
 class DatabaseManager(QObject):
 
-    update_curtain_text_requested = pyqtSignal(str)
+    curtain_text_update_requested = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -28,22 +28,18 @@ class DatabaseManager(QObject):
 
     #AppManager --> AppManager.init_database_manager --> DatabaseManager.start_docker_and_connect_db
     def start_docker_and_connect_db(self) -> bool:
-        print("Checking system status...")
         try:
             self.conn = psycopg2.connect(**self.conn_params)
             self.cursor = self.conn.cursor()
-            print("✅ Docker and Database successfully started and ready!")
-            self.update_curtain_text_requested.emit("✅ Docker and Database successfully started and ready!")
+            self.curtain_text_update_requested.emit("✅ Docker and Database successfully started and ready!")
             return True
         except psycopg2.OperationalError:
-            print("⚠️ Database is down. Starting Docker...")
-            self.update_curtain_text_requested.emit("⚠️ Database is down. Starting Docker...")
+            self.curtain_text_update_requested.emit("⚠️ Database is down. Starting Docker...")
 
         try:
             subprocess.run(["docker-compose","up","-d"],check=True)
         except Exception as e:
-            print("Please Start Docker App First And Restart Laplace's Demon")
-            self.update_curtain_text_requested.emit("Please Start Docker App First And Restart Laplace's Demon")
+            self.curtain_text_update_requested.emit("Please Start Docker App First And Restart Laplace's Demon")
             return False
 
         max = 20
@@ -51,12 +47,10 @@ class DatabaseManager(QObject):
             try:
                 self.conn = psycopg2.connect(**self.conn_params)
                 self.cursor = self.conn.cursor()
-                print("✅ Docker and Database successfully started and ready!")
-                self.update_curtain_text_requested.emit("✅ Docker and Database successfully started and ready!")
+                self.curtain_text_update_requested.emit("✅ Docker and Database successfully started and ready!")
                 return True
             except psycopg2.OperationalError:
-                print(f"⏳ Waiting for database to wake up... ({i+1}/{max})")
-                self.update_curtain_text_requested.emit(f"⏳ Waiting for database to wake up... ({i+1}/{max})")
+                self.curtain_text_update_requested.emit(f"⏳ Waiting for database to wake up... ({i+1}/{max})")
                 time.sleep(1)
                 return False
 
@@ -129,7 +123,7 @@ class DatabaseManager(QObject):
         try:
             query = "SELECT auth_token FROM users WHERE username = %s"
             self.cursor.execute(query, (username,))
-            result = self.cursor.fetchone()    
+            result = self.cursor.fetchone()   
             
             if result is not None and result[0] == auth_token:
                 self.save_user_log(username, "silent_token_success")
@@ -192,12 +186,12 @@ class DatabaseManager(QObject):
     #                   SAVE OPERATION DATA -- GET OPERATION DATA BY ID OR DATE -- COUNT TOTAL OPERATION BASED ON user_id (operation_history table)
 
     # NewOperationUI.calculation_success --> AppManager.handle_new_archive_record --> DatabaseManager.save_archive_record
-    def save_archive_record(self, username : str, new_log : list) -> str:
-        date = new_log[0]
-        operation = new_log[1]
-        variables = new_log[2]
-        input_data = new_log[3]
-        output = new_log[4]
+    def save_archive_record(self, username : str, operation_data : list) -> str:
+        date = operation_data[0]
+        operation = operation_data[1]
+        variables = operation_data[2]
+        input_data = operation_data[3]
+        output = operation_data[4]
 
         try:
             query = """

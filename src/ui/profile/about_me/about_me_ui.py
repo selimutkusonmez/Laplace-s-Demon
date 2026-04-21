@@ -1,10 +1,9 @@
 from PyQt6.QtWidgets import QGroupBox,QLabel,QWidget,QGridLayout,QHBoxLayout,QLineEdit,QTableWidget,QTableWidgetItem
 
 class AboutMeUI(QWidget):
-    def __init__(self,username,current_user_stats):
+    def __init__(self):
         super().__init__()
         self.init_ui()
-        self.fill_user_stats(username,current_user_stats)
 
     def init_ui(self):
         

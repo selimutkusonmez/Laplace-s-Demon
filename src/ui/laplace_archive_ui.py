@@ -185,6 +185,8 @@ class LaplaceArchiveUI(QWidget):
         new_archive_record_item.setData(Qt.ItemDataRole.UserRole,db_id)
         self.archive_records_list.addItem(new_archive_record_item)
         self.current_session_archives_records_and_datas.append({"db_id" : db_id,"operation_data_text": new_archive_record_text})
+
+        self.laplace_archive_records_count_label.setText(str(int(self.laplace_archive_records_count_label.text()) + 1))
         # add logs came from operation_ui
 
 
@@ -202,8 +204,6 @@ class LaplaceArchiveUI(QWidget):
     def clear_archive_list_button_function(self):
         self.archive_records_list.clear()
     
-    def update_laplace_arhcive_records_count(self,archive_records_count_on_id):
-        self.laplace_archive_records_count_label.setText(str(archive_records_count_on_id))
     
     def set_button_enabled(self,list_records_by_date):
         if list_records_by_date:

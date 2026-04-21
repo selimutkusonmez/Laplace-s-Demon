@@ -19,7 +19,7 @@ class SettingsController():
         return self.laplace_settings.value("remember_me", False, type=bool)
     
     def get_user_preferences(self):
-        return self.laplace_settings.value("saved_preferences", {}, type=dict)
+        return self.laplace_settings.value("saved_preferences", {})
     
     #                   WIPE SETTINGS
     def wipe_settings(self):
@@ -34,3 +34,11 @@ class SettingsController():
         self.laplace_settings.setValue("saved_username", new_saved_username)
         self.laplace_settings.setValue("auth_token", new_auth_token)
         self.laplace_settings.setValue("saved_preferences",user_preferences)
+
+    def save_remember_me_state(self,new_remember_me_state : bool):
+        self.laplace_settings.setValue("remember_me", new_remember_me_state)
+
+    def save_auth_token(self,new_auth_token : str):
+        self.laplace_settings.setValue("auth_token", new_auth_token)
+
+    

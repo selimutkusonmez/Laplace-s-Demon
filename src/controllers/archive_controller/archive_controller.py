@@ -44,5 +44,8 @@ class ArchiveController(QObject):
     
     def process_archive_record_data_by_id(self,archive_record_data_by_id):
         self.laplaces_archive.init_new_archive_record_ui(archive_record_data_by_id)
+
+    def handle_update_laplace_archive(self,db_id : int, operation_data : list):
+        self.laplaces_archive.add_new_archive_record(db_id,operation_data)
         
 

@@ -1,18 +1,19 @@
 from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtWidgets import QGroupBox,QLineEdit,QComboBox,QLabel,QPushButton,QWidget,QGridLayout,QColorDialog
+from PyQt6.QtWidgets import QGroupBox,QLineEdit,QComboBox,QLabel,QPushButton,QWidget,QGridLayout,QColorDialog,QCheckBox
 from PyQt6.QtGui import QColor
 
 
 class PreferencesUI(QWidget):
-    update_preferred_language_requested = pyqtSignal(str)
-    update_preferred_theme_requested = pyqtSignal(str)
-    update_preferred_font_color_requested = pyqtSignal(str)
+    preferred_language_update_requested = pyqtSignal(str)
+    preferred_theme_update_requested = pyqtSignal(str)
+    preferred_font_color_update_requested = pyqtSignal(str)
+    remember_me_state_update_requested = pyqtSignal(bool)
     
-    def __init__(self,current_user_preferences):
+    def __init__(self):
         super().__init__()
 
         self.init_ui()
-        self.set_current_user_preferences(current_user_preferences)
+
 
     def init_ui(self):
         
@@ -44,12 +45,18 @@ class PreferencesUI(QWidget):
         self.font_color_preference_input = QPushButton("Choose Font Color")
         self.font_color_preference_input.clicked.connect(self.request_preferred_font_color_update)
         self.preferences_groupbox_layout.addWidget(self.font_color_preference_input,2,1)
+        
+        self.preferences_groupbox_layout.addWidget(QLabel("Remember Me : "),3,0)
+
+        self.remember_me_checkbox = QCheckBox("Remember Me")
+        self.remember_me_checkbox.checkStateChanged.connect(self.request_remember_me_state_update)
+        self.preferences_groupbox_layout.addWidget(self.remember_me_checkbox,3,1)
 
         self.output_space = QLineEdit()
         self.output_space.setReadOnly(True)
         self.output_space.setStyleSheet("""border : none;
                                         """)
-        self.preferences_groupbox_layout.addWidget(self.output_space,3,0,1,2)
+        self.preferences_groupbox_layout.addWidget(self.output_space,4,0,1,2)
 
     # PreferencesUI.request_update_preferred_language.change_preferred_language_request --> MainUI.update_preferred_language_requested --> AppManager.handle_preferred_language_change --> DatabaseManager.update_preferred_language
     def request_preferred_language_update(self):
@@ -73,8 +80,12 @@ class PreferencesUI(QWidget):
             self.output_space.setText("Preferred Font Color Updated")
         else:
             self.output_space.setText("Preferred Font Color Update Interrupted")
+    
+    def request_remember_me_state_update(self):
+        new_remember_state = self.remember_me_checkbox.isChecked()
+        self.remember_me_state_update_requested.emit(new_remember_state)
 
-    def set_current_user_preferences(self,current_user_preferences):
+    def set_preferences(self,current_user_preferences : list,remember_me_state : bool):
         current_preferred_language = current_user_preferences[2]
         if current_preferred_language == "en":
             current_preferred_language = "English"
@@ -92,6 +103,11 @@ class PreferencesUI(QWidget):
         self.theme_preference_input.setCurrentText(current_preferred_theme)
 
         self.current_preferred_font_color = QColor(current_user_preferences[4])
+
+        if remember_me_state:
+            self.remember_me_checkbox.setChecked(True)
+        else:
+            self.remember_me_checkbox.setChecked(False)
         
 
 

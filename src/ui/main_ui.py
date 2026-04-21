@@ -72,7 +72,9 @@ class MainUI(QMainWindow):
     def close_tab_action_function(self):
         current_index = self.central_widget.currentIndex()
         if current_index != 0 and current_index != 1:
+            self.central_widget.widget(current_index).deleteLater()
             self.central_widget.removeTab(current_index)
+            
 
 
     #                   PROFILE MENU
@@ -145,7 +147,7 @@ class MainUI(QMainWindow):
         self.color_change_requested.emit(preferred_color)
 
     def preferences_action_function(self):
-        self.references_ui_requested.emit()
+        self.preferences_ui_requested.emit()
 
     def apply_user_preferences(self,user_preferences):
         if user_preferences:
@@ -158,14 +160,7 @@ class MainUI(QMainWindow):
             self.change_preferred_font_color_function("black")
 
 
-    #                   PROFILE MENU LOG OUT FUNCTION
-    def log_out_action_function(self):          
-        self.log_out_requested.emit()
-
     #                   CENTRAL WIDGET FUNCTIONS
-    # Central Widget Tab Close Function
-    def central_widget_tab_close_function(self,index : int):
-        self.central_widget.removeTab(index)
 
     #                   NEW TAB FUNCTION
     def add_or_set_tab(self, widget : QWidget, tab_text : str,tab_id):
@@ -178,10 +173,7 @@ class MainUI(QMainWindow):
         widget.setProperty("tab_id",tab_id)
         for i in range(self.central_widget.count()):
             existing_widget = self.central_widget.widget(i)
-            existing_tab_name = self.central_widget.tabText(i)
             existing_tab_id = existing_widget.property("tab_id")
-            print(f"{existing_tab_name} ---- {existing_tab_id}")
-
             if existing_tab_id == tab_id:
                 self.central_widget.setCurrentIndex(i)
                 widget.deleteLater()
@@ -196,10 +188,19 @@ class MainUI(QMainWindow):
             index = self.central_widget.addTab(widget, tab_text)
             self.central_widget.setCurrentIndex(index)
 
-        
+    #                   CLOSE TAB
+    def central_widget_tab_close_function(self,index : int):
+        self.central_widget.widget(index).deleteLater()
+        self.central_widget.removeTab(index)
+
+    #                   CLEAR TABS
     def clear_tabs(self):
         for i in range(self.central_widget.count()):
             self.central_widget.widget(i).deleteLater()
         self.central_widget.clear()
+
+    #                   LOG OUT
+    def log_out_action_function(self):          
+        self.log_out_requested.emit()
 
     
