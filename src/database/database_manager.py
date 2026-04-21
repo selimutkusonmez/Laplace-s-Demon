@@ -222,14 +222,14 @@ class DatabaseManager(QObject):
             return f"Error : {str(e)}"
             
     # LaplaceArchiveUI.list_archive_records_by_date_button_function.archive_records_by_date_requested --> AppManager.hanlde_archive_records_by_date --> DatabaseManager.return_logs_by_date list_archive_records_by_date
-    def return_archive_records_by_date(self, username : str,records_start_end_date : str) -> list:
+    def return_archive_records_by_date(self, username : str,start_date : str, end_date : str) -> list:
         try:
             query = """
                     SELECT id,date,operation,variables FROM operation_history
                     WHERE user_id = (SELECT id FROM users WHERE username = %s)
                     AND date::date BETWEEN %s AND %s ORDER BY date DESC
                     """
-            self.cursor.execute(query,(username,records_start_end_date[0],records_start_end_date[1]))
+            self.cursor.execute(query,(username,start_date,end_date))
             log_by_date_data = self.cursor.fetchall()
             return log_by_date_data
         

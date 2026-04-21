@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QWidget,QPushButton,QLabel,QLineEdit,QGridLayout,QGr
 from PyQt6.QtCore import pyqtSignal
 
 class CreateNewAccountUI(QWidget):
-    save_account_info_requested = pyqtSignal(list)
+    save_account_info_requested = pyqtSignal(str,str)
     def __init__(self):
         super().__init__()
         self.init_ui()

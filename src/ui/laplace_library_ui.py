@@ -7,7 +7,7 @@ from config import JPG_PATH
 
 class LaplaceLibraryUI(QWidget):
 
-    new_operation_requested = pyqtSignal(list)
+    ui_route_requested = pyqtSignal(QWidget,str,str)
 
     def __init__(self,font_color : str = "black"):
         super().__init__()
@@ -80,6 +80,8 @@ class LaplaceLibraryUI(QWidget):
             icon = self.get_icon(key,"main_subjects")
             list_1_item.setIcon(icon)
             self.subjects_list_1.addItem(list_1_item)
+
+        self.count = 0
 
     # When first layer item is chosen find it on the dict and bring the second layer
     def subjects_list_1_item_double_clicked(self,item):
@@ -158,7 +160,8 @@ class LaplaceLibraryUI(QWidget):
             widget = module.OperationUI(operation_name,self.font_color)
 
             # OperationListingUI.new_operation_requested --> AppManager/MainUI
-            self.new_operation_requested.emit([widget,operation_name])
+            self.count = self.count + 1 
+            self.ui_route_requested.emit(widget,operation_name,f"operation {self.count}")
 
         except Exception as e:
             print(str(e))

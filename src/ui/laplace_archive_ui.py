@@ -6,9 +6,10 @@ from src.ui.operation_ui import *
 
 class LaplaceArchiveUI(QWidget):
 
-    archive_records_by_date_requested = pyqtSignal(list)
+    archive_records_by_date_requested = pyqtSignal(str,str)
     archive_record_data_by_id_requested = pyqtSignal(str)
-    init_new_archive_record_ui_requested = pyqtSignal(list)
+
+    ui_route_requested = pyqtSignal(QWidget,str,str)
 
     def __init__(self,username,laplace_archive_records_count,font_color : str = "black"):
         super().__init__()
@@ -92,7 +93,7 @@ class LaplaceArchiveUI(QWidget):
     def list_archive_records_by_date_button_function(self):
         start_date = self.start_date.date().toString()
         end_date = self.end_date.date().toString()
-        self.archive_records_by_date_requested.emit([start_date,end_date])
+        self.archive_records_by_date_requested.emit(start_date,end_date)
 
     def list_archive_records_by_date(self,logs : list):
 
@@ -167,7 +168,8 @@ class LaplaceArchiveUI(QWidget):
 
         worker_class = history_map.get(new_archive_record_operation_name)
         new_archive_record_ui = worker_class(str(db_id),date,new_archive_record_operation_name,variables,input_data,output,self.font_color)
-        self.init_new_archive_record_ui_requested.emit([new_archive_record_ui,f"{new_archive_record_operation_name} (ID : {db_id})"])
+        new_archive_record_ui.setProperty("db_id",db_id)
+        self.ui_route_requested.emit(new_archive_record_ui,f"{new_archive_record_operation_name} (ID : {db_id})",str(db_id))
 
 
 
@@ -205,8 +207,8 @@ class LaplaceArchiveUI(QWidget):
     
     def set_button_enabled(self,list_records_by_date):
         if list_records_by_date:
-            self.list_archive_records_by_date_button.setEnabled(False)
-            self.list_archive_records_by_date_button.setText("Processing...")
-        else:
             self.list_archive_records_by_date_button.setEnabled(True)
             self.list_archive_records_by_date_button.setText("List Archive Records By Date")
+        else:
+            self.list_archive_records_by_date_button.setEnabled(False)
+            self.list_archive_records_by_date_button.setText("Processing...")

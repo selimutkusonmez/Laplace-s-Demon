@@ -2,7 +2,7 @@ import sys
 import os
 import subprocess
 from PyQt6.QtCore import pyqtSignal,Qt
-from PyQt6.QtWidgets import QApplication,QMainWindow,QMessageBox,QTabWidget,QStatusBar,QColorDialog,QWidget,QToolButton,QMenu
+from PyQt6.QtWidgets import QApplication,QMainWindow,QMessageBox,QTabWidget,QStatusBar,QColorDialog,QWidget,QToolButton,QMenu,QTabBar
 from PyQt6.QtGui import QAction,QActionGroup,QIcon
 from src.assets.style.style_reader.style_reader import read_style
 from config import JPG_PATH
@@ -72,17 +72,15 @@ class MainUI(QMainWindow):
     def close_tab_action_function(self):
         current_index = self.central_widget.currentIndex()
         if current_index != 0 and current_index != 1:
-            self.tab_close_requested.emit(current_index)
+            self.central_widget.removeTab(current_index)
 
 
     #                   PROFILE MENU
-    def init_profile_menu(self,current_user : str):
-
-        self.current_user = current_user
+    def init_profile_menu(self,username : str):
 
         #Profile Menu
         self.profile_button = QToolButton(self)
-        self.profile_button.setText(self.current_user)
+        self.profile_button.setText(username)
         self.profile_button.setAutoRaise(True)
         self.profile_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
 
@@ -108,6 +106,10 @@ class MainUI(QMainWindow):
 
         self.profile_button.show()
 
+    def delete_profile_menu(self):
+        if hasattr(self, 'profile_button') and self.profile_button is not None:
+            self.menuBar().setCornerWidget(None, Qt.Corner.TopRightCorner)
+            self.profile_button.deleteLater()
 
     #                   ABOUT ME UI
     def about_me_action_function(self):
@@ -163,17 +165,41 @@ class MainUI(QMainWindow):
     #                   CENTRAL WIDGET FUNCTIONS
     # Central Widget Tab Close Function
     def central_widget_tab_close_function(self,index : int):
-        return
+        self.central_widget.removeTab(index)
 
     #                   NEW TAB FUNCTION
-    def add_or_set_tab(self, widget : QWidget, tab_text : str):
-        print("main_ui")
-        print(widget)
-        print(tab_text)
-        index = self.central_widget.addTab(widget,tab_text)
-        self.central_widget.setCurrentIndex(index)
+    def add_or_set_tab(self, widget : QWidget, tab_text : str,tab_id):
+        if tab_id == "login":
+            self.clear_tabs()
+            self.central_widget.addTab(widget, tab_text)
+            self.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
+            return
 
+        widget.setProperty("tab_id",tab_id)
+        for i in range(self.central_widget.count()):
+            existing_widget = self.central_widget.widget(i)
+            existing_tab_name = self.central_widget.tabText(i)
+            existing_tab_id = existing_widget.property("tab_id")
+            print(f"{existing_tab_name} ---- {existing_tab_id}")
+
+            if existing_tab_id == tab_id:
+                self.central_widget.setCurrentIndex(i)
+                widget.deleteLater()
+                return         
+                  
+        if widget.property("tab_id") in ["library","archive","curtain"]:
+            self.central_widget.addTab(widget, tab_text)
+            self.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
+            self.central_widget.tabBar().setTabButton(1, QTabBar.ButtonPosition.RightSide, None)
+
+        else:
+            index = self.central_widget.addTab(widget, tab_text)
+            self.central_widget.setCurrentIndex(index)
+
+        
     def clear_tabs(self):
+        for i in range(self.central_widget.count()):
+            self.central_widget.widget(i).deleteLater()
         self.central_widget.clear()
 
     
