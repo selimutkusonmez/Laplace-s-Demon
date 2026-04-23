@@ -65,10 +65,6 @@ class PreferencesController(QObject):
 
     def handle_remember_state_update(self,new_remember_state : bool):
         if new_remember_state:
-            print("----- preferences controller -----")
-            print(self.auth_token)
-            print(self.user_preferences)
-            print(new_remember_state)
             self.settings_controller.save_remember_me_state(new_remember_state)
             self.settings_controller.save_auth_token(self.auth_token)
             self.settings_controller.save_new_saved_username(self.username)

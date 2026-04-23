@@ -34,8 +34,8 @@ class WindowController(QObject):
     def handle_clear_tabs(self):
         self.main_ui.clear_tabs()
 
-    def apply_user_preferences(self,user_preferences):
-        self.main_ui.apply_user_preferences(user_preferences)
+    def apply_user_preferences(self,saved_username,user_preferences):
+        self.main_ui.apply_user_preferences(saved_username,user_preferences)
 
     def show_main_ui(self):
         self.main_ui.showMaximized()

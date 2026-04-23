@@ -25,12 +25,14 @@ class AppManager():
     def init_settings_and_window_controller(self):
         self.settings_controller = SettingsController()
         saved_user_preferenes = self.settings_controller.get_user_preferences()
+        print(saved_user_preferenes)
         saved_username = self.settings_controller.get_saved_username()
+        print(saved_username)
         
         self.window_controller = WindowController(saved_username,self.settings_controller)
         self.window_controller.init_loading_curtain()
         self.window_controller.init_main_ui()
-        self.window_controller.apply_user_preferences(saved_user_preferenes)
+        self.window_controller.apply_user_preferences(saved_username,saved_user_preferenes)
         self.window_controller.preferences_ui_requested.connect(self.init_preferences_controller)
         self.window_controller.about_me_ui_requested.connect(self.init_profile_controller)
         self.window_controller.log_out_requested.connect(self.handle_log_out_request)
@@ -60,7 +62,7 @@ class AppManager():
         self.remember_me_state = remember_me_state
         self.auth_token = auth_token
 
-        self.window_controller.apply_user_preferences(user_preferences)
+        self.window_controller.apply_user_preferences(self.username,user_preferences)
         self.window_controller.handle_init_profile_menu(self.username)
         
         self.window_controller.handle_clear_tabs()

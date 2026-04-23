@@ -149,8 +149,8 @@ class MainUI(QMainWindow):
     def preferences_action_function(self):
         self.preferences_ui_requested.emit()
 
-    def apply_user_preferences(self,user_preferences):
-        if user_preferences:
+    def apply_user_preferences(self,saved_username,user_preferences):
+        if saved_username != "":
             self.change_preferred_language_function(user_preferences[0])
             self.change_preferred_theme_function(user_preferences[1])
             self.change_preferred_font_color_function(user_preferences[2])

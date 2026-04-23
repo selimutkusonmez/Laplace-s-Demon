@@ -7,11 +7,6 @@ class SettingsController():
     #                   INIT QSETTINGS
     def init_settings(self):
         self.laplace_settings = QSettings("LaplacesDemonOrg","LaplacesDemon")
-        print("----------naked settings---------")
-        print(self.get_auth_token())
-        print(self.get_saved_username())
-        print(self.get_remember_me_state())
-        print(self.get_user_preferences())
 
     #                   SETTINGS GETTER
     def get_auth_token(self):
@@ -32,10 +27,6 @@ class SettingsController():
         self.laplace_settings.setValue("saved_username", "")
         self.laplace_settings.setValue("auth_token", "")
         self.laplace_settings.setValue("saved_preferences",[])
-        print(self.get_auth_token())
-        print(self.get_saved_username())
-        print(self.get_remember_me_state())
-        print(self.get_user_preferences())
     #                   SAVE SETTINGS
     def save_settings(self,new_remember_me_state : bool,new_saved_username : str, new_auth_token : str, user_preferences : list):
         self.laplace_settings.setValue("remember_me", new_remember_me_state)
