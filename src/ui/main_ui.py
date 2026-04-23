@@ -130,7 +130,7 @@ class MainUI(QMainWindow):
             return
 
     #PreferencesUI.save_preferred_theme.change_preferred_theme_request --> MainUI.change_preferred_theme_function
-    def change_preferred_theme_function(self,preferred_theme : str = None):
+    def change_preferred_theme_function(self,preferred_theme : str):
         if preferred_theme is None: 
             self.current_theme = "dark"
             self.setStyleSheet(read_style(self.current_theme))
@@ -151,9 +151,9 @@ class MainUI(QMainWindow):
 
     def apply_user_preferences(self,user_preferences):
         if user_preferences:
-            self.change_preferred_language_function(user_preferences[2])
-            self.change_preferred_theme_function(user_preferences[3])
-            self.change_preferred_font_color_function(user_preferences[4])
+            self.change_preferred_language_function(user_preferences[0])
+            self.change_preferred_theme_function(user_preferences[1])
+            self.change_preferred_font_color_function(user_preferences[2])
         else:
             self.change_preferred_language_function("en")
             self.change_preferred_theme_function("dark")

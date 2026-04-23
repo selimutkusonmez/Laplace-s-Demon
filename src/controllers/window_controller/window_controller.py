@@ -9,14 +9,10 @@ class WindowController(QObject):
 
     log_out_requested = pyqtSignal()
 
-    def __init__(self,saved_username,user_preferences,settings_controller):
+    def __init__(self,saved_username,settings_controller):
         super().__init__()
-
         self.settings_controller = settings_controller
         self.saved_username = saved_username
-        self.init_loading_curtain()
-        self.init_main_ui()
-        self.apply_user_preferences(user_preferences)
 
     def init_loading_curtain(self):
         self.loading_curtain = LoadingCurtain()
@@ -44,6 +40,7 @@ class WindowController(QObject):
     def show_main_ui(self):
         self.main_ui.showMaximized()
 
+
     def handle_update_curtain(self,curtain_text : str):
         self.loading_curtain.update_curtain(curtain_text)
 
@@ -59,4 +56,12 @@ class WindowController(QObject):
     def handle_delete_profile_menu(self):
         self.main_ui.delete_profile_menu()
 
+    def handle_preferred_languge_update(self,new_preferred_language : str):
+        self.main_ui.change_preferred_language_function(new_preferred_language)
+    
+    def handle_preferred_theme_update(self,new_preferred_theme : str):
+        self.main_ui.change_preferred_theme_function(new_preferred_theme)
+    
+    def handle_preferred_font_color_update(self,new_preferred_font_color : str):
+        self.main_ui.change_preferred_font_color_function(new_preferred_font_color)
 

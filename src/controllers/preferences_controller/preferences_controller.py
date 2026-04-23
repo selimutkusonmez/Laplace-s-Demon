@@ -20,13 +20,13 @@ class PreferencesController(QObject):
         self.user_preferences = user_preferences
         self.remember_me_state = remember_me_state
         self.auth_token = auth_token
-        print(self.user_preferences)
 
     def handle_apply_preferences(self):
         self.preferences_ui.set_preferences(self.user_preferences,self.remember_me_state)
 
     def init_preferences_ui(self):
         self.preferences_ui = PreferencesUI()
+
         self.preferences_ui.preferred_language_update_requested.connect(self.handle_referred_language_update)
         self.preferences_ui.preferred_language_update_requested.connect(self.preferred_language_update_requested)
 
@@ -46,19 +46,33 @@ class PreferencesController(QObject):
 
 
     def handle_referred_language_update(self, new_prefered_language : str):
-        worker = TaskWorker(self.database_manager.update_preferred_language,new_prefered_language)
+        self.user_preferences[0] = new_prefered_language
+        self.settings_controller.save_new_user_preferences(self.user_preferences)
+        worker = TaskWorker(self.database_manager.update_preferred_language,self.username,new_prefered_language)
         self.thread_pool.start(worker)
 
     def handle_preferred_theme_update(self, new_prefered_theme : str):
-        worker = TaskWorker(self.database_manager.update_preferred_theme,new_prefered_theme)
+        self.user_preferences[1] = new_prefered_theme
+        self.settings_controller.save_new_user_preferences(self.user_preferences)
+        worker = TaskWorker(self.database_manager.update_preferred_theme,self.username,new_prefered_theme)
         self.thread_pool.start(worker)
         
     def handle_preferred_font_color_update(self, new_prefered_font_color : str):
-        worker = TaskWorker(self.database_manager.update_preferred_font_color,new_prefered_font_color)
+        self.user_preferences[2] = new_prefered_font_color
+        self.settings_controller.save_new_user_preferences(self.user_preferences)
+        worker = TaskWorker(self.database_manager.update_preferred_font_color,self.username,new_prefered_font_color)
         self.thread_pool.start(worker)
 
     def handle_remember_state_update(self,new_remember_state : bool):
-        print(self.username)
-        self.settings_controller.save_settings(new_remember_state,self.username,self.auth_token,self.user_preferences)
+        if new_remember_state:
+            print("----- preferences controller -----")
+            print(self.auth_token)
+            print(self.user_preferences)
+            print(new_remember_state)
+            self.settings_controller.save_remember_me_state(new_remember_state)
+            self.settings_controller.save_auth_token(self.auth_token)
+            self.settings_controller.save_new_saved_username(self.username)
+        else:
+            self.settings_controller.wipe_settings()
 
         

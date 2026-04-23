@@ -61,13 +61,13 @@ class PreferencesUI(QWidget):
     # PreferencesUI.request_update_preferred_language.change_preferred_language_request --> MainUI.update_preferred_language_requested --> AppManager.handle_preferred_language_change --> DatabaseManager.update_preferred_language
     def request_preferred_language_update(self):
         new_prefered_language = self.language_preference_input.currentData()
-        self.update_preferred_language_requested.emit(new_prefered_language)
+        self.preferred_language_update_requested.emit(new_prefered_language)
         self.output_space.setText("Preferred Language Updated")
 
     # sePreferencesUIlf.request_update_preferred_theme.update_preferred_theme_requested --> MainUI.update_preferred_theme_requested --> AppManager.handle_preferred_theme_change --> DatabaseManager.update_preferred_theme
     def request_preferred_theme_update(self):
         new_prefered_theme = self.theme_preference_input.currentData()
-        self.update_preferred_theme_requested.emit(new_prefered_theme)
+        self.preferred_theme_update_requested.emit(new_prefered_theme)
         self.output_space.setText("Preferred Theme Updated")
 
     # PreferencesUI.request_update_preferred_font_color.update_preferred_font_color_requested --> MainUI.update_preferred_font_color_requested --> AppManager.handle_preffered_font_color_change --> DatabaseManager.update_preferred_font_color
@@ -76,7 +76,7 @@ class PreferencesUI(QWidget):
         if color.isValid():
             color_name = color.name()
             self.current_preferred_font_color = color
-            self.update_preferred_font_color_requested.emit(color_name)
+            self.preferred_font_color_update_requested.emit(color_name)
             self.output_space.setText("Preferred Font Color Updated")
         else:
             self.output_space.setText("Preferred Font Color Update Interrupted")
@@ -86,7 +86,7 @@ class PreferencesUI(QWidget):
         self.remember_me_state_update_requested.emit(new_remember_state)
 
     def set_preferences(self,current_user_preferences : list,remember_me_state : bool):
-        current_preferred_language = current_user_preferences[2]
+        current_preferred_language = current_user_preferences[0]
         if current_preferred_language == "en":
             current_preferred_language = "English"
         elif current_preferred_language == "de":
@@ -95,14 +95,14 @@ class PreferencesUI(QWidget):
             current_preferred_language = "Türkçe"
         self.language_preference_input.setCurrentText(current_preferred_language)
 
-        current_preferred_theme = current_user_preferences[3]
+        current_preferred_theme = current_user_preferences[1]
         if current_preferred_theme == "dark":
             current_preferred_theme = "Dark Theme"
         elif current_preferred_theme == "light":
             current_preferred_theme = "Light Theme"
         self.theme_preference_input.setCurrentText(current_preferred_theme)
 
-        self.current_preferred_font_color = QColor(current_user_preferences[4])
+        self.current_preferred_font_color = QColor(current_user_preferences[2])
 
         if remember_me_state:
             self.remember_me_checkbox.setChecked(True)

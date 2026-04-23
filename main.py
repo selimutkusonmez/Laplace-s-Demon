@@ -27,7 +27,10 @@ class AppManager():
         saved_user_preferenes = self.settings_controller.get_user_preferences()
         saved_username = self.settings_controller.get_saved_username()
         
-        self.window_controller = WindowController(saved_username,saved_user_preferenes,self.settings_controller)
+        self.window_controller = WindowController(saved_username,self.settings_controller)
+        self.window_controller.init_loading_curtain()
+        self.window_controller.init_main_ui()
+        self.window_controller.apply_user_preferences(saved_user_preferenes)
         self.window_controller.preferences_ui_requested.connect(self.init_preferences_controller)
         self.window_controller.about_me_ui_requested.connect(self.init_profile_controller)
         self.window_controller.log_out_requested.connect(self.handle_log_out_request)
@@ -93,10 +96,11 @@ class AppManager():
 
     
     def handle_log_out_request(self):
+        self.window_controller.handle_clear_tabs()
         self.auth_controller.handle_revoke_auth_token()
         self.settings_controller.wipe_settings()
         self.window_controller.handle_delete_profile_menu()
-        self.window_controller.handle_clear_tabs()
+        
         self.auth_controller.init_login_ui()
 
     def handle_update_update_curtain_request(self,curtain_text):
@@ -108,14 +112,14 @@ class AppManager():
     def handle_update_about_me_request(self):
         return
     
-    def handle_referred_language_update_request(self):
-        return
+    def handle_referred_language_update_request(self,new_preferred_language : str):
+        self.window_controller.handle_preferred_languge_update(new_preferred_language)
 
-    def handle_referred_theme_update_request(self):
-        return
+    def handle_referred_theme_update_request(self,new_preferred_theme : str):
+        self.window_controller.handle_preferred_theme_update(new_preferred_theme)
 
-    def handle_referred_font_color_update_request(self):    
-        return    
+    def handle_referred_font_color_update_request(self,new_preferred_font_color : str):    
+        self.window_controller.handle_preferred_font_color_update(new_preferred_font_color)    
         
 
 if __name__ == "__main__":

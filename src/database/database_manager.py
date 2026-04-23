@@ -52,7 +52,6 @@ class DatabaseManager(QObject):
             except psycopg2.OperationalError:
                 self.curtain_text_update_requested.emit(f"⏳ Waiting for database to wake up... ({i+1}/{max})")
                 time.sleep(1)
-                return False
 
 
     #                   LOGIN AND LOGS (users and logs tables)
@@ -212,7 +211,6 @@ class DatabaseManager(QObject):
             
         except Exception as e:
             self.conn.rollback()
-            print(str(e))
             return f"Error : {str(e)}"
             
     # LaplaceArchiveUI.list_archive_records_by_date_button_function.archive_records_by_date_requested --> AppManager.hanlde_archive_records_by_date --> DatabaseManager.return_logs_by_date list_archive_records_by_date
@@ -228,7 +226,6 @@ class DatabaseManager(QObject):
             return log_by_date_data
         
         except Exception as e:
-            print(str(e))
             return f"Error : {str(e)}"
         
     # LaplaceArchiveUI.request_archive_record_data_by_id.archive_record_data_by_id_requested --> AppManager.handle_archive_record_data_by_id --> DatabaseManager_return_operation_data_by_id
@@ -241,7 +238,6 @@ class DatabaseManager(QObject):
             log_by_id_data = self.cursor.fetchall()
             return log_by_id_data[0]
         except Exception as e:
-            print(str(e))
             return f"Error : {str(e)}"
 
     #DatabaseManager.count_archive_records_on_id --> AppManager.handle_login --> OperationHistoryUI(self.operation_data_count)
@@ -264,11 +260,12 @@ class DatabaseManager(QObject):
     def pull_user_preferences(self,username : str) -> list:
         try:
             query = """
-                    SELECT * FROM user_preferences WHERE user_id = (SELECT id FROM users WHERE username = %s)
+                    SELECT preferred_language,preferred_theme,preferred_font_color FROM user_preferences WHERE user_id = (SELECT id FROM users WHERE username = %s)
                     """
             self.cursor.execute(query,(username,))
             current_user_preferences = self.cursor.fetchone()
             return current_user_preferences
+            
 
         except:
             self.conn.rollback()
@@ -291,7 +288,6 @@ class DatabaseManager(QObject):
             self.conn.commit()
             
         except Exception as e:
-            print(str(e))
             self.conn.rollback()
 
     #PreferencesUI.save_preferred_theme.change_preferred_theme_request --> AppManager.handle_preferred_theme_change --> DatabaseManager.update_preferred_theme
@@ -307,7 +303,6 @@ class DatabaseManager(QObject):
 
     #PreferencesUI.save_preferred_font_color.change_preferred_font_color_request --> AppManager.handle_preffered_font_color_change --> DatabaseManager.update_preferred_font_color
     def update_preferred_font_color(self, username : str, preferred_font_color : str) -> None:
-        print(preferred_font_color)
         try:
             query = """
                     UPDATE user_preferences SET preferred_font_color = %s WHERE user_id = (SELECT id FROM users WHERE username = %s);
@@ -318,8 +313,8 @@ class DatabaseManager(QObject):
             self.conn.rollback()
 
 
-"""    def __del__(self):
+    def __del__(self):
         if hasattr(self, 'conn') and self.conn is not None:
-            self.conn.close() """   
+            self.conn.close()
 
 

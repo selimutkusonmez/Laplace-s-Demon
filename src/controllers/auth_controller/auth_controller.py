@@ -27,15 +27,14 @@ class AuthController(QObject):
         QTimer.singleShot(1000, self.verify_local_settings)
 
     def verify_local_settings(self):
-        auth_token = self.settings_controller.get_auth_token()
+        self.auth_token = self.settings_controller.get_auth_token()
         saved_username = self.settings_controller.get_saved_username()
         remember_me_state = self.settings_controller.get_remember_me_state()
-        
         if remember_me_state:
-            if auth_token:
+            if self.auth_token:
                 self.username = saved_username
                 self.curtain_text_update_requested.emit("Auth Token Found")
-                QTimer.singleShot(1000, lambda: self.handle_verify_auth_token(saved_username, auth_token))
+                QTimer.singleShot(1000, lambda: self.handle_verify_auth_token(saved_username, self.auth_token))
             else:
                 self.curtain_text_update_requested.emit("Auth Token Could Not Be Found")
                 QTimer.singleShot(1000, self.init_login_ui)
@@ -43,11 +42,11 @@ class AuthController(QObject):
             self.curtain_text_update_requested.emit("Auth Token Could Not Be Found")
             QTimer.singleShot(1000, self.init_login_ui)
 
-    def handle_verify_auth_token(self, username, auth_token: str):
+    def handle_verify_auth_token(self, username : str, auth_token: str):
         self.curtain_text_update_requested.emit("Verifying Auth Token...")
         QTimer.singleShot(1000, lambda: self.dispatch_auth_worker(username, auth_token))
 
-    def dispatch_auth_worker(self, username, auth_token: str):
+    def dispatch_auth_worker(self, username : str, auth_token: str):
         worker = TaskWorker(self.database_manager.verify_auth_token, username, auth_token)
         worker.signals.result.connect(self.process_auth_token)
         self.thread_pool.start(worker)
@@ -59,7 +58,7 @@ class AuthController(QObject):
 
         if success:
             self.curtain_text_update_requested.emit("Login Successful")
-            QTimer.singleShot(1000, lambda: self.login_successful.emit(self.username, preferences, records_count,True,self.username))
+            QTimer.singleShot(1000, lambda: self.login_successful.emit(self.username, preferences, records_count,True,self.auth_token))
         else:
             self.curtain_text_update_requested.emit("Authentication Token Expired")
             QTimer.singleShot(1000, self.init_login_ui)
