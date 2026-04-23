@@ -179,7 +179,7 @@ class MainUI(QMainWindow):
                 widget.deleteLater()
                 return         
                   
-        if widget.property("tab_id") in ["library","archive","curtain"]:
+        if widget.property("tab_id") in ["library","archive","curtain","login"]:
             self.central_widget.addTab(widget, tab_text)
             self.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
             self.central_widget.tabBar().setTabButton(1, QTabBar.ButtonPosition.RightSide, None)
@@ -190,14 +190,48 @@ class MainUI(QMainWindow):
 
     #                   CLOSE TAB
     def central_widget_tab_close_function(self,index : int):
-        self.central_widget.widget(index).deleteLater()
+        widget = self.central_widget.widget(index)
+        if hasattr(widget, "is_dirty") and widget.is_dirty:
+            verdict = QMessageBox.warning(
+                self,
+                "Unsaved Data",
+                "This tab contains uncalculated input. Are you sure you want to close it?",
+                QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel,
+                QMessageBox.StandardButton.Cancel
+            )
+            
+            if verdict == QMessageBox.StandardButton.Cancel:
+                return
+            
+        widget.deleteLater()
         self.central_widget.removeTab(index)
 
     #                   CLEAR TABS
     def clear_tabs(self):
+        has_dirty_tabs = False
         for i in range(self.central_widget.count()):
-            self.central_widget.widget(i).deleteLater()
-        self.central_widget.clear()
+            widget = self.central_widget.widget(i)
+            if hasattr(widget, "is_dirty") and widget.is_dirty:
+                has_dirty_tabs = True
+                break
+
+        if has_dirty_tabs:
+            verdict = QMessageBox.warning(
+                self,
+                "Unsaved Data",
+                "You have open tabs with uncalculated input. Are you sure you want to close them?",
+                QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel,
+                QMessageBox.StandardButton.Cancel
+            )
+            if verdict == QMessageBox.StandardButton.Cancel:
+                return False
+
+        for i in range(self.central_widget.count() - 1, -1, -1):
+            widget = self.central_widget.widget(i)
+            widget.deleteLater()
+            self.central_widget.removeTab(i)
+
+        return True
 
     #                   LOG OUT
     def log_out_action_function(self):          

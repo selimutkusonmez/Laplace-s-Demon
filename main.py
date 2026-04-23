@@ -25,9 +25,7 @@ class AppManager():
     def init_settings_and_window_controller(self):
         self.settings_controller = SettingsController()
         saved_user_preferenes = self.settings_controller.get_user_preferences()
-        print(saved_user_preferenes)
         saved_username = self.settings_controller.get_saved_username()
-        print(saved_username)
         
         self.window_controller = WindowController(saved_username,self.settings_controller)
         self.window_controller.init_loading_curtain()
@@ -98,12 +96,15 @@ class AppManager():
 
     
     def handle_log_out_request(self):
-        self.window_controller.handle_clear_tabs()
-        self.auth_controller.handle_revoke_auth_token()
-        self.settings_controller.wipe_settings()
-        self.window_controller.handle_delete_profile_menu()
-        
-        self.auth_controller.init_login_ui()
+        if self.window_controller.handle_clear_tabs():
+            self.window_controller.apply_user_preferences("",None)
+            self.auth_controller.init_login_ui()
+            self.auth_controller.handle_revoke_auth_token()
+            self.settings_controller.wipe_settings()
+            self.window_controller.handle_delete_profile_menu()
+            
+        else:
+            return
 
     def handle_update_update_curtain_request(self,curtain_text):
         self.window_controller.handle_update_curtain(curtain_text)

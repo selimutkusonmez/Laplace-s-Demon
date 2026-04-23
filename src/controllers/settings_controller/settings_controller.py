@@ -19,7 +19,7 @@ class SettingsController():
         return self.laplace_settings.value("remember_me", False, type=bool)
     
     def get_user_preferences(self):
-        return self.laplace_settings.value("saved_preferences", [], type=list)
+        return self.laplace_settings.value("saved_preferences", [])
 
     #                   WIPE SETTINGS
     def wipe_settings(self):

@@ -32,14 +32,13 @@ class WindowController(QObject):
         self.main_ui.add_or_set_tab(widget,tab_text,tab_id)
 
     def handle_clear_tabs(self):
-        self.main_ui.clear_tabs()
+        return self.main_ui.clear_tabs()
 
     def apply_user_preferences(self,saved_username,user_preferences):
         self.main_ui.apply_user_preferences(saved_username,user_preferences)
 
     def show_main_ui(self):
         self.main_ui.showMaximized()
-
 
     def handle_update_curtain(self,curtain_text : str):
         self.loading_curtain.update_curtain(curtain_text)

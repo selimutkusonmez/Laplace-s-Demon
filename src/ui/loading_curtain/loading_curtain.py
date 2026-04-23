@@ -15,7 +15,7 @@ class LoadingCurtain(QFrame):
         self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 0)
         self.progress_bar.setTextVisible(False)
-        self.progress_bar.setFixedSize(300, 4)
+        self.progress_bar.setFixedSize(300, 6)
         self.layout.addWidget(self.progress_bar)
 
         self.curtain_label = QLabel("Initializing System...")

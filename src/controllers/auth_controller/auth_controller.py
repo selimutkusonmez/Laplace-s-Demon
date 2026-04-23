@@ -66,7 +66,8 @@ class AuthController(QObject):
     #                   LOGIN WITHOUT TOKEN
     def init_login_ui(self):
         if hasattr(self, "login_ui"):
-            self.ui_route_requested.emit(None,"login_ui","login")
+            del self.login_ui
+            self.init_login_ui()
         else:
             self.login_ui = LoginUI()
             
