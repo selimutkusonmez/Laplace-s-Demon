@@ -31,7 +31,7 @@ class ArchiveController(QObject):
         worker.signals.result.connect(self.process_archive_records_by_date)
         self.thread_pool.start(worker)
 
-    def process_archive_records_by_date(self,archive_records_by_date):
+    def process_archive_records_by_date(self,archive_records_by_date : list):
         if not hasattr(self, "laplaces_archive"):
             return
         self.laplaces_archive.set_button_enabled(True)
@@ -42,7 +42,7 @@ class ArchiveController(QObject):
         worker.signals.result.connect(self.process_archive_record_data_by_id)
         self.thread_pool.start(worker)        
     
-    def process_archive_record_data_by_id(self,archive_record_data_by_id):
+    def process_archive_record_data_by_id(self,archive_record_data_by_id : list):
         self.laplaces_archive.init_new_archive_record_ui(archive_record_data_by_id)
 
     def handle_update_laplace_archive(self,db_id : int, operation_data : list):

@@ -163,30 +163,34 @@ class MainUI(QMainWindow):
     #                   CENTRAL WIDGET FUNCTIONS
 
     #                   NEW TAB FUNCTION
-    def add_or_set_tab(self, widget : QWidget, tab_text : str,tab_id):
+    def add_or_set_tab(self, widget: QWidget, tab_text: str, tab_id: str):
         if tab_id == "login":
             self.clear_tabs()
             self.central_widget.addTab(widget, tab_text)
             self.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
             return
 
-        widget.setProperty("tab_id",tab_id)
+        widget.setProperty("tab_id", tab_id)
+        
         for i in range(self.central_widget.count()):
             existing_widget = self.central_widget.widget(i)
             existing_tab_id = existing_widget.property("tab_id")
+            
             if existing_tab_id == tab_id:
                 self.central_widget.setCurrentIndex(i)
-                widget.deleteLater()
+                if existing_widget is not widget:
+                    widget.deleteLater()
                 return         
                   
-        if widget.property("tab_id") in ["library","archive","curtain","login"]:
+        if tab_id in ["library", "archive", "curtain"]:
             self.central_widget.addTab(widget, tab_text)
             self.central_widget.tabBar().setTabButton(0, QTabBar.ButtonPosition.RightSide, None)
             self.central_widget.tabBar().setTabButton(1, QTabBar.ButtonPosition.RightSide, None)
-
         else:
             index = self.central_widget.addTab(widget, tab_text)
-            self.central_widget.setCurrentIndex(index)
+            self.central_widget.setCurrentIndex(index)      
+                  
+
 
     #                   CLOSE TAB
     def central_widget_tab_close_function(self,index : int):

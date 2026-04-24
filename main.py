@@ -68,6 +68,7 @@ class AppManager():
         self.library_controller = LibraryController(self.database_manager,self.thread_pool,self.username)
         self.library_controller.ui_route_requested.connect(self.handle_add_new_tab_request)
         self.library_controller.calculation_successful.connect(self.handle_update_laplace_archive_request)
+        self.library_controller.calculation_successful.connect(self.handle_update_about_me_request)
         self.library_controller.init_laplaces_library()
 
         self.archive_controller = ArchiveController(self.database_manager,self.thread_pool,self.username,self.user_records_count)
@@ -77,7 +78,11 @@ class AppManager():
 
     def init_preferences_controller(self):
 
-        self.preferences_controller = PreferencesController(self.database_manager,self.thread_pool,self.settings_controller,self.username,self.user_preferences,self.remember_me_state,self.auth_token)
+        if hasattr(self, "preferences_controller"):
+            self.preferences_controller.init_preferences_ui()
+            return
+
+        self.preferences_controller = PreferencesController(self.database_manager, self.thread_pool, self.settings_controller, self.username, self.user_preferences, self.remember_me_state, self.auth_token)
         self.preferences_controller.ui_route_requested.connect(self.handle_add_new_tab_request)
         self.preferences_controller.preferred_language_update_requested.connect(self.handle_referred_language_update_request)
         self.preferences_controller.preferred_theme_update_requested.connect(self.handle_referred_theme_update_request)
@@ -85,8 +90,11 @@ class AppManager():
         self.preferences_controller.init_preferences_ui()
 
     def init_profile_controller(self):
+        if hasattr(self, "profile_controller"):
+            self.profile_controller.init_about_me_ui()
+            return
 
-        self.profile_controller = ProfileController(self.database_manager,self.thread_pool,self.username)
+        self.profile_controller = ProfileController(self.database_manager, self.thread_pool, self.username)
         self.profile_controller.ui_route_requested.connect(self.handle_add_new_tab_request)
         self.profile_controller.init_about_me_ui()
         
@@ -113,7 +121,11 @@ class AppManager():
         self.archive_controller.handle_update_laplace_archive(db_id,operation_data)
 
     def handle_update_about_me_request(self):
-        return
+        if hasattr(self, "profile_controller"):
+            self.profile_controller.handle_pull_user_stats()
+        else:
+            return
+        
     
     def handle_referred_language_update_request(self,new_preferred_language : str):
         self.window_controller.handle_preferred_languge_update(new_preferred_language)

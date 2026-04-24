@@ -117,59 +117,76 @@ class LaplaceArchiveUI(QWidget):
         self.archive_record_data_by_id_requested.emit(str(record_database_id))
 
     # LaplaceArchiveUI.request_archive_record_data_by_id --> LaplaceArchiveUI.init_new_archive_record_ui.init_new_archive_record_ui_requested --> AppManager.handle_add_new_archive_record_ui --> MainUI.add_new_archive_record_tab
-    def init_new_archive_record_ui(self,operation_data_by_id : list):
-
+    def init_new_archive_record_ui(self, operation_data_by_id: list):
         db_id = operation_data_by_id[0]
         date = operation_data_by_id[2]
         new_archive_record_operation_name = operation_data_by_id[3]
         variables = operation_data_by_id[4]
-        input_data = operation_data_by_id[5].replace("{","").replace("}","")
+        input_data = operation_data_by_id[5].replace("{", "").replace("}", "")
         output = operation_data_by_id[6]
 
         history_map = {
-            "Population Mean" : MeanHistoryUI,
-            "Sample Mean" : MeanHistoryUI,
-            "Population Variance" : VarianceHistoryUI,
-            "Sample Variance" : VarianceHistoryUI,
-            "Population Standard Deviation" : StandardDeviationHistoryUI,
-            "Sample Standard Deviation" : StandardDeviationHistoryUI,
-            "Percentile" : PercentileHistoryUI,
-            "Population Covariance" : CovarianceHistoryUI,
-            "Sample Covariance" : CovarianceHistoryUI,
-            "Correlation" : CorrelationHistoryUI,
-            "Mutually Exclusive" : AdditionRuleHistoryUI,
-            "Non Mutually Exclusive" : AdditionRuleHistoryUI,
-            "Independent Events" : MultiplicationRuleHistoryUI,
-            "Dependent Events" : MultiplicationRuleHistoryUI,
-            "Bayes" : BayesHistoryUI,
-            "Central Limit Theorem" : CentralLimitTheoremHistoryUI,
-            "Confidence Interval" : ConfidenceIntervalHistoryUI,
-            "Margin Of Error" : MarginOfErrorHistoryUI,
-            "Bernoulli Distribution" : BernoulliDistributionHistoryUI,
-            "Binomial Distribution" : BinomialDistributionHistoryUI,
-            "Poisson Distribution PMF" : PoissonDistributionHistoryUI,
-            "Poisson Distribution CDF" : PoissonDistributionHistoryUI,
-            "Normal Distribution PDF" : NormalDistributionHistoryUI,
-            "Normal Distribution CDF" : NormalDistributionHistoryUI,
-            "Standard Normal Distribution" : StandardNormalDistributionHistoryUI,
-            "Uniform Distribution PDF" : UniformDistributionHistoryUI,
-            "Uniform Distribution CDF" : UniformDistributionHistoryUI,
-            "Log Normal Distribution PDF" : LogNormalDistributionHistoryUI,
-            "Log Normal Distribution CDF" : LogNormalDistributionHistoryUI,
-            "Pareto Distribution PDF" : ParetoDistributionHistoryUI,
-            "Pareto Distribution CDF" : ParetoDistributionHistoryUI,
-            "Z Test" : zTestHistoryUI,
-            "Single Sample t Test" : tTestHistoryUI,
-            "Independent Sample t Test" : tTestHistoryUI,
-            "Paired Sample t test" : tTestHistoryUI,
-            "Chi Square Test" : ChiSquareTestHistoryUI,
-            "ANOVA" : AnovaHistoryUI,
+            "Population Mean": MeanHistoryUI,
+            "Sample Mean": MeanHistoryUI,
+            "Population Variance": VarianceHistoryUI,
+            "Sample Variance": VarianceHistoryUI,
+            "Population Standard Deviation": StandardDeviationHistoryUI,
+            "Sample Standard Deviation": StandardDeviationHistoryUI,
+            "Percentile": PercentileHistoryUI,
+            "Population Covariance": CovarianceHistoryUI,
+            "Sample Covariance": CovarianceHistoryUI,
+            "Correlation": CorrelationHistoryUI,
+            "Mutually Exclusive": AdditionRuleHistoryUI,
+            "Non Mutually Exclusive": AdditionRuleHistoryUI,
+            "Independent Events": MultiplicationRuleHistoryUI,
+            "Dependent Events": MultiplicationRuleHistoryUI,
+            "Bayes": BayesHistoryUI,
+            "Central Limit Theorem": CentralLimitTheoremHistoryUI,
+            "Confidence Interval": ConfidenceIntervalHistoryUI,
+            "Margin Of Error": MarginOfErrorHistoryUI,
+            "Bernoulli Distribution": BernoulliDistributionHistoryUI,
+            "Binomial Distribution": BinomialDistributionHistoryUI,
+            "Poisson Distribution PMF": PoissonDistributionHistoryUI,
+            "Poisson Distribution CDF": PoissonDistributionHistoryUI,
+            "Normal Distribution PDF": NormalDistributionHistoryUI,
+            "Normal Distribution CDF": NormalDistributionHistoryUI,
+            "Standard Normal Distribution": StandardNormalDistributionHistoryUI,
+            "Uniform Distribution PDF": UniformDistributionHistoryUI,
+            "Uniform Distribution CDF": UniformDistributionHistoryUI,
+            "Log Normal Distribution PDF": LogNormalDistributionHistoryUI,
+            "Log Normal Distribution CDF": LogNormalDistributionHistoryUI,
+            "Pareto Distribution PDF": ParetoDistributionHistoryUI,
+            "Pareto Distribution CDF": ParetoDistributionHistoryUI,
+            "Z Test": zTestHistoryUI,
+            "Single Sample t Test": tTestHistoryUI,
+            "Independent Sample t Test": tTestHistoryUI,
+            "Paired Sample t test": tTestHistoryUI,
+            "Chi Square Test": ChiSquareTestHistoryUI,
+            "ANOVA": AnovaHistoryUI,
         }
 
+        record_key = str(db_id)
+
+        if not hasattr(self, "open_archive_records"):
+            self.open_archive_records = {}
+
+        if record_key in self.open_archive_records:
+            existing_ui = self.open_archive_records[record_key]
+            try:
+                existing_ui.property("tab_id")
+                self.ui_route_requested.emit(existing_ui, f"{new_archive_record_operation_name} (ID : {db_id})", record_key)
+                return
+            except RuntimeError:
+                del self.open_archive_records[record_key]
+
         worker_class = history_map.get(new_archive_record_operation_name)
-        new_archive_record_ui = worker_class(str(db_id),date,new_archive_record_operation_name,variables,input_data,output,self.font_color)
-        new_archive_record_ui.setProperty("db_id",db_id)
-        self.ui_route_requested.emit(new_archive_record_ui,f"{new_archive_record_operation_name} (ID : {db_id})",str(db_id))
+        new_ui = worker_class(str(db_id), date, new_archive_record_operation_name, variables, input_data, output, self.font_color)
+        
+        new_ui.setProperty("tab_id", record_key)
+        new_ui.setProperty("db_id", db_id)
+        
+        self.open_archive_records[record_key] = new_ui
+        self.ui_route_requested.emit(new_ui, f"{new_archive_record_operation_name} (ID : {db_id})", record_key)
 
 
 

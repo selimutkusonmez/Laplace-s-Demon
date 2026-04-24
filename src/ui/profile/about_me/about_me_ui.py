@@ -124,6 +124,8 @@ class AboutMeUI(QWidget):
     #MainUI.about_me_action_function --> AppManager.handle_init_about_me_ui --> DatabaseManager.pull_user_stats --> AboutMeUI(current_user_stats)
     #OperationUI.calculation_success --> AppManager.handle_update_about_me_ui --> AboutMeUI.fill_user_stats(current_user_stats)
     def fill_user_stats(self,username,current_user_stats):
+        print(current_user_stats)
+        print("-----------------------------------")
         user_id = str(current_user_stats[1])
         account_opening_date = str(current_user_stats[2])
         last_successful_login_date = str(current_user_stats[3])
@@ -162,6 +164,7 @@ class AboutMeUI(QWidget):
                 self.operation_usage_table.setItem(i, 0, item)
         else:
             return
+        
 
 
 

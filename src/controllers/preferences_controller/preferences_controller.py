@@ -21,11 +21,17 @@ class PreferencesController(QObject):
         self.remember_me_state = remember_me_state
         self.auth_token = auth_token
 
-    def handle_apply_preferences(self):
-        self.preferences_ui.set_preferences(self.user_preferences,self.remember_me_state)
-
     def init_preferences_ui(self):
+        if hasattr(self, "preferences_ui"):
+            try:
+                self.preferences_ui.property("tab_id")
+                self.request_preferences_tab()
+                return
+            except RuntimeError:
+                pass
+
         self.preferences_ui = PreferencesUI()
+        self.preferences_ui.setProperty("tab_id", "preferences")
 
         self.preferences_ui.preferred_language_update_requested.connect(self.handle_referred_language_update)
         self.preferences_ui.preferred_language_update_requested.connect(self.preferred_language_update_requested)
@@ -38,12 +44,14 @@ class PreferencesController(QObject):
 
         self.preferences_ui.remember_me_state_update_requested.connect(self.handle_remember_state_update)
 
-        self.preferences_ui.setProperty("tab_id","preferences")
-
         self.handle_apply_preferences()
+        self.request_preferences_tab()
 
+    def request_preferences_tab(self):
         self.ui_route_requested.emit(self.preferences_ui,"Preferences","preferences")
 
+    def handle_apply_preferences(self):
+        self.preferences_ui.set_preferences(self.user_preferences,self.remember_me_state)
 
     def handle_referred_language_update(self, new_prefered_language : str):
         self.user_preferences[0] = new_prefered_language
