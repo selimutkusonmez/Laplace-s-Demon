@@ -1,5 +1,5 @@
 from PyQt6.QtCore import QSize,pyqtSignal,Qt,QDate
-from PyQt6.QtWidgets import QWidget,QListWidget,QHBoxLayout,QListWidgetItem,QVBoxLayout,QGroupBox,QLabel,QDateEdit,QPushButton,QGridLayout
+from PyQt6.QtWidgets import QWidget,QListWidget,QHBoxLayout,QListWidgetItem,QVBoxLayout,QGroupBox,QLabel,QDateEdit,QPushButton,QGridLayout,QComboBox
 from PyQt6.QtGui import QIcon
 from src.ui.operation_ui import *
 from src.assets.style.style_reader.get_icon import get_archive_record_icon
@@ -39,7 +39,7 @@ class LaplaceArchiveUI(QWidget):
 
         self.upper_groupbox_layout.addStretch()
 
-        self.upper_groupbox_layout.addWidget(QLabel("Log Count :"))
+        self.upper_groupbox_layout.addWidget(QLabel("Total Archive Records :"))
         self.laplace_archive_records_count_label = QLabel(str(self.laplace_archive_records_count))
         self.upper_groupbox_layout.addWidget(self.laplace_archive_records_count_label)
 
@@ -61,6 +61,14 @@ class LaplaceArchiveUI(QWidget):
         self.end_date.setCalendarPopup(True)
         self.end_date.setMaximumDate(today)
         self.upper_groupbox_layout.addWidget(self.end_date)
+
+        self.upper_groupbox_layout.addStretch()
+
+        self.choose_operation_combobox = QComboBox()
+        self.choose_operation_combobox.addItem("Choose spesific operation logs")
+        self.choose_operation_combobox.addItem("All")
+        self.choose_operation_combobox.addItem("Population Mean")
+        self.upper_groupbox_layout.addWidget(self.choose_operation_combobox)
 
         self.upper_groupbox_layout.addStretch()
 
@@ -108,7 +116,6 @@ class LaplaceArchiveUI(QWidget):
                 archive_record = f"{db_id} | {date} | {operation} | {variables}"
                 archive_record = QListWidgetItem(archive_record)
                 archive_record.setData(Qt.ItemDataRole.UserRole,db_id)
-                print(operation)
                 icon = get_archive_record_icon(operation)
                 archive_record.setIcon(icon)
                 self.archive_records_list.addItem(archive_record)

@@ -95,7 +95,7 @@ class BaseArchiveRecordUI(QWidget):
         self.toggle_lower = True  
 
     def render_latex(self, formula_string: str):
-        fig = plt.figure(figsize=(4, 1), dpi=500)
+        fig = plt.figure(figsize=(4, 1), dpi=1000)
         fig.patch.set_alpha(0.0)
         
         fig.text(0.5, 0.5, formula_string, ha='center', va='center', math_fontfamily='cm', color = self.font_color)

@@ -95,6 +95,7 @@ class AboutMeUI(QWidget):
         self.layout.addWidget(self.operation_usage_list_groupbox,2,1)
 
         self.operation_usage_list = QListWidget()
+        self.operation_usage_list.addItem("On double click open spesific operation logs")
         self.operation_usage_list.setProperty("class","list")
         self.operation_usage_list.setIconSize(QSize(100,100))
         self.operation_usage_list_groupbox_layout.addWidget(self.operation_usage_list)
@@ -131,6 +132,8 @@ class AboutMeUI(QWidget):
                 icon = get_archive_record_icon(operation)
                 operation_count.setIcon(icon)
                 self.operation_usage_list.addItem(operation_count)
+
+
 
         
 

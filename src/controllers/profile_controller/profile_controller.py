@@ -19,9 +19,6 @@ class ProfileController(QObject):
         self.thread_pool.start(worker)
 
     def handle_apply_user_stats(self,user_stats):
-        
-        print(user_stats)
-        print("-----------------------------------")
         self.about_me_ui.fill_user_stats(self.username,user_stats)
     
     def init_about_me_ui(self):

@@ -142,8 +142,13 @@ class MainUI(QMainWindow):
         
     #PreferencesUI.save_preferred_language.change_preferred_font_color_request --> MainUI.change_preferred_font_color_function
     def change_preferred_font_color_function(self,preferred_color : str):
-        return
-        self.color_change_requested.emit(preferred_color)
+        print(preferred_color)
+        for i in range(self.central_widget.count()):
+            widget = self.central_widget.widget(i)
+            if hasattr(widget,"change_color"):
+                widget.change_color(preferred_color)
+            if hasattr(widget,"font_color"):
+                widget.font_color = preferred_color
 
     def preferences_action_function(self):
         self.preferences_ui_requested.emit()
