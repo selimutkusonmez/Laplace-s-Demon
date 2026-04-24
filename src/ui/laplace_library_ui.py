@@ -3,7 +3,7 @@ import os
 from PyQt6.QtCore import QSize,pyqtSignal,Qt
 from PyQt6.QtWidgets import QWidget,QListWidget,QHBoxLayout,QListWidgetItem,QMessageBox
 from PyQt6.QtGui import QIcon
-from config import JPG_PATH
+from src.assets.style.style_reader.get_icon import get_icon
 
 class LaplaceLibraryUI(QWidget):
 
@@ -11,7 +11,6 @@ class LaplaceLibraryUI(QWidget):
 
     def __init__(self,font_color : str = "black"):
         super().__init__()
-        self.icons_dir = os.path.join(JPG_PATH,"icons")
         self.font_color = font_color
         self.init_ui()
      
@@ -77,7 +76,7 @@ class LaplaceLibraryUI(QWidget):
         # Applying Icons
         for key in self.subjects_dict.keys():
             list_1_item = QListWidgetItem(key)
-            icon = self.get_icon(key,"main_subjects")
+            icon = get_icon(key,"main_subjects")
             list_1_item.setIcon(icon)
             self.subjects_list_1.addItem(list_1_item)
 
@@ -114,7 +113,7 @@ class LaplaceLibraryUI(QWidget):
         # sub subjects added to the subjects_list_2 with icons
         for i in self.subjects_dict[item.text()]:
             list_2_item = QListWidgetItem(i[0])
-            icon = self.get_icon(i[0],"sub_subjects")
+            icon = get_icon(i[0],"sub_subjects")
             list_2_item.setIcon(icon)
             self.subjects_list_2.addItem(list_2_item)
 
@@ -140,7 +139,7 @@ class LaplaceLibraryUI(QWidget):
         # operations added to the subjects_list_3 with icons
         for i in self.subjects_dict[self.main_subject][self.subjects_list_2.row(item)][1:]:
             list_3_item = QListWidgetItem(i)
-            icon = self.get_icon("operations","operations")
+            icon = get_icon("operations","operations")
             list_3_item.setIcon(icon)
             self.subjects_list_3.addItem(list_3_item)
 

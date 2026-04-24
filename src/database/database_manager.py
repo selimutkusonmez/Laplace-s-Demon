@@ -59,22 +59,13 @@ class DatabaseManager(QObject):
 
     def save_user_log(self,username : str, attempt : str) -> None:
         try:
-            mac_adress = get_mac_address()
-            hostname = socket.gethostname()
-            ip_adress = socket.gethostbyname(hostname)
-        
-        except:
-            mac_adress = "Offline"
-            hostname = "Offline"
-            ip_adress = "Offline"
-        try:
             query = """
-                    INSERT INTO logs (user_id,ip_adress,mac_adress,attempt)
+                    INSERT INTO logs (user_id,attempt)
                     VALUES (
-                            (SELECT id FROM users WHERE username = %s), %s, %s, %s
+                            (SELECT id FROM users WHERE username = %s), %s
                     )
                     """
-            self.cursor.execute(query,(username,ip_adress,mac_adress,attempt))
+            self.cursor.execute(query,(username,attempt))
             self.conn.commit()
 
         except Exception as e:
@@ -182,7 +173,7 @@ class DatabaseManager(QObject):
             return "An Error Occured With System"
 
 
-    #                   SAVE OPERATION DATA -- GET OPERATION DATA BY ID OR DATE -- COUNT TOTAL OPERATION BASED ON user_id (operation_history table)
+    #                   SAVE OPERATION DATA -- GET OPERATION DATA BY ID OR DATE -- COUNT TOTAL OPERATION BASED ON user_id (laplace_archive table)
 
     # NewOperationUI.calculation_success --> AppManager.handle_new_archive_record --> DatabaseManager.save_archive_record
     def save_archive_record(self, username : str, operation_data : list) -> str:
@@ -194,7 +185,7 @@ class DatabaseManager(QObject):
 
         try:
             query = """
-                    INSERT INTO operation_history (user_id,date,operation,variables,input_data,output)
+                    INSERT INTO laplace_archive (user_id,date,operation,variables,input_data,output)
                     VALUES (
                             (SELECT id FROM users WHERE username = %s), %s, %s, %s, %s, %s
                     ) RETURNING id;
@@ -217,7 +208,7 @@ class DatabaseManager(QObject):
     def return_archive_records_by_date(self, username : str,start_date : str, end_date : str) -> list:
         try:
             query = """
-                    SELECT id,date,operation,variables FROM operation_history
+                    SELECT id,date,operation,variables FROM laplace_archive
                     WHERE user_id = (SELECT id FROM users WHERE username = %s)
                     AND date::date BETWEEN %s AND %s ORDER BY date DESC
                     """
@@ -232,7 +223,7 @@ class DatabaseManager(QObject):
     def return_archive_record_data_by_id(self, db_id : str) -> list:
         try:
             query = """
-                    SELECT * FROM operation_history WHERE id = %s
+                    SELECT * FROM laplace_archive WHERE id = %s
                     """
             self.cursor.execute(query,(db_id,))
             log_by_id_data = self.cursor.fetchall()
@@ -244,7 +235,7 @@ class DatabaseManager(QObject):
     def pull_archive_records_count(self, username : str) -> str:
         try:
             query = """
-            SELECT COUNT(user_id) FROM operation_history
+            SELECT COUNT(user_id) FROM laplace_archive
             WHERE user_id = (SELECT id FROM users WHERE username = %s)
             """
             self.cursor.execute(query, (username,))

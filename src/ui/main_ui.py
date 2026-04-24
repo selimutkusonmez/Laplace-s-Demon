@@ -2,13 +2,11 @@ import sys
 import os
 import subprocess
 from PyQt6.QtCore import pyqtSignal,Qt
-from PyQt6.QtWidgets import QApplication,QMainWindow,QMessageBox,QTabWidget,QStatusBar,QColorDialog,QWidget,QToolButton,QMenu,QTabBar
-from PyQt6.QtGui import QAction,QActionGroup,QIcon
+from PyQt6.QtWidgets import QApplication,QMainWindow,QMessageBox,QTabWidget,QWidget,QToolButton,QMenu,QTabBar
+from PyQt6.QtGui import QAction,QIcon
 from src.assets.style.style_reader.style_reader import read_style
 from config import JPG_PATH
 
-from src.ui.profile.about_me.about_me_ui import AboutMeUI
-from src.ui.profile.preferences.preferences_ui import PreferencesUI
 
 class MainUI(QMainWindow):
 

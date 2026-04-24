@@ -2,7 +2,7 @@ from PyQt6.QtCore import QSize,pyqtSignal,Qt,QDate
 from PyQt6.QtWidgets import QWidget,QListWidget,QHBoxLayout,QListWidgetItem,QVBoxLayout,QGroupBox,QLabel,QDateEdit,QPushButton,QGridLayout
 from PyQt6.QtGui import QIcon
 from src.ui.operation_ui import *
-
+from src.assets.style.style_reader.get_icon import get_archive_record_icon
 
 class LaplaceArchiveUI(QWidget):
 
@@ -74,6 +74,7 @@ class LaplaceArchiveUI(QWidget):
         self.layout.addWidget(self.lower_groupbox)
 
         self.archive_records_list = QListWidget()
+        self.archive_records_list.setIconSize(QSize(100,100))
         self.archive_records_list.setProperty("class","list")
         self.archive_records_list.itemDoubleClicked.connect(self.request_archive_record_data_by_id)
         self.lower_groupbox_layout.addWidget(self.archive_records_list,0,0,1,2)
@@ -107,6 +108,9 @@ class LaplaceArchiveUI(QWidget):
                 archive_record = f"{db_id} | {date} | {operation} | {variables}"
                 archive_record = QListWidgetItem(archive_record)
                 archive_record.setData(Qt.ItemDataRole.UserRole,db_id)
+                print(operation)
+                icon = get_archive_record_icon(operation)
+                archive_record.setIcon(icon)
                 self.archive_records_list.addItem(archive_record)
 
 

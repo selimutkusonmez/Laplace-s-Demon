@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- HISTORY TABLE --
-CREATE TABLE IF NOT EXISTS operation_history (
+CREATE TABLE IF NOT EXISTS laplace_archive (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -22,8 +22,6 @@ CREATE TABLE IF NOT EXISTS operation_history (
 CREATE TABLE IF NOT EXISTS logs (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    ip_adress varchar(255),
-    mac_adress varchar(255),
     attempt varchar(20),
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -43,11 +41,7 @@ CREATE TABLE IF NOT EXISTS user_stats (
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     account_opening_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_successful_login_date TIMESTAMP DEFAULT NULL,
-    last_successful_login_ip varchar(255) DEFAULT NULL,
-    last_successful_login_mac varchar(255) DEFAULT NULL,
     last_failed_login_date TIMESTAMP DEFAULT NULL,
-    last_failed_login_ip varchar(255) DEFAULT NULL,
-    last_failed_login_mac varchar(255) DEFAULT NULL,
     total_operation_usage INTEGER DEFAULT 0,
     operation_usage_counts JSONB DEFAULT '{}'::jsonb,
     most_used_operation varchar(50) DEFAULT NULL,
@@ -80,16 +74,12 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.attempt = 'successful' THEN
         UPDATE user_stats
-        SET last_successful_login_date = NEW.date,
-            last_successful_login_ip = NEW.ip_adress,
-            last_successful_login_mac = NEW.mac_adress
+        SET last_successful_login_date = NEW.date
         WHERE user_id = NEW.user_id;
         
     ELSIF NEW.attempt = 'failed' THEN
         UPDATE user_stats
-        SET last_failed_login_date = NEW.date,
-            last_failed_login_ip = NEW.ip_adress,
-            last_failed_login_mac = NEW.mac_adress
+        SET last_failed_login_date = NEW.date
         WHERE user_id = NEW.user_id;
     END IF;
 
@@ -136,6 +126,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER after_operation_insert
-AFTER INSERT ON operation_history
+AFTER INSERT ON laplace_archive
 FOR EACH ROW
 EXECUTE FUNCTION update_operation_analytics();
