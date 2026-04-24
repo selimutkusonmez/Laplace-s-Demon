@@ -87,6 +87,7 @@ class MainUI(QMainWindow):
         self.profile_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
 
         self.profile_menu = QMenu()
+        self.profile_menu.setObjectName("profile_menu")
 
         self.about_me_action = QAction("About Me",self)
         self.about_me_action.triggered.connect(self.about_me_action_function)

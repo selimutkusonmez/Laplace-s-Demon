@@ -19,13 +19,10 @@ QTabWidget::tab-bar {
 QTabBar::tab {
     background-color: #F6F8FA;
     color: #24292F;
-    padding: 8px 20px;
+    padding: 6px 20px;
     border: 1px solid #D0D7DE;
     border-bottom: none;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    margin-right: 2px;
-    font-size: 14px;
+    font-size: 12px;
 }
 QTabBar::tab:hover {
     background-color: #EBEEF1;
@@ -35,9 +32,7 @@ QTabBar::tab:selected {
     background-color: #3B82F6;
     color: #FFFFFF;
 }
-QTabBar::tab:!selected {
-    margin-top: 2px;
-}
+
 QListWidget[class="list"] {
     background-color: #F6F8FA;
     border: 1px solid #D0D7DE;
@@ -94,13 +89,12 @@ QMenuBar {
     background-color: transparent;
     border: none;
     border-bottom: 1px solid #D0D7DE;
-    padding: 2px;
-    font-size: 14px;
+    padding: 1px;
+    font-size: 12px;
 }
 QMenuBar::item {
     background-color: transparent;
     padding: 6px 12px;
-    border-radius: 4px;
 }
 QMenuBar::item:selected {
     background-color: #EBEEF1;
