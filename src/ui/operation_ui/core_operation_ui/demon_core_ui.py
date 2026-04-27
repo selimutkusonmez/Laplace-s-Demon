@@ -45,6 +45,11 @@ class DemonCore(QWidget):
         self.calculate_button = QPushButton("Calculate")
         self.calculate_button.clicked.connect(self.handle_calculation)
 
+        self.reset_input_button = QPushButton("Reset Current Input")
+        self.reset_input_button.clicked.connect(self.reset_input_function)
+
+
+
 
         #Middle GroupBox
         self.middle_groupbox = QGroupBox()
@@ -125,7 +130,9 @@ class DemonCore(QWidget):
     def update_display(self):
         raise NotImplementedError("Subclasses must implement this!")
 
-
+    def reset_input_function(self):
+        raise NotImplementedError("Subclasses must implement this!")
+    
     # All childs must have calculate_function
     def calculate_function(self):
         raise NotImplementedError("Subclasses must implement this!")

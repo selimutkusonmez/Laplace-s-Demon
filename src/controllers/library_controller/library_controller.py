@@ -9,15 +9,16 @@ class LibraryController(QObject):
 
     calculation_successful = pyqtSignal(int, list)
 
-    def __init__(self,database_manager,thread_pool,username):
+    def __init__(self,database_manager,thread_pool,username,font_color):
         super().__init__()
         self.database_manager = database_manager
         self.thread_pool = thread_pool
         self.username = username
+        self.font_color = font_color
         
 
     def init_laplaces_library(self):
-        self.laplaces_library = LaplaceLibraryUI()
+        self.laplaces_library = LaplaceLibraryUI(self.font_color)
         self.laplaces_library.setProperty("tab_id","library")
         self.laplaces_library.ui_route_requested.connect(self.handle_new_operation_tab)
         self.ui_route_requested.emit(self.laplaces_library,"Laplace's Library","library")

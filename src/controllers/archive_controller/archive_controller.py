@@ -9,15 +9,16 @@ class ArchiveController(QObject):
 
     change_tab_requested = pyqtSignal(str)
 
-    def __init__(self,database_manager,thread_pool,username,user_records_count):
+    def __init__(self,database_manager,thread_pool,username,user_records_count,font_color):
         super().__init__()
         self.database_manager = database_manager
         self.thread_pool = thread_pool
         self.username = username
         self.user_records_count = user_records_count
+        self.font_color = font_color
 
     def init_laplaces_archive(self):
-        self.laplaces_archive = LaplaceArchiveUI(self.username,self.user_records_count)
+        self.laplaces_archive = LaplaceArchiveUI(self.username,self.user_records_count,self.font_color)
         self.laplaces_archive.setProperty("tab_id","archive")
         self.laplaces_archive.ui_route_requested.connect(self.ui_route_requested)
         self.laplaces_archive.archive_records_by_date_requested.connect(self.handle_archive_records_by_date)

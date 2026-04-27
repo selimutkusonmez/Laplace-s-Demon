@@ -45,8 +45,6 @@ class BaseOperationTabUI(DemonCore):
 
         self.inputs_tab_widget.addTab(self.table_tab,"Table Data")
 
-        self.reset_input_button = QPushButton("Reset Current Input")
-        self.reset_input_button.clicked.connect(self.reset_input_function)
         self.left_groupbox_layout.addWidget(self.reset_input_button,1,0)
 
         self.left_groupbox_layout.addWidget(self.calculate_button,1,1)

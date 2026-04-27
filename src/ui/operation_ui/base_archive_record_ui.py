@@ -16,6 +16,7 @@ class BaseArchiveRecordUI(QWidget):
         self.input_data = input_data
         self.output = output
         self.font_color = font_color
+        print(self.font_color)
         self.init_ui()
 
     def init_ui(self):
